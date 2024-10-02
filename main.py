@@ -12,6 +12,8 @@ clock = pygame.time.Clock()
 
 pygame.display.set_caption("Maze Game")
 
+character_image_sheet = pygame.image.load("assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png").convert_alpha()
+
 def game():
     # Game loop logic
     while True:
@@ -21,6 +23,8 @@ def game():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+
+        screen.blit(character_image_sheet, (0, 10))
 
         clock.tick(FPS)
         pygame.display.update() 
