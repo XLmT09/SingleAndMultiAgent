@@ -5,9 +5,11 @@ pygame.init()
 # Constants
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 1000
+FPS = 60
 
-# Setting size for the window/Dispaly
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+clock = pygame.time.Clock()
+
 pygame.display.set_caption("Maze Game")
 
 def game():
@@ -20,6 +22,7 @@ def game():
                 pygame.quit()
                 quit()
 
+        clock.tick(FPS)
         pygame.display.update() 
 
 game()
