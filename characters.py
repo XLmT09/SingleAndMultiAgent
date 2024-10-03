@@ -3,8 +3,8 @@ import pygame
 BLACK = (0, 0, 0)
 
 class Player:
-    def __init__(self, width, height, animation_steps):
-        self.sprite_sheet = pygame.image.load("assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png").convert_alpha()
+    def __init__(self, sprite_sheet, width, height, animation_steps):
+        self.sprite_sheet = pygame.image.load(sprite_sheet).convert_alpha()
         self.width = width
         self.height = height
         self.steps = animation_steps
