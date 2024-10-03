@@ -21,24 +21,18 @@ cave_bg = pygame.image.load(r"assets\images\background\cave.png").convert_alpha(
 
 
 def game():
-    player = Player()
-    animation_list = []
-    steps = 4
+    player = Player(CHARACTER_WIDTH, CHARACTER_HEIGHT, 4)
     last_update = pygame.time.get_ticks()
     cooldown = 120
-    frame = 0
-
-    for step in range(steps):
-        animation_list.append(player.load_image(2, step, 32, 32))
 
     # Game loop logic
     while True:
+        update_frame = False
+
         current_time = pygame.time.get_ticks()
         if current_time - last_update >= cooldown:
-            frame += 1
             last_update = current_time
-            if frame == 4:
-                frame = 0
+            update_frame = True
 
         screen.blit(cave_bg, (0,0))
 
@@ -48,7 +42,7 @@ def game():
                 pygame.quit()
                 quit()
         
-        screen.blit(animation_list[frame], (0, 0))
+        player.draw_animation(screen, update_frame)
 
         clock.tick(FPS)
         pygame.display.update() 
