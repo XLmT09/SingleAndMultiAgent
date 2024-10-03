@@ -3,8 +3,10 @@ import pygame
 pygame.init()
 
 # Constants
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 1000
+SCREEN_WIDTH = 1400
+SCREEN_HEIGHT = 800
+CHARACTER_WIDTH = 32
+CHARACTER_HEIGHT = 32
 FPS = 60
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -28,7 +30,7 @@ def game():
                 pygame.quit()
                 quit()
 
-        screen.blit(character_image_sheet, (0, 10))
+        screen.blit(character_image_sheet, (0, 0), (0, 0, CHARACTER_WIDTH, CHARACTER_HEIGHT))
 
         clock.tick(FPS)
         pygame.display.update() 
