@@ -19,6 +19,14 @@ character_image_sheet = pygame.image.load("assets\images\characters\Dude_Monster
 # Background image for the game
 cave_bg = pygame.image.load(r"assets\images\background\cave.png").convert_alpha()
 
+def load_image(character_image_sheet, scale):
+    image = pygame.Surface((CHARACTER_WIDTH, CHARACTER_HEIGHT)).convert_alpha()
+    image.blit(character_image_sheet, (0, 0), (0, 0, CHARACTER_WIDTH, SCREEN_HEIGHT))
+    image = pygame.transform.scale(image, (CHARACTER_WIDTH * scale, CHARACTER_HEIGHT * scale))
+
+    return image
+
+
 def game():
     # Game loop logic
     while True:
@@ -30,8 +38,7 @@ def game():
                 pygame.quit()
                 quit()
 
-        screen.blit(character_image_sheet, (0, 0), (0, 0, CHARACTER_WIDTH, CHARACTER_HEIGHT))
-
+        screen.blit(load_image(character_image_sheet, 2), (0,0))
         clock.tick(FPS)
         pygame.display.update() 
 
