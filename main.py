@@ -8,6 +8,7 @@ SCREEN_HEIGHT = 800
 CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32
 FPS = 60
+BLACK = (0, 0, 0)
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
@@ -23,7 +24,8 @@ def load_image(character_image_sheet, scale):
     image = pygame.Surface((CHARACTER_WIDTH, CHARACTER_HEIGHT)).convert_alpha()
     image.blit(character_image_sheet, (0, 0), (0, 0, CHARACTER_WIDTH, SCREEN_HEIGHT))
     image = pygame.transform.scale(image, (CHARACTER_WIDTH * scale, CHARACTER_HEIGHT * scale))
-
+    image.set_colorkey(BLACK)
+    
     return image
 
 
