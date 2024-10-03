@@ -1,6 +1,7 @@
 import pygame
 
 TILE_SIZE = 50
+WHITE = (255, 255, 255)
 
 class World:
     def __init__(self, world_data):
@@ -26,8 +27,16 @@ class World:
                 col_cnt += 1
             row_cnt += 1
 
+    def draw_grid(self, screen, screen_height, screen_width):
+        for line in range(29):
+            #vertical lines
+            pygame.draw.line(screen, WHITE, (line * TILE_SIZE, 0), (line * TILE_SIZE, screen_height))
+            #horizontal lines
+            pygame.draw.line(screen, WHITE, (0, line * TILE_SIZE), (screen_width, line * TILE_SIZE))
+
     def load_world(self, screen):
         for tile in self.tile_list:
             screen.blit(tile[0], tile[1])
 
         return self.tile_list
+    
