@@ -1,4 +1,5 @@
 import pygame
+from characters import Player
 
 pygame.init()
 
@@ -15,23 +16,30 @@ clock = pygame.time.Clock()
 
 pygame.display.set_caption("Maze Game")
 
-character_image_sheet = pygame.image.load("assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png").convert_alpha()
-
 # Background image for the game
 cave_bg = pygame.image.load(r"assets\images\background\cave.png").convert_alpha()
 
-def load_image(character_image_sheet, scale):
-    image = pygame.Surface((CHARACTER_WIDTH, CHARACTER_HEIGHT)).convert_alpha()
-    image.blit(character_image_sheet, (0, 0), (0, 0, CHARACTER_WIDTH, SCREEN_HEIGHT))
-    image = pygame.transform.scale(image, (CHARACTER_WIDTH * scale, CHARACTER_HEIGHT * scale))
-    image.set_colorkey(BLACK)
-    
-    return image
-
 
 def game():
+    player = Player()
+    animation_list = []
+    steps = 4
+    last_update = pygame.time.get_ticks()
+    cooldown = 120
+    frame = 0
+
+    for step in range(steps):
+        animation_list.append(player.load_image(2, step, 32, 32))
+
     # Game loop logic
     while True:
+        current_time = pygame.time.get_ticks()
+        if current_time - last_update >= cooldown:
+            frame += 1
+            last_update = current_time
+            if frame == 4:
+                frame = 0
+
         screen.blit(cave_bg, (0,0))
 
         # Event handling
@@ -39,8 +47,9 @@ def game():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+        
+        screen.blit(animation_list[frame], (0, 0))
 
-        screen.blit(load_image(character_image_sheet, 2), (0,0))
         clock.tick(FPS)
         pygame.display.update() 
 
