@@ -20,19 +20,19 @@ class Player:
         
         return image
 
-    def draw_animation(self, screen, update_frame):
+    def draw_animation(self, screen, rect, update_frame):
         # Update the frame once frame rate reached
         # Once recah the end of the animation steps go back to the beggining
         if update_frame: 
             self.frame_counter = (self.frame_counter + 1) % self.steps
     
-        screen.blit(self.animation_list[self.frame_counter], (0, 0))
+        screen.blit(self.animation_list[self.frame_counter], rect)   
 
 class CharacterAnimationManager:
     def __init__(self, width, height, x = 0, y = 0):
         self.width = width
         self.height = height
-        self.rect = pygame.Rect(x, y, width * 2, height * 2)
+        self.rect = pygame.Rect(x, y, width, height)
         self.animation_actions = {}
         self.requested_animation = "idle"
 
@@ -40,5 +40,16 @@ class CharacterAnimationManager:
         self.animation_actions[animation_desciption] = Player(sprite_sheet, self.width, self.height, animation_steps)
     
     def draw_animation(self, screen, update_frame):
-        self.animation_actions[self.requested_animation].draw_animation(screen, update_frame)
+        dx = 0 
+
+        key = pygame.key.get_pressed()
+
+        if key[pygame.K_RIGHT]:
+            dx += 1
+        if key[pygame.K_LEFT]:
+            dx -= 1
+        
+        self.rect.x += dx
+
+        self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame)
         
