@@ -40,13 +40,16 @@ class CharacterAnimationManager:
         self.animation_actions[animation_desciption] = Player(sprite_sheet, self.width, self.height, animation_steps)
     
     def draw_animation(self, screen, update_frame):
+        self.requested_animation = "idle"
         dx = 0 
 
         key = pygame.key.get_pressed()
 
         if key[pygame.K_RIGHT]:
+            self.requested_animation = "walk"
             dx += 1
         if key[pygame.K_LEFT]:
+            self.requested_animation = "walk"
             dx -= 1
         
         self.rect.x += dx
