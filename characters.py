@@ -1,6 +1,7 @@
 import pygame
 
 BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
 
 class Player:
     def __init__(self, sprite_sheet, width, height, animation_steps):
@@ -110,6 +111,9 @@ class CharacterAnimationManager:
         self.rect.y += dy
         self.hitbox_rect.x += dx
         self.hitbox_rect.y += dy
+
+        pygame.draw.rect(screen, WHITE, self.rect, 2)
+        pygame.draw.rect(screen, WHITE, self.hitbox_rect, 2)
 
         self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame, self.look_left)
         
