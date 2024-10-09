@@ -14,7 +14,14 @@ class Diamond(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        
+
+    def update(self, speed):
+        self.current_sprite += speed
+        if int(self.current_sprite) >= len(self.sprites):
+            self.current_sprite = 0
+
+        self.image = self.sprites[int(self.current_sprite)]
+
 class World:
     def __init__(self, world_data):
         self.data = world_data
@@ -54,6 +61,7 @@ class World:
         for tile in self.tile_list:
             screen.blit(tile[0], tile[1])
         self.diamond_group.draw(screen)
+        self.diamond_group.update(0.2)
 
         return self.tile_list
     
