@@ -35,13 +35,15 @@ class CharacterAnimationManager:
         self.rect = pygame.Rect(x, y, width, height)
         self.animation_actions = {}
         self.requested_animation = "idle"
+        self.vel_y = 0
+        self.jumped = False
 
     def set_char_animation(self, animation_desciption, sprite_sheet, animation_steps):
         self.animation_actions[animation_desciption] = Player(sprite_sheet, self.width, self.height, animation_steps)
     
     def draw_animation(self, screen, update_frame):
         self.requested_animation = "idle"
-        dx = 0 
+        dx, dy = 0, 0 
 
         key = pygame.key.get_pressed()
 
@@ -51,8 +53,24 @@ class CharacterAnimationManager:
         if key[pygame.K_LEFT]:
             self.requested_animation = "walk"
             dx -= 1
+        if key[pygame.K_SPACE] and self.jumped == False:
+            self.requested_animation = "jump"
+            self.vel_y = -15
+            self.jumped = True
+        if key[pygame.K_SPACE] == False:
+            self.jumped = False
         
+        self.vel_y += 1
+        if self.vel_y > 10:
+            self.vel_y = 10
+        dy += self.vel_y
+
+        # Stick with jump animation while still in air
+        if self.vel_y != 0:
+            self.requested_animation = "jump"
+
         self.rect.x += dx
+        self.rect.y += dy
 
         self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame)
         
