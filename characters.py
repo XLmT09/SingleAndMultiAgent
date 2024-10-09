@@ -77,6 +77,9 @@ class CharacterAnimationManager:
 
         # check for maze collisons
         for tile in world_tile_data:
+            # check for collision in x direction
+            if tile[1].colliderect(self.hitbox_rect.x + dx, self.hitbox_rect.y, self.hitbox_width, self.hitbox_height):
+                dx = 0
             # check for y direction collisons
             if tile[1].colliderect(self.hitbox_rect.x, self.hitbox_rect.y + dy, self.hitbox_width, self.hitbox_height):
                 # check if below the ground
@@ -94,6 +97,7 @@ class CharacterAnimationManager:
 
         self.rect.x += dx
         self.rect.y += dy
+        self.hitbox_rect.x += dx
         self.hitbox_rect.y += dy
 
         self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame)
