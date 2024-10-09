@@ -56,13 +56,6 @@ def game():
 
     # Game loop logic
     while True:
-        update_frame = False
-
-        current_time = pygame.time.get_ticks()
-        if current_time - last_update >= cooldown:
-            last_update = current_time
-            update_frame = True
-
         screen.blit(cave_bg, (0,0))
 
         # Event handling
@@ -73,7 +66,7 @@ def game():
         
         world_data = world.load_world(screen)
         world.draw_grid(screen, SCREEN_HEIGHT, SCREEN_WIDTH)
-        player.draw_animation(screen, world_data, update_frame)
+        player.draw_animation(screen, world_data)
 
         clock.tick(FPS)
         pygame.display.update() 

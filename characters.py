@@ -2,6 +2,8 @@ import pygame
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+ANIMATION_COOLDOWN = 120
+
 
 class Player:
     def __init__(self, sprite_sheet, width, height, animation_steps):
@@ -54,6 +56,7 @@ class CharacterAnimationManager:
 
         self.animation_actions = {}
         self.requested_animation = "idle"
+        self.last_update = pygame.time.get_ticks()
         self.vel_y = 0
         self.look_left = False
         self.jumped = False
@@ -61,9 +64,15 @@ class CharacterAnimationManager:
     def set_char_animation(self, animation_desciption, sprite_sheet, animation_steps):
         self.animation_actions[animation_desciption] = Player(sprite_sheet, self.width, self.height, animation_steps)
     
-    def draw_animation(self, screen, world_tile_data, update_frame):
+    def draw_animation(self, screen, world_tile_data):
         self.requested_animation = "idle"
+        update_frame = False
+        current_time = pygame.time.get_ticks()
         dx, dy = 0, 0 
+
+        if current_time - self.last_update >= ANIMATION_COOLDOWN:
+            self.last_update = current_time
+            update_frame = True
 
         key = pygame.key.get_pressed()
 
