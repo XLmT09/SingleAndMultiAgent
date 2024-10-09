@@ -71,9 +71,9 @@ def game():
                 pygame.quit()
                 quit()
         
-        world.load_world(screen)
+        world_data = world.load_world(screen)
         world.draw_grid(screen, SCREEN_HEIGHT, SCREEN_WIDTH)
-        player.draw_animation(screen, update_frame)
+        player.draw_animation(screen, world_data, update_frame)
 
         clock.tick(FPS)
         pygame.display.update() 

@@ -33,6 +33,16 @@ class CharacterAnimationManager:
         self.width = width
         self.height = height
         self.rect = pygame.Rect(x, y, width, height)
+
+        # character hitbox
+        # add offset to width and height to make hitbox smaller
+        self.hitbox_width = width + 4
+        self.hitbox_height = height + 23
+        self.hitbox_rect = pygame.Rect(x + 13, 
+                                       y + 10, 
+                                       self.hitbox_width, 
+                                       self.hitbox_height)
+
         self.animation_actions = {}
         self.requested_animation = "idle"
         self.vel_y = 0
@@ -41,7 +51,7 @@ class CharacterAnimationManager:
     def set_char_animation(self, animation_desciption, sprite_sheet, animation_steps):
         self.animation_actions[animation_desciption] = Player(sprite_sheet, self.width, self.height, animation_steps)
     
-    def draw_animation(self, screen, update_frame):
+    def draw_animation(self, screen, world_tile_data, update_frame):
         self.requested_animation = "idle"
         dx, dy = 0, 0 
 
@@ -65,12 +75,26 @@ class CharacterAnimationManager:
             self.vel_y = 10
         dy += self.vel_y
 
+        # check for maze collisons
+        for tile in world_tile_data:
+            # check for y direction collisons
+            if tile[1].colliderect(self.hitbox_rect.x, self.hitbox_rect.y + dy, self.hitbox_width, self.hitbox_height):
+                # check if below the ground
+                if self.vel_y < 0:
+                    dy = tile[1].bottom - self.hitbox_rect.top
+                    self.vel_y = 0
+                # check if above the ground 
+                elif self.vel_y >= 0:
+                    dy = tile[1].top - self.hitbox_rect.bottom
+                    self.vel_y = 0
+
         # Stick with jump animation while still in air
         if self.vel_y != 0:
             self.requested_animation = "jump"
 
         self.rect.x += dx
         self.rect.y += dy
+        self.hitbox_rect.y += dy
 
         self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame)
         
