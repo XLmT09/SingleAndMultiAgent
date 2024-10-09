@@ -20,6 +20,7 @@ class World:
         self.data = world_data
         self.tile_list = []
         self.asset_list = []
+        self.diamond_group = pygame.sprite.Group()
 
         for i in range(1, 5):
             image = pygame.image.load(f"assets/images/blocks/tile{i}.png").convert_alpha()
@@ -36,6 +37,9 @@ class World:
                     img_rect.y = row_cnt * TILE_SIZE
                     tile = (img, img_rect)
                     self.tile_list.append(tile)
+                if tile == 2:
+                    diamond = Diamond(col_cnt * TILE_SIZE + 10, row_cnt * TILE_SIZE + 10)
+                    self.diamond_group.add(diamond)
                 col_cnt += 1
             row_cnt += 1
 
@@ -49,6 +53,7 @@ class World:
     def load_world(self, screen):
         for tile in self.tile_list:
             screen.blit(tile[0], tile[1])
+        self.diamond_group.draw(screen)
 
         return self.tile_list
     
