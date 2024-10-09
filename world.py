@@ -3,6 +3,18 @@ import pygame
 TILE_SIZE = 50
 WHITE = (255, 255, 255)
 
+class Diamond(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.sprites = []
+        for i in range(1,9):
+            self.sprites.append(pygame.image.load(f"assets/images/pixel-art-diamond/diamond{i}.png"))
+        self.current_sprite = 0
+        self.image = self.sprites[self.current_sprite]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        
 class World:
     def __init__(self, world_data):
         self.data = world_data
