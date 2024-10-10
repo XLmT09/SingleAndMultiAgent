@@ -43,7 +43,7 @@ class CharacterAnimationManager:
     def __init__(self, width, height, x = 0, y = 0):
         self.width = width
         self.height = height
-        self.rect = pygame.Rect(x, y, width, height)
+        self.rect = pygame.Rect(x, y, width * 2, height * 2)
 
         # character hitbox
         # add offset to width and height to make hitbox smaller
@@ -64,11 +64,15 @@ class CharacterAnimationManager:
     def set_char_animation(self, animation_desciption, sprite_sheet, animation_steps):
         self.animation_actions[animation_desciption] = Player(sprite_sheet, self.width, self.height, animation_steps)
     
-    def draw_animation(self, screen, world_tile_data):
+    def draw_animation(self, screen, world_tile_data, world_assets, game_over):
         self.requested_animation = "idle"
         update_frame = False
         current_time = pygame.time.get_ticks()
         dx, dy = 0, 0 
+
+        if game_over != 0:
+            self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame, self.look_left)
+            return game_over
 
         if current_time - self.last_update >= ANIMATION_COOLDOWN:
             self.last_update = current_time
@@ -91,6 +95,10 @@ class CharacterAnimationManager:
         if key[pygame.K_SPACE] == False:
             self.jumped = False
         
+        # Stick with jump animation while still in air
+        if self.vel_y != 0:
+            self.requested_animation = "jump"
+
         self.vel_y += 1
         if self.vel_y > 10:
             self.vel_y = 10
@@ -112,17 +120,20 @@ class CharacterAnimationManager:
                     dy = tile[1].top - self.hitbox_rect.bottom
                     self.vel_y = 0
 
-        # Stick with jump animation while still in air
-        if self.vel_y != 0:
-            self.requested_animation = "jump"
+        #check for collision with diamond
+        if pygame.sprite.spritecollide(self, world_assets, False, pygame.sprite.collide_rect_ratio(0.5)):
+            game_over = -1
+            print("game_over")
 
         self.rect.x += dx
         self.rect.y += dy
         self.hitbox_rect.x += dx
         self.hitbox_rect.y += dy
 
-        pygame.draw.rect(screen, WHITE, self.rect, 2)
-        pygame.draw.rect(screen, WHITE, self.hitbox_rect, 2)
-
         self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame, self.look_left)
+
+        #pygame.draw.rect(screen, WHITE, self.rect, 2)
+        #pygame.draw.rect(screen, WHITE, self.hitbox_rect, 2)
+
+        return game_over
         

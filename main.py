@@ -20,7 +20,7 @@ pygame.display.set_caption("Maze Game")
 # Background image for the game
 cave_bg = pygame.image.load(r"assets\images\background\cave.png").convert_alpha()
 
-player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, 300, 300)
+player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, 500, 300)
 player.set_char_animation("idle", "assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png", 4)
 player.set_char_animation("jump", "assets\images\characters\Dude_Monster\Dude_Monster_Jump_8.png", 8)
 player.set_char_animation("walk", "assets\images\characters\Dude_Monster\Dude_Monster_Walk_6.png", 6)
@@ -51,9 +51,7 @@ data = [
 world = World(data)
 
 def game():
-    last_update = pygame.time.get_ticks()
-    cooldown = 120
-
+    game_over = 0
     # Game loop logic
     while True:
         screen.blit(cave_bg, (0,0))
@@ -64,9 +62,9 @@ def game():
                 pygame.quit()
                 quit()
         
-        world_data = world.load_world(screen)
+        world_data, asset_groups = world.load_world(screen, game_over)
         world.draw_grid(screen, SCREEN_HEIGHT, SCREEN_WIDTH)
-        player.draw_animation(screen, world_data)
+        game_over = player.draw_animation(screen, world_data, asset_groups, game_over)
 
         clock.tick(FPS)
         pygame.display.update() 

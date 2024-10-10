@@ -57,11 +57,12 @@ class World:
             #horizontal lines
             pygame.draw.line(screen, WHITE, (0, line * TILE_SIZE), (screen_width, line * TILE_SIZE))
 
-    def load_world(self, screen):
+    def load_world(self, screen, game_over):
         for tile in self.tile_list:
             screen.blit(tile[0], tile[1])
         self.diamond_group.draw(screen)
-        self.diamond_group.update(0.2)
+        if game_over == 0:
+            self.diamond_group.update(0.2)
 
-        return self.tile_list
+        return self.tile_list, self.diamond_group
     
