@@ -7,4 +7,5 @@ You may edit it as you like, but please do not remove the default topics or the 
 ## Links to Assets used in this Project
 [Character Sprites](https://craftpix.net/freebies/free-tiny-pixel-hero-sprites-with-melee-attacks/)\
 [Background Cave Image](https://lil-cthulhu.itch.io/pixel-art-cave-background)\
-[Platform Images](https://brackeysgames.itch.io/brackeys-platformer-bundle)
+[Platform Images](https://brackeysgames.itch.io/brackeys-platformer-bundle)\
+[Diamond Images](https://drxwat.itch.io/pixel-art-diamond)
