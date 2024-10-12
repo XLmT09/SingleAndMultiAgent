@@ -136,4 +136,69 @@ class CharacterAnimationManager:
         #pygame.draw.rect(screen, WHITE, self.hitbox_rect, 2)
 
         return game_over
+    
+    def draw_animation_computer(self, screen, world_tile_data, world_assets, game_over, direction):
+        self.requested_animation = "idle"
+        update_frame = False
+        current_time = pygame.time.get_ticks()
+        dx, dy = 0, 0 
+
+        if game_over != 0:
+            self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame, self.look_left)
+            return game_over
+
+        if current_time - self.last_update >= ANIMATION_COOLDOWN:
+            self.last_update = current_time
+            update_frame = True
+
+        if direction == "LEFT":
+            self.requested_animation = "walk"
+            self.look_left = False
+            dx += 1
+        if direction == "RIGHT":
+            self.requested_animation = "walk"
+            self.look_left = True
+            dx -= 1
+        
+        # Stick with jump animation while still in air
+        if self.vel_y != 0:
+            self.requested_animation = "jump"
+
+        self.vel_y += 1
+        if self.vel_y > 10:
+            self.vel_y = 10
+        dy += self.vel_y
+
+        # check for maze collisons
+        for tile in world_tile_data:
+            # check for collision in x direction
+            if tile[1].colliderect(self.hitbox_rect.x + dx, self.hitbox_rect.y, self.hitbox_width, self.hitbox_height):
+                dx = 0
+            # check for y direction collisons
+            if tile[1].colliderect(self.hitbox_rect.x, self.hitbox_rect.y + dy, self.hitbox_width, self.hitbox_height):
+                # check if below the ground
+                if self.vel_y < 0:
+                    dy = tile[1].bottom - self.hitbox_rect.top
+                    self.vel_y = 0
+                # check if above the ground 
+                elif self.vel_y >= 0:
+                    dy = tile[1].top - self.hitbox_rect.bottom
+                    self.vel_y = 0
+
+        #check for collision with diamond
+        if pygame.sprite.spritecollide(self, world_assets, False, pygame.sprite.collide_rect_ratio(0.5)):
+            game_over = -1
+            print("game_over")
+
+        self.rect.x += dx
+        self.rect.y += dy
+        self.hitbox_rect.x += dx
+        self.hitbox_rect.y += dy
+
+        self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame, self.look_left)
+
+        #pygame.draw.rect(screen, WHITE, self.rect, 2)
+        #pygame.draw.rect(screen, WHITE, self.hitbox_rect, 2)
+
+        return game_over
         

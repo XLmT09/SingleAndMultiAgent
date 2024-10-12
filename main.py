@@ -1,6 +1,7 @@
 import pygame
 from characters import CharacterAnimationManager
 from world import World
+from computer import Computer
 
 pygame.init()
 
@@ -41,14 +42,11 @@ data = [
 [1, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1],
-[1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 0, 0, 0 , 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
 world = World(data)
+computer = Computer(player)
 
 def game():
     game_over = 0
@@ -64,7 +62,8 @@ def game():
         
         world_data, asset_groups = world.load_world(screen, game_over)
         world.draw_grid(screen, SCREEN_HEIGHT, SCREEN_WIDTH)
-        game_over = player.draw_animation(screen, world_data, asset_groups, game_over)
+        # game_over = player.draw_animation(screen, world_data, asset_groups, game_over)
+        game_over = computer.move(screen, world_data, asset_groups, game_over)
 
         clock.tick(FPS)
         pygame.display.update() 
