@@ -12,8 +12,8 @@ class Player:
         self.height = height
         self.steps = animation_steps
         # List of animation images to cycle through
-        self.animation_list = [self.load_image(step, 2, False) for step in range(self.steps)]
-        self.animation_list_left = [self.load_image(step, 2, True) for step in range(self.steps)]
+        self.animation_list = [self.load_image(step, 1.7, False) for step in range(self.steps)]
+        self.animation_list_left = [self.load_image(step, 1.7, True) for step in range(self.steps)]
         self.frame_counter = 0
 
     def load_image(self, frame, scale, look_left):
@@ -43,14 +43,14 @@ class CharacterAnimationManager:
     def __init__(self, width, height, x = 0, y = 0):
         self.width = width
         self.height = height
-        self.rect = pygame.Rect(x, y, width * 2, height * 2)
+        self.rect = pygame.Rect(x, y, width * 1.8, height * 1.8)
 
         # character hitbox
         # add offset to width and height to make hitbox smaller
-        self.hitbox_width = width + 4
-        self.hitbox_height = height + 23
-        self.hitbox_rect = pygame.Rect(x + 13, 
-                                       y + 10, 
+        self.hitbox_width = width
+        self.hitbox_height = height + 14
+        self.hitbox_rect = pygame.Rect(x + 10, 
+                                       y + 9, 
                                        self.hitbox_width, 
                                        self.hitbox_height)
 
@@ -198,7 +198,7 @@ class CharacterAnimationManager:
         self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame, self.look_left)
 
         #pygame.draw.rect(screen, WHITE, self.rect, 2)
-        #pygame.draw.rect(screen, WHITE, self.hitbox_rect, 2)
+        pygame.draw.rect(screen, WHITE, self.hitbox_rect, 2)
 
         return game_over
         
