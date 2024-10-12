@@ -40,7 +40,7 @@ class Player:
         screen.blit(self.animation_list[self.frame_counter], rect)   
 
 class CharacterAnimationManager:
-    def __init__(self, width, height, x = 0, y = 0):
+    def __init__(self, width, height, is_controlled_by_computer, x = 0, y = 0):
         self.width = width
         self.height = height
         self.rect = pygame.Rect(x, y, width * 1.8, height * 1.8)
@@ -57,91 +57,52 @@ class CharacterAnimationManager:
         self.animation_actions = {}
         self.requested_animation = "idle"
         self.last_update = pygame.time.get_ticks()
-        self.vel_y = 0
+        self.vel_y, self.dx, self.dy = 0, 0, 0
         self.look_left = False
         self.jumped = False
+        self.is_controlled_by_computer = is_controlled_by_computer
 
     def set_char_animation(self, animation_desciption, sprite_sheet, animation_steps):
         self.animation_actions[animation_desciption] = Player(sprite_sheet, self.width, self.height, animation_steps)
-    
-    def draw_animation(self, screen, world_tile_data, world_assets, game_over):
-        self.requested_animation = "idle"
-        update_frame = False
-        current_time = pygame.time.get_ticks()
-        dx, dy = 0, 0 
 
-        if game_over != 0:
-            self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame, self.look_left)
-            return game_over
+    def draw_outline(self, screen):
+        pygame.draw.rect(screen, WHITE, self.rect, 2)
+        pygame.draw.rect(screen, WHITE, self.hitbox_rect, 2)
 
-        if current_time - self.last_update >= ANIMATION_COOLDOWN:
-            self.last_update = current_time
-            update_frame = True
-
+    def human_player_movement(self):
         key = pygame.key.get_pressed()
 
         if key[pygame.K_RIGHT]:
             self.requested_animation = "walk"
             self.look_left = False
-            dx += 1
+            self.dx += 1
         if key[pygame.K_LEFT]:
             self.requested_animation = "walk"
             self.look_left = True
-            dx -= 1
+            self.dx -= 1
         if key[pygame.K_SPACE] and self.jumped == False:
             self.requested_animation = "jump"
             self.vel_y = -15
             self.jumped = True
         if key[pygame.K_SPACE] == False:
             self.jumped = False
-        
-        # Stick with jump animation while still in air
-        if self.vel_y != 0:
-            self.requested_animation = "jump"
-
-        self.vel_y += 1
-        if self.vel_y > 10:
-            self.vel_y = 10
-        dy += self.vel_y
-
-        # check for maze collisons
-        for tile in world_tile_data:
-            # check for collision in x direction
-            if tile[1].colliderect(self.hitbox_rect.x + dx, self.hitbox_rect.y, self.hitbox_width, self.hitbox_height):
-                dx = 0
-            # check for y direction collisons
-            if tile[1].colliderect(self.hitbox_rect.x, self.hitbox_rect.y + dy, self.hitbox_width, self.hitbox_height):
-                # check if below the ground
-                if self.vel_y < 0:
-                    dy = tile[1].bottom - self.hitbox_rect.top
-                    self.vel_y = 0
-                # check if above the ground 
-                elif self.vel_y >= 0:
-                    dy = tile[1].top - self.hitbox_rect.bottom
-                    self.vel_y = 0
-
-        #check for collision with diamond
-        if pygame.sprite.spritecollide(self, world_assets, False, pygame.sprite.collide_rect_ratio(0.5)):
-            game_over = -1
-            print("game_over")
-
-        self.rect.x += dx
-        self.rect.y += dy
-        self.hitbox_rect.x += dx
-        self.hitbox_rect.y += dy
-
-        self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame, self.look_left)
-
-        #pygame.draw.rect(screen, WHITE, self.rect, 2)
-        #pygame.draw.rect(screen, WHITE, self.hitbox_rect, 2)
-
-        return game_over
     
-    def draw_animation_computer(self, screen, world_tile_data, world_assets, game_over, direction):
+    def computer_player_movement(self, direction):
+        if direction == "LEFT":
+            self.requested_animation = "walk"
+            self.look_left = False
+            self.dx += 1
+        if direction == "RIGHT":
+            self.requested_animation = "walk"
+            self.look_left = True
+            self.dx -= 1
+    
+    def draw_animation(self, screen, world_tile_data, world_assets, game_over, direction):
         self.requested_animation = "idle"
         update_frame = False
         current_time = pygame.time.get_ticks()
-        dx, dy = 0, 0 
+        self.dx = 0
+        self.dy = 0
 
         if game_over != 0:
             self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame, self.look_left)
@@ -150,39 +111,35 @@ class CharacterAnimationManager:
         if current_time - self.last_update >= ANIMATION_COOLDOWN:
             self.last_update = current_time
             update_frame = True
-
-        if direction == "LEFT":
-            self.requested_animation = "walk"
-            self.look_left = False
-            dx += 1
-        if direction == "RIGHT":
-            self.requested_animation = "walk"
-            self.look_left = True
-            dx -= 1
         
         # Stick with jump animation while still in air
         if self.vel_y != 0:
             self.requested_animation = "jump"
 
+        if self.is_controlled_by_computer: 
+            self.human_player_movement()
+        else:
+            self.computer_player_movement(direction)
+
         self.vel_y += 1
         if self.vel_y > 10:
             self.vel_y = 10
-        dy += self.vel_y
+        self.dy += self.vel_y
 
         # check for maze collisons
         for tile in world_tile_data:
             # check for collision in x direction
-            if tile[1].colliderect(self.hitbox_rect.x + dx, self.hitbox_rect.y, self.hitbox_width, self.hitbox_height):
-                dx = 0
+            if tile[1].colliderect(self.hitbox_rect.x + self.dx, self.hitbox_rect.y, self.hitbox_width, self.hitbox_height):
+                self.dx = 0
             # check for y direction collisons
-            if tile[1].colliderect(self.hitbox_rect.x, self.hitbox_rect.y + dy, self.hitbox_width, self.hitbox_height):
+            if tile[1].colliderect(self.hitbox_rect.x, self.hitbox_rect.y + self.dy, self.hitbox_width, self.hitbox_height):
                 # check if below the ground
                 if self.vel_y < 0:
-                    dy = tile[1].bottom - self.hitbox_rect.top
+                    self.dy = tile[1].bottom - self.hitbox_rect.top
                     self.vel_y = 0
                 # check if above the ground 
                 elif self.vel_y >= 0:
-                    dy = tile[1].top - self.hitbox_rect.bottom
+                    self.dy = tile[1].top - self.hitbox_rect.bottom
                     self.vel_y = 0
 
         #check for collision with diamond
@@ -190,15 +147,12 @@ class CharacterAnimationManager:
             game_over = -1
             print("game_over")
 
-        self.rect.x += dx
-        self.rect.y += dy
-        self.hitbox_rect.x += dx
-        self.hitbox_rect.y += dy
+        self.rect.x += self.dx
+        self.rect.y += self.dy
+        self.hitbox_rect.x += self.dx
+        self.hitbox_rect.y += self.dy
 
         self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame, self.look_left)
-
-        #pygame.draw.rect(screen, WHITE, self.rect, 2)
-        pygame.draw.rect(screen, WHITE, self.hitbox_rect, 2)
 
         return game_over
         
