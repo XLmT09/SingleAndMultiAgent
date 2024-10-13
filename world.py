@@ -32,6 +32,10 @@ class World:
         for i in range(1, 5):
             image = pygame.image.load(f"assets/images/blocks/tile{i}.png").convert_alpha()
             self.asset_list.append(image)
+        
+        self.non_collide_tile_list = []
+        self.ladder_img = pygame.image.load("assets/images/blocks/ladder.png")
+        
 
         row_cnt = 0
         for row in world_data:
@@ -47,6 +51,13 @@ class World:
                 if tile == 2:
                     diamond = Diamond(col_cnt * TILE_SIZE + 10, row_cnt * TILE_SIZE + 10)
                     self.diamond_group.add(diamond)
+                if tile == 3:
+                    img = pygame.transform.scale(self.ladder_img, (TILE_SIZE, TILE_SIZE))
+                    img_rect = img.get_rect()
+                    img_rect.x = col_cnt * TILE_SIZE
+                    img_rect.y = row_cnt * TILE_SIZE
+                    tile = (img, img_rect)
+                    self.non_collide_tile_list.append(tile)
                 col_cnt += 1
             row_cnt += 1
 
@@ -59,6 +70,8 @@ class World:
 
     def load_world(self, screen, game_over):
         for tile in self.tile_list:
+            screen.blit(tile[0], tile[1])
+        for tile in self.non_collide_tile_list:
             screen.blit(tile[0], tile[1])
         self.diamond_group.draw(screen)
         if game_over == 0:
