@@ -97,7 +97,7 @@ class CharacterAnimationManager:
             self.look_left = True
             self.dx -= 1
     
-    def draw_animation(self, screen, world_tile_data, world_assets, game_over, direction):
+    def draw_animation(self, screen, world_tile_data, world_assets, game_over, direction = None):
         self.requested_animation = "idle"
         update_frame = False
         current_time = pygame.time.get_ticks()
@@ -117,9 +117,9 @@ class CharacterAnimationManager:
             self.requested_animation = "jump"
 
         if self.is_controlled_by_computer: 
-            self.human_player_movement()
-        else:
             self.computer_player_movement(direction)
+        else:
+            self.human_player_movement()
 
         self.vel_y += 1
         if self.vel_y > 10:
