@@ -142,6 +142,10 @@ class CharacterAnimationManager:
                     self.dy = tile[1].top - self.hitbox_rect.bottom
                     self.vel_y = 0
 
+        grid_x = self.hitbox_rect.x // 50
+        grid_y = self.hitbox_rect.y // 50
+
+        print(f"grid {grid_x}, {grid_y}")
         #check for collision with diamond
         if pygame.sprite.spritecollide(self, world_assets, False, pygame.sprite.collide_rect_ratio(0.5)):
             game_over = -1
