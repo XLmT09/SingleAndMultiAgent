@@ -141,7 +141,7 @@ class CharacterAnimationManager:
             # check for y direction collisons
             if tile[1].colliderect(self.hitbox_rect.x, self.hitbox_rect.y + self.dy, self.hitbox_width, self.hitbox_height):
                 # check if below the ground
-                if self.vel_y < 0:
+                if self.vel_y < 0 or self.requested_animation == "climb":
                     self.dy = tile[1].bottom - self.hitbox_rect.top
                     self.vel_y = 0
                 # check if above the ground 
