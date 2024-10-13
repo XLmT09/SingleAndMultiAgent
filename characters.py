@@ -40,7 +40,7 @@ class Player:
         screen.blit(self.animation_list[self.frame_counter], rect)   
 
 class CharacterAnimationManager:
-    def __init__(self, width, height, is_controlled_by_computer, x = 0, y = 0):
+    def __init__(self, width, height, maze_data, is_controlled_by_computer, x = 0, y = 0):
         self.width = width
         self.height = height
         self.rect = pygame.Rect(x, y, width * 1.8, height * 1.8)
@@ -61,6 +61,9 @@ class CharacterAnimationManager:
         self.look_left = False
         self.jumped = False
         self.is_controlled_by_computer = is_controlled_by_computer
+        self.grid_x = 0
+        self.grid_y = 0
+        self.maze_data = maze_data
 
     def set_char_animation(self, animation_desciption, sprite_sheet, animation_steps):
         self.animation_actions[animation_desciption] = Player(sprite_sheet, self.width, self.height, animation_steps)
@@ -69,7 +72,7 @@ class CharacterAnimationManager:
         pygame.draw.rect(screen, WHITE, self.rect, 2)
         pygame.draw.rect(screen, WHITE, self.hitbox_rect, 2)
 
-    def human_player_movement(self):
+    def human_player_movement(self, world_tile_data):
         key = pygame.key.get_pressed()
 
         if key[pygame.K_RIGHT]:
@@ -80,6 +83,9 @@ class CharacterAnimationManager:
             self.requested_animation = "walk"
             self.look_left = True
             self.dx -= 1
+        if key[pygame.K_UP] and self.maze_data[self.grid_y][self.grid_x] == 3:
+            self.requested_animation = "climb"
+            self.dy -= 1
         if key[pygame.K_SPACE] and self.jumped == False:
             self.requested_animation = "jump"
             self.vel_y = -15
@@ -119,12 +125,13 @@ class CharacterAnimationManager:
         if self.is_controlled_by_computer: 
             self.computer_player_movement(direction)
         else:
-            self.human_player_movement()
+            self.human_player_movement(world_tile_data)
 
         self.vel_y += 1
         if self.vel_y > 10:
             self.vel_y = 10
-        self.dy += self.vel_y
+        if self.requested_animation != "climb":
+            self.dy += self.vel_y
 
         # check for maze collisons
         for tile in world_tile_data:
@@ -142,10 +149,10 @@ class CharacterAnimationManager:
                     self.dy = tile[1].top - self.hitbox_rect.bottom
                     self.vel_y = 0
 
-        grid_x = self.hitbox_rect.x // 50
-        grid_y = self.hitbox_rect.y // 50
+        self.grid_x = self.hitbox_rect.x // 50
+        self.grid_y = self.hitbox_rect.y // 50
 
-        print(f"grid {grid_x}, {grid_y}")
+        #print(f"grid {self.grid_x}, {self.grid_y}")
         #check for collision with diamond
         if pygame.sprite.spritecollide(self, world_assets, False, pygame.sprite.collide_rect_ratio(0.5)):
             game_over = -1
