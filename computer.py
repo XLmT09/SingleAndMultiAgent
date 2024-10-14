@@ -55,8 +55,21 @@ class Computer:
 
         while self.running:
             # Once the player reaches the top of a ladder they can exit by holding the up and right key at the same time
-            if (self.character_map[self.character.grid_y][self.character.grid_x] == 3 and self.character_map[self.character.grid_y][self.character.grid_x+1] == 1) and climbing:
+            if (self.character_map[self.character.grid_y][self.character.grid_x] == 3 and 
+                self.character_map[self.character.grid_y][self.character.grid_x+1] == 1 and
+                self.character_map[self.character.grid_y][self.character.grid_x-1] == 1 and
+                climbing):
+                self.requested_random_movement = random.choice(["UP RIGHT", "UP LEFT"])
+                climbing = False
+            elif (self.character_map[self.character.grid_y][self.character.grid_x] == 3 and 
+                self.character_map[self.character.grid_y][self.character.grid_x+1] == 1 and
+                climbing):
                 self.requested_random_movement = "UP RIGHT"
+                climbing = False
+            elif (self.character_map[self.character.grid_y][self.character.grid_x] == 3 and 
+                self.character_map[self.character.grid_y][self.character.grid_x+1] == 1 and
+                climbing):
+                self.requested_random_movement = "UP LEFT"
                 climbing = False
             elif (self.character_map[self.character.grid_y][self.character.grid_x] == 3):
                 # Once the computer finds a ladder, it'll need to randomly decide to climb it or not
