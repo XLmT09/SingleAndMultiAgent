@@ -41,7 +41,12 @@ class Computer:
 
 
 
-    def move(self, screen, world_data, asset_groups, game_over):
+    def random_movement(self, screen, world_data, asset_groups, game_over):
         if (self.character_map[self.character.grid_y][self.character.grid_x] == 1):
-            print("Good spot!")
-        return self.character.draw_animation(screen, world_data, asset_groups, game_over, "LEFT")
+            return self.character.draw_animation(screen, world_data, asset_groups, game_over, "LEFT")
+        if (self.character_map[self.character.grid_y][self.character.grid_x] == 3 and self.character_map[self.character.grid_y][self.character.grid_x+1] == 1):
+            return self.character.draw_animation(screen, world_data, asset_groups, game_over, "UP LEFT")
+        if (self.character_map[self.character.grid_y][self.character.grid_x] == 3):
+            return self.character.draw_animation(screen, world_data, asset_groups, game_over, "UP")
+
+    

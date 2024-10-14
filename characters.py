@@ -102,6 +102,13 @@ class CharacterAnimationManager:
             self.requested_animation = "walk"
             self.look_left = True
             self.dx -= 1
+        if direction == "UP":
+            self.requested_animation = "climb"
+            self.dy -= 1
+        if direction == "UP LEFT":
+            self.requested_animation = "climb"
+            self.dy -= 1
+            self.dx += 1
     
     def draw_animation(self, screen, world_tile_data, world_assets, game_over, direction = None):
         self.requested_animation = "idle"
