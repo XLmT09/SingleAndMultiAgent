@@ -42,4 +42,6 @@ class Computer:
 
 
     def move(self, screen, world_data, asset_groups, game_over):
+        if (self.character_map[self.character.grid_y][self.character.grid_x] == 1):
+            print("Good spot!")
         return self.character.draw_animation(screen, world_data, asset_groups, game_over, "LEFT")

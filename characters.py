@@ -61,8 +61,8 @@ class CharacterAnimationManager:
         self.look_left = False
         self.jumped = False
         self.is_controlled_by_computer = is_controlled_by_computer
-        self.grid_x = 0
-        self.grid_y = 0
+        self.grid_x = self.hitbox_rect.x // 50
+        self.grid_y = self.hitbox_rect.y // 50
         self.maze_data = maze_data
 
     def set_char_animation(self, animation_desciption, sprite_sheet, animation_steps):
