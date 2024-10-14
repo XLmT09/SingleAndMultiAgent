@@ -94,18 +94,18 @@ class CharacterAnimationManager:
             self.jumped = False
     
     def computer_player_movement(self, direction):
-        if direction == "LEFT":
+        if direction == "RIGHT":
             self.requested_animation = "walk"
             self.look_left = False
             self.dx += 1
-        if direction == "RIGHT":
+        if direction == "LEFT":
             self.requested_animation = "walk"
             self.look_left = True
             self.dx -= 1
         if direction == "UP":
             self.requested_animation = "climb"
             self.dy -= 1
-        if direction == "UP LEFT":
+        if direction == "UP RIGHT":
             self.requested_animation = "climb"
             self.dy -= 1
             self.dx += 1
