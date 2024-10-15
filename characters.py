@@ -64,7 +64,7 @@ class CharacterAnimationManager:
         self.grid_x = self.hitbox_rect.x // 50
         self.grid_y = self.hitbox_rect.y // 50
         self.maze_data = maze_data
-        self._is_diamond_found - False
+        self._is_diamond_found = False
 
     def set_char_animation(self, animation_desciption, sprite_sheet, animation_steps):
         self.animation_actions[animation_desciption] = Player(sprite_sheet, self.width, self.height, animation_steps)

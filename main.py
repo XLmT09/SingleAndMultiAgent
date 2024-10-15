@@ -40,7 +40,7 @@ data = [
 [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
-player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, data, False, 200, 700)
+player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, data, False, 500, 700)
 player.set_char_animation("idle", "assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png", 4)
 player.set_char_animation("jump", "assets\images\characters\Dude_Monster\Dude_Monster_Jump_8.png", 8)
 player.set_char_animation("walk", "assets\images\characters\Dude_Monster\Dude_Monster_Walk_6.png", 6)
@@ -63,7 +63,13 @@ def game():
                 pygame.quit()
                 quit()
         
-        world.load_world(screen, game_over)
+        if player.get_is_diamond_found():
+            world.update_diamond_position()
+            player.set_is_diamond_found_to_false()
+            diamond_positons = world.get_diamond_group()
+
+        world.load_world(screen)
+
         world.draw_grid(screen, SCREEN_HEIGHT, SCREEN_WIDTH)
         game_over = player.draw_animation(screen, tile_data, diamond_positons, game_over)
         #game_over = computer.move(screen, world_data, asset_groups, game_over)

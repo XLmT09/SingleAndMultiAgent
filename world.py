@@ -1,4 +1,5 @@
 import pygame
+import random
 
 TILE_SIZE = 50
 WHITE = (255, 255, 255)
@@ -13,12 +14,19 @@ class Diamond(pygame.sprite.Sprite):
         self._current_sprite = 0
         # Load the images into list now to fill the remaining member variables
         self._load_diamond_images()
-        self._image = self._diamond_sprite_list[self._current_sprite]
-        self._rect = self._image.get_rect(x, y)
+        self.image = self._diamond_sprite_list[self._current_sprite]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
     
     def _load_diamond_images(self) -> None:
         for i in range(1, self.NUM_DIAMOND_SPRITE_IMAGES + 1):
             self._diamond_sprite_list.append(pygame.image.load(f"assets/images/pixel-art-diamond/diamond{i}.png"))
+
+    def update_position(self, x, y) -> None:
+        """ Update the positon of the diamond """
+        self.rect.x = x * TILE_SIZE + 10
+        self.rect.y = y * TILE_SIZE + 10
 
     def update(self) -> None:
         """ This function moves to the next sprite image of the diamond
@@ -28,7 +36,7 @@ class Diamond(pygame.sprite.Sprite):
         if int(self._current_sprite) >= len(self._diamond_sprite_list):
             self._current_sprite = 0
 
-        self._image = self._diamond_sprite_list[int(self._current_sprite)]
+        self.image = self._diamond_sprite_list[int(self._current_sprite)]
 
 class World:
     def __init__(self, world_matrix) -> None:
@@ -115,8 +123,12 @@ class World:
             # Draw the horizontal lines
             pygame.draw.line(screen, WHITE, (0, line * TILE_SIZE), (screen_width, line * TILE_SIZE))
         
-    def update_diamond_position(self) -> list:
-        pass
+    def update_diamond_position(self):
+        """ This function will find the walkable paths and then update the
+        location of diamond onto the walkable path.
+        """
+        self._find_walkable_areas_in_the_maze()
+        self._randomly_update_diamond_location()
         
     def _find_walkable_areas_in_the_maze(self) -> None:
         """ This functions uses the _world_matrix to create a new matrix which 
@@ -139,9 +151,36 @@ class World:
                 # Check if the tile contains a ladder
                 elif(self._world_matrix[i][j] == 3):
                     self._walkable_maze_matrix[i][j] = 3
+    
+    def _randomly_update_diamond_location(self) -> None:
+        """ This function randomly updates the location of the diamond,
+        in a valid spot on the maze.
+        """
+        
+        # First find all valid locations to place the diamond.
+        # Valid location will have a one in the walkable matrix, so
+        # we will store all instances of these.
+        location_of_one_indices = []
+        for i in range(len(self._walkable_maze_matrix)):
+            for j in range(len(self._walkable_maze_matrix[0])):
+                if self._walkable_maze_matrix[i][j] == 1:
+                    location_of_one_indices.append((i, j))
+                # During this loop we can also clear the position of the current
+                # diamond location, on the original maze.
+                if self._world_matrix[i][j] == 2:
+                    self._world_matrix[i][j] = 0
+                    
+                
+        # Next we randomly choose a index to place our diamond
+        new_diamond_index = random.choice(location_of_one_indices)
+
+        # Now we can update the position of the diamond rect and maze index
+        self._world_matrix[new_diamond_index[0]][new_diamond_index[1]]
+        for diamond in self._diamond_group:
+            diamond.update_position(new_diamond_index[0], new_diamond_index[1])
 
 
-    def load_world(self, screen, game_over) -> None:
+    def load_world(self, screen) -> None:
         """ This function blits the maze onto the screen. 
         
         Args: 
@@ -152,8 +191,7 @@ class World:
         for tile in self._non_collidable_tile_list:
             screen.blit(tile[0], tile[1])
         self._diamond_group.draw(screen)
-        if game_over == 0:
-            self._diamond_group.update()    
+        self._diamond_group.update()    
 
     def get_collidable_tile_list(self) -> list:
         return self._collidable_tile_list
