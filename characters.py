@@ -65,6 +65,7 @@ class CharacterAnimationManager:
         self.grid_y = self.hitbox_rect.y // 50
         self.maze_data = maze_data
         self._is_diamond_found = False
+        self._score = 0
 
     def set_char_animation(self, animation_desciption, sprite_sheet, animation_steps):
         self.animation_actions[animation_desciption] = Player(sprite_sheet, self.width, self.height, animation_steps)
@@ -168,7 +169,8 @@ class CharacterAnimationManager:
         #check for collision with diamond
         if pygame.sprite.spritecollide(self, world_assets, False, pygame.sprite.collide_rect_ratio(0.5)):
             self._is_diamond_found = True
-            print("game_over")
+            self._score += 1
+            print(self._score)
 
         self.rect.x += self.dx
         self.rect.y += self.dy
@@ -184,4 +186,7 @@ class CharacterAnimationManager:
     
     def set_is_diamond_found_to_false(self) -> None:
         self._is_diamond_found = False
+    
+    def get_player_score(self) -> int:
+        return self._score
         
