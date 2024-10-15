@@ -161,8 +161,8 @@ class World:
         # Valid location will have a one in the walkable matrix, so
         # we will store all instances of these.
         location_of_one_indices = []
-        for i in range(len(self._walkable_maze_matrix)):
-            for j in range(len(self._walkable_maze_matrix[0])):
+        for i in range(len(self._walkable_maze_matrix[0])):
+            for j in range(len(self._walkable_maze_matrix)):
                 if self._walkable_maze_matrix[i][j] == 1:
                     location_of_one_indices.append((i, j))
                 # During this loop we can also clear the position of the current
@@ -177,8 +177,9 @@ class World:
         # Now we can update the position of the diamond rect and maze index
         self._world_matrix[new_diamond_index[0]][new_diamond_index[1]]
         for diamond in self._diamond_group:
-            diamond.update_position(new_diamond_index[0], new_diamond_index[1])
-
+            # we pass new_diamond_index[1] as y and vise versa, as went iterate
+            # through the column using the second index
+            diamond.update_position(new_diamond_index[1], new_diamond_index[0])
 
     def load_world(self, screen) -> None:
         """ This function blits the maze onto the screen. 
