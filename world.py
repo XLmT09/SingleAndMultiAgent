@@ -161,8 +161,8 @@ class World:
         # Valid location will have a one in the walkable matrix, so
         # we will store all instances of these.
         location_of_one_indices = []
-        for i in range(len(self._walkable_maze_matrix[0])):
-            for j in range(len(self._walkable_maze_matrix)):
+        for i in range(len(self._walkable_maze_matrix)):
+            for j in range(len(self._walkable_maze_matrix[0])):
                 if self._walkable_maze_matrix[i][j] == 1:
                     location_of_one_indices.append((i, j))
                 # During this loop we can also clear the position of the current

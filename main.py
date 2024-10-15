@@ -12,6 +12,7 @@ CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32
 FPS = 60
 BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
@@ -53,6 +54,7 @@ def game():
     game_over = 0
     tile_data = world.get_collidable_tile_list()
     diamond_positons = world.get_diamond_group()
+    font = pygame.font.SysFont(None, 24)
     # Game loop logic
     while True:
         screen.blit(cave_bg, (0,0))
@@ -67,12 +69,20 @@ def game():
             world.update_diamond_position()
             player.set_is_diamond_found_to_false()
             diamond_positons = world.get_diamond_group()
+            world.show_walkable_maze_matrix()
 
         world.load_world(screen)
 
         world.draw_grid(screen, SCREEN_HEIGHT, SCREEN_WIDTH)
         game_over = player.draw_animation(screen, tile_data, diamond_positons, game_over)
         #game_over = computer.move(screen, world_data, asset_groups, game_over)
+
+        score_text = font.render(f"score: {player.get_player_score()}", True, WHITE)
+        text_surface = pygame.Surface(score_text.get_size())
+        text_surface.fill(BLACK)
+        text_surface.blit(score_text, (0, 0))
+        screen.blit(text_surface, (20, 20))
+
 
         
         clock.tick(FPS)
