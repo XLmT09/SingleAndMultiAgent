@@ -5,6 +5,23 @@ TILE_SIZE = 50
 WHITE = (255, 255, 255)
 
 class Diamond(pygame.sprite.Sprite):
+    """ This class stores the diamonds and its meta data, which will be used to
+    print onto the maze and can handle collisons with players thanks to its 
+    inheritence of the pygame sprite class.
+
+    Attributes:
+        DIAMOND_ANIMATION_SPEED (float): The speed to transition to the next sprite image.
+        NUM_DIAMOND_SPRITE_IMAGES (int): Number of sprite images the diamond has.
+        _diamond_sprite_list (list): List which stores the sprite images.
+        _current_sprite (int): The index we are currently on in _diamond_sprite_list.
+        image (pygame.image): The image we are currently displaying of the diamond.
+        rect (Rect): The rectangle which represents the hitbox of the diamond, and is
+            also used to know exaclty where to put the diamond in the maze.
+    
+    Args:
+        x (int): This represents the top left x coord of the rect object.
+        y (int): This represents the top left y coord of the rect object.
+    """
     DIAMOND_ANIMATION_SPEED = 0.2
     NUM_DIAMOND_SPRITE_IMAGES = 8 
 
@@ -20,6 +37,7 @@ class Diamond(pygame.sprite.Sprite):
         self.rect.y = y
     
     def _load_diamond_images(self) -> None:
+        """ Load and store images of the diamond sprites """
         for i in range(1, self.NUM_DIAMOND_SPRITE_IMAGES + 1):
             self._diamond_sprite_list.append(pygame.image.load(f"assets/images/pixel-art-diamond/diamond{i}.png"))
 
@@ -45,16 +63,16 @@ class World:
         complete the class will be able to blit the maze onto pygame.
 
         Attributes:
-            world_matrix (list of lists): The matrix which represnts the maze in numbers.
-            collidable_tile_list (list): The list which stores the tuple's of a tile image 
+            _world_matrix (list of lists): The matrix which represnts the maze in numbers.
+            _collidable_tile_list (list): The list which stores the tuple's of a tile image 
                 and its corrosponding position to be put in the maze that are collidable.
-            collidable_tile_list (list): The list which stores the tuple's of a tile image 
+            _collidable_tile_list (list): The list which stores the tuple's of a tile image 
                 and its corrosponding position to be put in the maze that are non-collidable.
-            tile_list_images (list): The list which stores all the tile images that can be 
+            _tile_list_images (list): The list which stores all the tile images that can be 
                 used in the maze.
-            diamond_group (pygame.sprite.Group): This holds all the diamonds to be used in 
+            _diamond_group (pygame.sprite.Group): This holds all the diamonds to be used in 
                 the game, and can be blit all at once with a single method.
-            ladder_img (pygame.image): Holds the image a ladder.
+            _ladder_img (pygame.image): Holds the image a ladder.
             
         Args:
             world_matrix (list of lists): The inital matrix to be used for the maze.
@@ -113,23 +131,6 @@ class World:
                 col_cnt += 1
             row_cnt += 1
 
-    def draw_grid(self, screen, screen_height, screen_width) -> None:
-        """ This functions draws out the grids on the game, to help visualize on 
-        what grid every asset is, or which grid the player is currently on.
-        """
-        for line in range(29):
-            # Draw the vertical lines
-            pygame.draw.line(screen, WHITE, (line * TILE_SIZE, 0), (line * TILE_SIZE, screen_height))
-            # Draw the horizontal lines
-            pygame.draw.line(screen, WHITE, (0, line * TILE_SIZE), (screen_width, line * TILE_SIZE))
-        
-    def update_diamond_position(self):
-        """ This function will find the walkable paths and then update the
-        location of diamond onto the walkable path.
-        """
-        self._find_walkable_areas_in_the_maze()
-        self._randomly_update_diamond_location()
-        
     def _find_walkable_areas_in_the_maze(self) -> None:
         """ This functions uses the _world_matrix to create a new matrix which 
         fills all walkable tiles with 1 and climable paths with 3.
@@ -138,7 +139,7 @@ class World:
         directly above and below it.
 
         A tile is considered climable is there is a ladder i.e. a 3 in the world
-        matrix
+        matrix.
         """
         for i in range(len(self._world_matrix)):
             for j in range(len(self._world_matrix[0])):
@@ -181,6 +182,23 @@ class World:
             # through the column using the second index
             diamond.update_position(new_diamond_index[1], new_diamond_index[0])
 
+    def draw_grid(self, screen, screen_height, screen_width) -> None:
+        """ This functions draws out the grids on the game, to help visualize on 
+        what grid every asset is, or which grid the player is currently on.
+        """
+        for line in range(29):
+            # Draw the vertical lines
+            pygame.draw.line(screen, WHITE, (line * TILE_SIZE, 0), (line * TILE_SIZE, screen_height))
+            # Draw the horizontal lines
+            pygame.draw.line(screen, WHITE, (0, line * TILE_SIZE), (screen_width, line * TILE_SIZE))
+        
+    def update_diamond_position(self):
+        """ This function will find the walkable paths and then update the
+        location of diamond onto the walkable path.
+        """
+        self._find_walkable_areas_in_the_maze()
+        self._randomly_update_diamond_location()
+
     def load_world(self, screen) -> None:
         """ This function blits the maze onto the screen. 
         
@@ -194,12 +212,12 @@ class World:
         self._diamond_group.draw(screen)
         self._diamond_group.update()    
 
+    def show_walkable_maze_matrix(self) -> None:
+        """ Print walkable maze matrix in a nice format """
+        print(*self._walkable_maze_matrix, sep="\n")
+
     def get_collidable_tile_list(self) -> list:
         return self._collidable_tile_list
 
     def get_diamond_group(self) -> list:
         return self._diamond_group
-
-    def show_walkable_maze_matrix(self) -> None:
-        """ Print walkable maze matrix in a nice format """
-        print(*self._walkable_maze_matrix, sep="\n")
