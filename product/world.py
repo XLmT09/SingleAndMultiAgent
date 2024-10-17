@@ -39,7 +39,7 @@ class Diamond(pygame.sprite.Sprite):
     def _load_diamond_images(self) -> None:
         """ Load and store images of the diamond sprites """
         for i in range(1, self.NUM_DIAMOND_SPRITE_IMAGES + 1):
-            self._diamond_sprite_list.append(pygame.image.load(f"assets/images/pixel-art-diamond/diamond{i}.png"))
+            self._diamond_sprite_list.append(pygame.image.load(f"product/assets/images/pixel-art-diamond/diamond{i}.png"))
 
     def update_position(self, x, y) -> None:
         """ Update the positon of the diamond """
@@ -82,7 +82,7 @@ class World:
         self._non_collidable_tile_list = []
         self._tile_list_images = []
         self._diamond_group = pygame.sprite.Group()
-        self._ladder_img = pygame.image.load("assets/images/blocks/ladder.png")
+        self._ladder_img = pygame.image.load("product/assets/images/blocks/ladder.png")
         self._walkable_maze_matrix = [[0 for _ in range(len(self._world_matrix[0]))] for _ in range(len(self._world_matrix))]
 
         # Gather available images and there positions in the maze
@@ -93,7 +93,7 @@ class World:
     def _load_asset_and_tile_images(self) -> None:
         """ Load and store all images/sprites of sprites/assets to be used in the game. """
         for i in range(1, 5):
-            image = pygame.image.load(f"assets/images/blocks/tile{i}.png").convert_alpha()
+            image = pygame.image.load(f"product/assets/images/blocks/tile{i}.png").convert_alpha()
             self._tile_list_images.append(image)  
     
 

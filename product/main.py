@@ -21,7 +21,7 @@ clock = pygame.time.Clock()
 pygame.display.set_caption("Maze Game")
 
 # Background image for the game
-cave_bg = pygame.image.load(r"assets\images\background\cave.png").convert_alpha()
+cave_bg = pygame.image.load(r"product\assets\images\background\cave.png").convert_alpha()
 
 data = [
 [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -43,10 +43,10 @@ data = [
 ]
 
 player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, data, False, 500, 700)
-player.set_char_animation("idle", "assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png", 4)
-player.set_char_animation("jump", "assets\images\characters\Dude_Monster\Dude_Monster_Jump_8.png", 8)
-player.set_char_animation("walk", "assets\images\characters\Dude_Monster\Dude_Monster_Walk_6.png", 6)
-player.set_char_animation("climb", "assets\images\characters\Dude_Monster\Dude_Monster_Climb_4.png", 4)
+player.set_char_animation("idle", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png", 4)
+player.set_char_animation("jump", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Jump_8.png", 8)
+player.set_char_animation("walk", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Walk_6.png", 6)
+player.set_char_animation("climb", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Climb_4.png", 4)
 
 world = World(data)
 computer = Computer(player, data)
