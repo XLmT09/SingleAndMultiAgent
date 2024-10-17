@@ -2,6 +2,7 @@ import pygame
 from characters import CharacterAnimationManager
 from world import World
 from computer import Computer
+from text import Text
 
 pygame.init()
 
@@ -34,8 +35,8 @@ data = [
 [1, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0 , 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 0, 0, 0 , 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 0, 0, 0 , 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 1, 1, 1 , 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 [1, 0, 0, 1 , 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1],
 [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -54,7 +55,7 @@ def game():
     game_over = 0
     tile_data = world.get_collidable_tile_list()
     diamond_positons = world.get_diamond_group()
-    font = pygame.font.SysFont(None, 24)
+    score_text = Text(24)
     # Game loop logic
     while True:
         screen.blit(cave_bg, (0,0))
@@ -77,14 +78,8 @@ def game():
         game_over = player.draw_animation(screen, tile_data, diamond_positons, game_over)
         #game_over = computer.move(screen, world_data, asset_groups, game_over)
 
-        score_text = font.render(f"score: {player.get_player_score()}", True, WHITE)
-        text_surface = pygame.Surface(score_text.get_size())
-        text_surface.fill(BLACK)
-        text_surface.blit(score_text, (0, 0))
-        screen.blit(text_surface, (20, 20))
+        score_text.draw(screen, f"Score {player.get_player_score()}", 20, 20)
 
-
-        
         clock.tick(FPS)
         pygame.display.update() 
 
