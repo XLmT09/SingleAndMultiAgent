@@ -42,14 +42,14 @@ data = [
 [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
-player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, data, False, 500, 700)
+player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, data, True, 500, 700)
 player.set_char_animation("idle", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png", 4)
 player.set_char_animation("jump", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Jump_8.png", 8)
 player.set_char_animation("walk", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Walk_6.png", 6)
 player.set_char_animation("climb", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Climb_4.png", 4)
 
 world = World(data)
-computer = Computer(player, data)
+computer = Computer(player, world.get_walkable_maze_matrix())
 
 def game():
     game_over = 0
@@ -70,13 +70,13 @@ def game():
             world.update_diamond_position()
             player.set_is_diamond_found_to_false()
             diamond_positons = world.get_diamond_group()
-            world.show_walkable_maze_matrix()
+            world.print_walkable_maze_matrix()
 
         world.load_world(screen)
 
         world.draw_grid(screen, SCREEN_HEIGHT, SCREEN_WIDTH)
-        game_over = player.draw_animation(screen, tile_data, diamond_positons, game_over)
-        #game_over = computer.move(screen, world_data, asset_groups, game_over)
+        #game_over = player.draw_animation(screen, tile_data, diamond_positons, game_over)
+        game_over = computer.move(screen, tile_data, diamond_positons, game_over)
 
         score_text.draw(screen, f"Score {player.get_player_score()}", 20, 20)
 
