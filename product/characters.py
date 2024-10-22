@@ -169,7 +169,7 @@ class CharacterAnimationManager:
             self.grid_x = (self.hitbox_rect.x + self.width) // 50
         else:
             self.grid_x = self.hitbox_rect.x // 50
-        self.grid_y = self.hitbox_rect.y // 50
+        self.grid_y = (self.hitbox_rect.y + self.height) // 50
 
         #print(f"grid {self.grid_x}, {self.grid_y}")
         #check for collision with diamond

@@ -65,8 +65,9 @@ class Computer:
         path_to_follow = self.bfs_path_find()
         instruction_number = 0
         target = path_to_follow[-1]
+        climbing = False
+        player_position = (self.character.grid_y, self.character.grid_x)
 
-        player_position = (self.character.grid_y, self.character.grid_x + 1)
 
         while player_position != target:
             if instruction_number == len(path_to_follow):
@@ -78,13 +79,24 @@ class Computer:
                 instruction_number += 1
                 continue
             
-            if (pos_diff[1] > 0):
+            if (climbing and pos_diff[1] > 0):
+                self.requested_movement = "UP LEFT"
+                time.sleep(1)
+                climbing = False
+            elif (climbing and pos_diff[1] < 0):
+                self.requested_movement = "UP RIGHT"
+                time.sleep(1)
+                climbing = False
+            elif (pos_diff[0] > 0 or climbing):
+                self.requested_movement = "UP"
+                climbing = True
+            elif (pos_diff[1] > 0):
                 self.requested_movement = "LEFT"
-            elif(pos_diff[1] < 0):
+            elif (pos_diff[1] < 0):
                 self.requested_movement = "RIGHT"
             
             # update the player position value
-            player_position = (self.character.grid_y, self.character.grid_x + 1)
+            player_position = (self.character.grid_y, self.character.grid_x)
                 
             print(player_position)
         
