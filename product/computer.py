@@ -2,6 +2,7 @@ import threading
 import time
 import random
 from collections import deque
+import numpy as np
 
 moves = ["LEFT", "RIGHT"]
 
@@ -9,12 +10,12 @@ class Computer:
     def __init__(self, character, walkable_maze):
         self.character = character
         self.running = True
-        self.requested_random_movement = "RIGHT"
+        self.requested_movement = "RIGHT"
         self._walkable_maze_matrix = walkable_maze
         # right, down, left, right
         self._directions = [(0, 1), (1, 0), (0, -1), (-1, 0)] 
 
-        self.random_movement_thread = threading.Thread(target=self.update_random_movement)
+        self.random_movement_thread = threading.Thread(target=self.move_based_on_path_instructions)
         self.random_movement_thread.daemon = True
         self.random_movement_thread.start()
 
@@ -53,6 +54,35 @@ class Computer:
             else:
                 self.requested_random_movement = random.choice(moves)
             time.sleep(1)
+
+    def move_based_on_path_instructions(self):
+        path_to_follow = self.bfs_path_find()
+        instruction_number = 0
+        target = path_to_follow[-1]
+
+        player_position = (self.character.grid_y, self.character.grid_x)
+
+        while player_position != target:
+            if instruction_number == len(path_to_follow):
+                return
+            
+            pos_diff = tuple(np.subtract(player_position, path_to_follow[instruction_number]))
+            
+            if (pos_diff == (0, 0)):
+                instruction_number += 1
+                continue
+            
+            if (pos_diff[1] > 0):
+                self.requested_movement = "LEFT"
+            elif(pos_diff[1] < 0):
+                self.requested_movement = "RIGHT"
+            
+            # update the player position value
+            player_position = (self.character.grid_y, self.character.grid_x)
+                
+            print(player_position)
+
+
     
     def bfs_path_find(self) -> list:
         """ This function uses bfs search to find the path to the diamond. """
@@ -92,7 +122,7 @@ class Computer:
         return final_path
 
     def move(self, screen, world_data, asset_groups, game_over):
-        return self.character.draw_animation(screen, world_data, asset_groups, game_over, self.requested_random_movement)
+        return self.character.draw_animation(screen, world_data, asset_groups, game_over, self.requested_movement)
     
     def set_walkable_maze(self, walkable_maze) -> None:
         self._walkable_maze_matrix = walkable_maze
