@@ -49,7 +49,9 @@ player.set_char_animation("walk", r"product\assets\images\characters\Dude_Monste
 player.set_char_animation("climb", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Climb_4.png", 4)
 
 world = World(data)
+world.print_walkable_maze_matrix()
 computer = Computer(player, world.get_walkable_maze_matrix())
+computer.bfs_path_find()
 
 def game():
     game_over = 0

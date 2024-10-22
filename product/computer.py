@@ -1,6 +1,7 @@
 import threading
 import time
 import random
+from collections import deque
 
 moves = ["LEFT", "RIGHT"]
 
@@ -10,6 +11,8 @@ class Computer:
         self.running = True
         self.requested_random_movement = "RIGHT"
         self._walkable_maze_matrix = walkable_maze
+        # right, down, left, right
+        self._directions = [(0, 1), (1, 0), (0, -1), (-1, 0)] 
 
         self.random_movement_thread = threading.Thread(target=self.update_random_movement)
         self.random_movement_thread.daemon = True
@@ -51,7 +54,41 @@ class Computer:
                 self.requested_random_movement = random.choice(moves)
             time.sleep(1)
     
-    # def bfs_path_find(self):
+    def bfs_path_find(self) -> dict:
+        """ This function uses bfs search to find the path to the diamond. """
+        start = self.character.get_player_grid_coordinates()
+        queue = deque([start])
+        visited = {start}
+        # This will contain the all the potential paths, bfs has looked into
+        search_path_histroy = {start: None}
+
+        while queue:
+            current = queue.popleft()
+
+            if self._walkable_maze_matrix[current[0]][current[1]] == 2:
+                return self.reconstruct_path_and_move_player(search_path_histroy, current)
+
+            # Loop through all 4 directions the computer can take
+            for direction in self._directions:
+                next_grid = (current[0] + direction[0], current[1] + direction[1])
+
+                # Check if the next grid we are looking at is walkable and not visited
+                if (self._walkable_maze_matrix[next_grid[0]][next_grid[1]] != 0 and next_grid not in visited):
+                    queue.append(next_grid)
+                    visited.add(next_grid)
+                    search_path_histroy[next_grid] = current         
+
+        return None           
+
+    def reconstruct_path_and_move_player(self, search_path_histroy, end) -> None:
+        final_path = []
+        current = end
+
+        while current is not None:
+            final_path.append(current)
+            current = search_path_histroy[current]
+            
+        final_path.reverse()
 
     def move(self, screen, world_data, asset_groups, game_over):
         return self.character.draw_animation(screen, world_data, asset_groups, game_over, self.requested_random_movement)

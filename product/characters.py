@@ -189,4 +189,7 @@ class CharacterAnimationManager:
     
     def get_player_score(self) -> int:
         return self._score
+
+    def get_player_grid_coordinates(self) -> int:
+        return (self.grid_y, self.grid_x)
         
