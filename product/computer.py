@@ -54,7 +54,7 @@ class Computer:
                 self.requested_random_movement = random.choice(moves)
             time.sleep(1)
     
-    def bfs_path_find(self) -> dict:
+    def bfs_path_find(self) -> list:
         """ This function uses bfs search to find the path to the diamond. """
         start = self.character.get_player_grid_coordinates()
         queue = deque([start])
@@ -66,7 +66,7 @@ class Computer:
             current = queue.popleft()
 
             if self._walkable_maze_matrix[current[0]][current[1]] == 2:
-                return self.reconstruct_path_and_move_player(search_path_histroy, current)
+                return self.reconstruct_path(search_path_histroy, current)
 
             # Loop through all 4 directions the computer can take
             for direction in self._directions:
@@ -80,7 +80,7 @@ class Computer:
 
         return None           
 
-    def reconstruct_path_and_move_player(self, search_path_histroy, end) -> None:
+    def reconstruct_path(self, search_path_histroy, end) -> None:
         final_path = []
         current = end
 
@@ -89,6 +89,7 @@ class Computer:
             current = search_path_histroy[current]
             
         final_path.reverse()
+        return final_path
 
     def move(self, screen, world_data, asset_groups, game_over):
         return self.character.draw_animation(screen, world_data, asset_groups, game_over, self.requested_random_movement)
