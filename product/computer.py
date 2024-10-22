@@ -14,11 +14,14 @@ class Computer:
         self._walkable_maze_matrix = walkable_maze
         # right, down, left, right
         self._directions = [(0, 1), (1, 0), (0, -1), (-1, 0)] 
+        self.run_path_find = False
 
         # self.random_movement_thread = threading.Thread(target=self.update_random_movement)
         # self.random_movement_thread.daemon = True
-
-        self.movement_thread = None
+        
+        self.movement_thread = threading.Thread(target=self.perform_algo)
+        self.movement_thread.daemon = True
+        self.movement_thread.start()
 
     def update_random_movement(self):
         # Use this flag to allow the player to descend down a ladder instead of always climbing it 
@@ -56,10 +59,13 @@ class Computer:
                 self.requested_random_movement = random.choice(moves)
             time.sleep(1)
 
-    def set_movement_thread_to_bfs(self):
-        self.movement_thread = threading.Thread(target=self.move_based_on_path_instructions)
-        self.movement_thread.daemon = True
-        self.movement_thread.start()
+    def perform_algo(self):
+        while True:
+            self.bfs_thread = threading.Thread(target=self.move_based_on_path_instructions)
+            self.bfs_thread.daemon = True
+            self.bfs_thread.start()
+            self.bfs_thread.join()
+        
 
     def move_based_on_path_instructions(self):
         path_to_follow = self.bfs_path_find()
@@ -101,6 +107,8 @@ class Computer:
             print(player_position)
         
         self.requested_movement = "None"
+        return
+        
 
 
     
