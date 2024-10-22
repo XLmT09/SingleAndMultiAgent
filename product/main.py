@@ -58,6 +58,7 @@ def game():
     tile_data = world.get_collidable_tile_list()
     diamond_positons = world.get_diamond_group()
     score_text = Text(24)
+    computer.set_movement_thread_to_bfs()
     # Game loop logic
     while True:
         screen.blit(cave_bg, (0,0))

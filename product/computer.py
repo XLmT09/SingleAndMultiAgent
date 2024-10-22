@@ -15,9 +15,10 @@ class Computer:
         # right, down, left, right
         self._directions = [(0, 1), (1, 0), (0, -1), (-1, 0)] 
 
-        self.random_movement_thread = threading.Thread(target=self.move_based_on_path_instructions)
-        self.random_movement_thread.daemon = True
-        self.random_movement_thread.start()
+        # self.random_movement_thread = threading.Thread(target=self.update_random_movement)
+        # self.random_movement_thread.daemon = True
+
+        self.movement_thread = None
 
     def update_random_movement(self):
         # Use this flag to allow the player to descend down a ladder instead of always climbing it 
@@ -55,12 +56,17 @@ class Computer:
                 self.requested_random_movement = random.choice(moves)
             time.sleep(1)
 
+    def set_movement_thread_to_bfs(self):
+        self.movement_thread = threading.Thread(target=self.move_based_on_path_instructions)
+        self.movement_thread.daemon = True
+        self.movement_thread.start()
+
     def move_based_on_path_instructions(self):
         path_to_follow = self.bfs_path_find()
         instruction_number = 0
         target = path_to_follow[-1]
 
-        player_position = (self.character.grid_y, self.character.grid_x)
+        player_position = (self.character.grid_y, self.character.grid_x + 1)
 
         while player_position != target:
             if instruction_number == len(path_to_follow):
@@ -78,9 +84,11 @@ class Computer:
                 self.requested_movement = "RIGHT"
             
             # update the player position value
-            player_position = (self.character.grid_y, self.character.grid_x)
+            player_position = (self.character.grid_y, self.character.grid_x + 1)
                 
             print(player_position)
+        
+        self.requested_movement = "None"
 
 
     
