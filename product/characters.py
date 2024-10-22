@@ -71,7 +71,7 @@ class CharacterAnimationManager:
         self.animation_actions[animation_desciption] = Player(sprite_sheet, self.width, self.height, animation_steps)
 
     def draw_outline(self, screen):
-        pygame.draw.rect(screen, WHITE, self.rect, 2)
+        #pygame.draw.rect(screen, WHITE, self.rect, 2)
         pygame.draw.rect(screen, WHITE, self.hitbox_rect, 2)
 
     def human_player_movement(self, world_tile_data):
@@ -164,8 +164,11 @@ class CharacterAnimationManager:
                 elif self.vel_y >= 0:
                     self.dy = tile[1].top - self.hitbox_rect.bottom
                     self.vel_y = 0
-
-        self.grid_x = self.hitbox_rect.x // 50
+        
+        if self.look_left:
+            self.grid_x = (self.hitbox_rect.x + self.width) // 50
+        else:
+            self.grid_x = self.hitbox_rect.x // 50
         self.grid_y = self.hitbox_rect.y // 50
 
         #print(f"grid {self.grid_x}, {self.grid_y}")
