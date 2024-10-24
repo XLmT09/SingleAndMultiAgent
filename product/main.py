@@ -36,9 +36,9 @@ data = [
 [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 [1, 1, 0, 0 , 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
 [1, 1, 1, 1 , 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 1, 0, 0 , 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+[1, 1, 0, 0 , 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 2, 0, 0, 0, 1, 1],
 [1, 1, 1, 1 , 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 1, 0, 0 , 2, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+[1, 1, 0, 0 , 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
 [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
@@ -51,14 +51,13 @@ player.set_char_animation("climb", r"product\assets\images\characters\Dude_Monst
 world = World(data)
 # world.print_walkable_maze_matrix()
 computer = Computer(player, world.get_walkable_maze_matrix())
-computer.bfs_path_find()
+#computer.bfs_path_find()
 
 def game():
     game_over = 0
     tile_data = world.get_collidable_tile_list()
     diamond_positons = world.get_diamond_group()
     score_text = Text(24)
-    computer.set_movement_thread_to_bfs()
     # Game loop logic
     while True:
         screen.blit(cave_bg, (0,0))
@@ -66,14 +65,21 @@ def game():
         # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                computer.stop_thread = True
                 pygame.quit()
                 quit()
+        
+        key = pygame.key.get_pressed()
+        if key[pygame.K_c]:
+            computer.stop_thread = True
         
         if player.get_is_diamond_found():
             world.update_diamond_position()
             player.set_is_diamond_found_to_false()
             diamond_positons = world.get_diamond_group()
             world.print_walkable_maze_matrix()
+        
+        #player.draw_outline(screen)
 
         world.load_world(screen)
 

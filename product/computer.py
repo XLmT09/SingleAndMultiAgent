@@ -3,6 +3,7 @@ import time
 import random
 from collections import deque
 import numpy as np
+import signal
 
 moves = ["LEFT", "RIGHT"]
 
@@ -14,13 +15,13 @@ class Computer:
         self._walkable_maze_matrix = walkable_maze
         # right, down, left, right
         self._directions = [(0, 1), (1, 0), (0, -1), (-1, 0)] 
-        self.run_path_find = False
+        self.run_path_find = True
+        self.stop_thread = False
 
         # self.random_movement_thread = threading.Thread(target=self.update_random_movement)
         # self.random_movement_thread.daemon = True
-        
-        self.movement_thread = threading.Thread(target=self.perform_algo)
-        self.movement_thread.daemon = True
+
+        self.movement_thread = threading.Thread(target=self.perfrom_algo)
         self.movement_thread.start()
 
     def update_random_movement(self):
@@ -59,13 +60,13 @@ class Computer:
                 self.requested_random_movement = random.choice(moves)
             time.sleep(1)
 
-    def perform_algo(self):
-        while True:
-            self.bfs_thread = threading.Thread(target=self.move_based_on_path_instructions)
-            self.bfs_thread.daemon = True
-            self.bfs_thread.start()
-            self.bfs_thread.join()
-        
+    def stop_path_find(self) -> None:
+        self.run_path_find = False
+
+    def perfrom_algo(self):
+        while not self.stop_thread:
+            self.move_based_on_path_instructions()
+        print("Thread is finished")
 
     def move_based_on_path_instructions(self):
         path_to_follow = self.bfs_path_find()
@@ -76,6 +77,9 @@ class Computer:
 
 
         while player_position != target:
+            if self.stop_thread:
+                print("exit is set")
+                break
             if instruction_number == len(path_to_follow):
                 return
             
@@ -103,15 +107,11 @@ class Computer:
             
             # update the player position value
             player_position = (self.character.grid_y, self.character.grid_x)
-                
-            print(player_position)
-        
+                        
         self.requested_movement = "None"
         return
         
 
-
-    
     def bfs_path_find(self) -> list:
         """ This function uses bfs search to find the path to the diamond. """
         start = self.character.get_player_grid_coordinates()
@@ -147,6 +147,7 @@ class Computer:
             current = search_path_histroy[current]
             
         final_path.reverse()
+        print(final_path)
         return final_path
 
     def move(self, screen, world_data, asset_groups, game_over):
