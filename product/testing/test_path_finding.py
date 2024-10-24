@@ -27,13 +27,13 @@ class TestComputer(unittest.TestCase):
     [1, 1, 1, 1 , 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 0, 0 , 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
     [1, 1, 1, 1 , 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 0, 0 , 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 2, 0, 0, 1, 1],
+    [1, 1, 0, 0 , 1, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 2, 0, 0, 1, 1],
     [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     ]
 
     def setUp(self):
         pygame.init()
-        pygame.display.set_mode()
+        pygame.display.set_mode((1,1), 0, 32)
         self.player = CharacterAnimationManager(self.CHARACTER_WIDTH, self.CHARACTER_HEIGHT, self.maze_map, True, 500, 700)
         self.player.set_char_animation("idle", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png", 4)  
         self.player.set_char_animation("jump", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Jump_8.png", 8)
@@ -41,6 +41,19 @@ class TestComputer(unittest.TestCase):
         self.player.set_char_animation("climb", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Climb_4.png", 4)
 
         self.world = World(self.maze_map)
+    
+    def tearDown(self):
+        pygame.quit()
+
+    def test_maze_has_diamond(self):
+        diamond_found = False
+        for i in range(len(self.maze_map)):
+            for j in range(len(self.maze_map[0])):
+                if (self.maze_map[i][j] == 2):
+                    diamond_found = True
+                    break
+        self.assertTrue(diamond_found)
+                
 
     def test_bfs_can_find_path_in_small_maze(self):
         computer = Computer(self.player, self.world.get_walkable_maze_matrix())
