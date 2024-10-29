@@ -3,6 +3,7 @@ from characters import CharacterAnimationManager
 from world import World
 from computer import *
 from text import Text
+import pickle
 
 pygame.init()
 
@@ -23,24 +24,9 @@ pygame.display.set_caption("Maze Game")
 # Background image for the game
 cave_bg = pygame.image.load(r"product\assets\images\background\cave.png").convert_alpha()
 
-data = [
-[1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 1, 0, 0 , 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-[1, 1, 1, 1 , 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 1, 0, 0 , 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 2, 0, 0, 0, 1, 1],
-[1, 1, 1, 1 , 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 1, 0, 0 , 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-[1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-]
+data = None
+with open('maze_1', 'rb') as file:
+    data = pickle.load(file)
 
 player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, data, True, 500, 700)
 player.set_char_animation("idle", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png", 4)
