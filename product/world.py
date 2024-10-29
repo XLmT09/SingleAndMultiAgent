@@ -88,6 +88,8 @@ class World:
         # Gather available images and there positions in the maze
         self._load_asset_and_tile_images()
         self._genrate_world_tiles_and_assets()
+        # Also initalize the walkable maze now, so that the computer can use it
+        self._find_walkable_areas_in_the_maze()
 
 
     def _load_asset_and_tile_images(self) -> None:
@@ -149,6 +151,8 @@ class World:
                         (j + 1 < len(self._world_matrix[0]))):
                         if ((self._world_matrix[i-1][j] == 1) and (self._world_matrix[i + 1][j] == 1)):
                             self._walkable_maze_matrix[i][j] = 1
+                elif(self._world_matrix[i][j] == 2):
+                    self._walkable_maze_matrix[i][j] = 2
                 # Check if the tile contains a ladder
                 elif(self._world_matrix[i][j] == 3):
                     self._walkable_maze_matrix[i][j] = 3
@@ -170,13 +174,16 @@ class World:
                 # diamond location, on the original maze.
                 if self._world_matrix[i][j] == 2:
                     self._world_matrix[i][j] = 0
+                    self._walkable_maze_matrix[i][j] = 0
                     
                 
         # Next we randomly choose a index to place our diamond
         new_diamond_index = random.choice(location_of_one_indices)
 
         # Now we can update the position of the diamond rect and maze index
-        self._world_matrix[new_diamond_index[0]][new_diamond_index[1]]
+        self._world_matrix[new_diamond_index[0]][new_diamond_index[1]] = 2
+        # We should also update the walkable maze so that the player knows where the new diamond is
+        self._walkable_maze_matrix[new_diamond_index[0]][new_diamond_index[1]] = 2
         for diamond in self._diamond_group:
             # we pass new_diamond_index[1] as y and vise versa, as went iterate
             # through the column using the second index
@@ -212,10 +219,13 @@ class World:
         self._diamond_group.draw(screen)
         self._diamond_group.update()    
 
-    def show_walkable_maze_matrix(self) -> None:
+    def print_walkable_maze_matrix(self) -> None:
         """ Print walkable maze matrix in a nice format """
         print(*self._walkable_maze_matrix, sep="\n")
 
+    def get_walkable_maze_matrix(self) -> list:
+        return self._walkable_maze_matrix
+    
     def get_collidable_tile_list(self) -> list:
         return self._collidable_tile_list
 

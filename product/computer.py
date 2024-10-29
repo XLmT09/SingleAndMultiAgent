@@ -1,92 +1,196 @@
 import threading
 import time
 import random
-
-data = [
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-]
+from collections import deque
+import numpy as np
 
 moves = ["LEFT", "RIGHT"]
 
 class Computer:
-    def __init__(self, character, maze_map):
-        self.character = character
-        self.maze_map = maze_map
-        self.character_map = [[0 for _ in range(len(maze_map[0]))] for _ in range(len(maze_map))]
+    """ This class will represent the agent different pathfinding algos available to use.
 
-        self.fill_map_with_walkable_areas()
-
-        self.running = True
-        self.requested_random_movement = "RIGHT"
-        self.random_movement_thread = threading.Thread(target=self.update_random_movement)
-        self.random_movement_thread.daemon = True
-        self.random_movement_thread.start()
+    Attributes:
+        character (CharacterAnimationManager): The character the computer will be controlling.
+        requested_movement (str): The movement the computer class will command the character to perfrom.
+        _walkable_maze_matrix (list of list): The maze which represents the walakable areas of the character.
+        _directions (list of tuple): The directions the computer can command the player to do.
+        stop_thread (bool): A flag to stop the path find algo thread.
+        th (Thread): The thread which will do the pathfinding.
     
-    def fill_map_with_walkable_areas(self):
-        for i in range(len(self.maze_map)):
-            for j in range(len(self.maze_map[0])):
-                if(self.maze_map[i][j] == 0):
-                    if ((i - 1 >= 0) and (j - 1 >= 0) and (i + 1 < len(self.maze_map)) and (j + 1 < len(self.maze_map[0]))):
-                        if ((self.maze_map[i-1][j] == 1) and (self.maze_map[i + 1][j] == 1)):
-                            self.character_map[i][j] = 1
-                if(self.maze_map[i][j] == 3):
-                    self.character_map[i][j] = 3
-        
-        print(*self.character_map, sep="\n")
+    Args:
+        character (CharacterAnimationManager): The character the computer will be controlling.
+        walkable_maze (list of list): The maze which represents the walakable areas of the character.
+    """
+    def __init__(self, character, walkable_maze):
+        self.character = character
+        self.requested_movement = "RIGHT"
+        self._walkable_maze_matrix = walkable_maze
+        # right, left, up, down
+        self._directions = [(0, 1), (1, 0), (0, -1), (-1, 0)] 
+        self.stop_thread = False
+        self.th = threading.Thread(target=self.perfrom_path_find)
 
-    def update_random_movement(self):
+    def start_thread(self) -> None:
+        """ Start the path find thread. """
+        self.th.start()
+
+    def stop_path_find_algo_thread(self) -> None:
+        """ Stop the path find thread. """
+        self.stop_thread = True
+
+    def move(self, screen, world_data, asset_groups, game_over):
+        """ Move the character based on the requested movement. """
+        return self.character.draw_animation(screen, world_data, asset_groups, game_over, self.requested_movement)
+    
+    def set_walkable_maze(self, walkable_maze) -> None:
+        """ Set the walkable maze matrix with a new one. """
+        self._walkable_maze_matrix = walkable_maze
+
+class BFSComputer(Computer):
+    """ This class will control the character and do BFS path find. """
+    def __init__(self, character, walkable_maze):
+        super().__init__(character, walkable_maze)
+
+    def perfrom_path_find(self):
+        """ This functions keeps searching for a path until the stop_thread flag is set. """
+        while not self.stop_thread:
+            self.move_based_on_path_instructions()
+        print("Thread is finished")
+
+    def move_based_on_path_instructions(self):
+        """ This function will get the BFS path, then  move the character to follow the
+        path it's found. """
+        path_to_follow = self.bfs_path_find()
+        instruction_number = 0
+        target = path_to_follow[-1]
+        climbing = False
+        player_position = (self.character.grid_y, self.character.grid_x)
+
+
+        while player_position != target:
+            if self.stop_thread:
+                print("exit is set")
+                break
+            if instruction_number == len(path_to_follow):
+                return
+            
+            pos_diff = tuple(np.subtract(player_position, path_to_follow[instruction_number]))
+            
+            if (pos_diff == (0, 0)):
+                instruction_number += 1
+                continue
+            
+            if (climbing and pos_diff[1] > 0):
+                self.requested_movement = "UP LEFT"
+                time.sleep(1)
+                climbing = False
+            elif (climbing and pos_diff[1] < 0):
+                self.requested_movement = "UP RIGHT"
+                time.sleep(1)
+                climbing = False
+            elif (pos_diff[0] > 0 or climbing):
+                self.requested_movement = "UP"
+                climbing = True
+            elif (pos_diff[1] > 0):
+                self.requested_movement = "LEFT"
+            elif (pos_diff[1] < 0):
+                self.requested_movement = "RIGHT"
+            
+            # update the player position value
+            player_position = (self.character.grid_y, self.character.grid_x)
+                        
+        self.requested_movement = "None"
+        return
+    
+    def bfs_path_find(self) -> list:
+        """ This function uses bfs search to find the path to the diamond. """
+        start = self.character.get_player_grid_coordinates()
+        queue = deque([start])
+        visited = {start}
+        # This will contain the all the potential paths, bfs has looked into
+        search_path_histroy = {start: None}
+
+        while queue:
+            current = queue.popleft()
+
+            if self._walkable_maze_matrix[current[0]][current[1]] == 2:
+                return self.reconstruct_path(search_path_histroy, current)
+
+            # Loop through all 4 directions the computer can take
+            for direction in self._directions:
+                next_grid = (current[0] + direction[0], current[1] + direction[1])
+
+                # Check if the next grid we are looking at is walkable and not visited
+                if (self._walkable_maze_matrix[next_grid[0]][next_grid[1]] != 0 and next_grid not in visited):
+                    queue.append(next_grid)
+                    visited.add(next_grid)
+                    search_path_histroy[next_grid] = current         
+
+        return None           
+
+    def reconstruct_path(self, search_path_histroy, end) -> None:
+        """ The bfs algo will store store contents of every path its looked into, in this
+        function we will extract the path its found to the target.
+
+        Args:
+            search_path_histroy (list of tuples): A list of all the paths bfs has looked into.
+            end (list): The coord of the diamond.
+        """
+        final_path = []
+        current = end
+
+        while current is not None:
+            final_path.append(current)
+            current = search_path_histroy[current]
+            
+        final_path.reverse()
+        return final_path
+
+
+class RandomComputer(Computer):
+    """ This class will randomly move the character around the map. """
+    def __init__(self, character, walkable_maze):
+        super().__init__(character, walkable_maze)
+
+    def perfrom_path_find(self):
+        """ This function will use the random libary to randomly select a movement for the
+        character to do, it does this by randomly updating self.requested_movement.
+        """
         # Use this flag to allow the player to descend down a ladder instead of always climbing it 
         climbing = False
 
-        while self.running:
+        while not self.stop_thread:
             # Once the player reaches the top of a ladder they can exit by holding the up and right key at the same time
-            if (self.character_map[self.character.grid_y][self.character.grid_x] == 3 and 
-                self.character_map[self.character.grid_y][self.character.grid_x+1] == 1 and
-                self.character_map[self.character.grid_y][self.character.grid_x-1] == 1 and
+            if (self._walkable_maze_matrix[self.character.grid_y][self.character.grid_x] == 3 and 
+                self._walkable_maze_matrix[self.character.grid_y][self.character.grid_x+1] == 1 and
+                self._walkable_maze_matrix[self.character.grid_y][self.character.grid_x-1] == 1 and
                 climbing):
-                self.requested_random_movement = random.choice(["UP RIGHT", "UP LEFT"])
+                self.requested_movement = random.choice(["UP RIGHT", "UP LEFT"])
                 climbing = False
-            elif (self.character_map[self.character.grid_y][self.character.grid_x] == 3 and 
-                self.character_map[self.character.grid_y][self.character.grid_x+1] == 1 and
+            elif (self._walkable_maze_matrix[self.character.grid_y][self.character.grid_x] == 3 and 
+                self._walkable_maze_matrix[self.character.grid_y][self.character.grid_x+1] == 1 and
                 climbing):
-                self.requested_random_movement = "UP RIGHT"
+                self.requested_movement = "UP RIGHT"
                 climbing = False
-            elif (self.character_map[self.character.grid_y][self.character.grid_x] == 3 and 
-                self.character_map[self.character.grid_y][self.character.grid_x+1] == 1 and
+            elif (self._walkable_maze_matrix[self.character.grid_y][self.character.grid_x] == 3 and 
+                self._walkable_maze_matrix[self.character.grid_y][self.character.grid_x+1] == 1 and
                 climbing):
-                self.requested_random_movement = "UP LEFT"
+                self.requested_movement = "UP LEFT"
                 climbing = False
-            elif (self.character_map[self.character.grid_y][self.character.grid_x] == 3):
+            elif (self._walkable_maze_matrix[self.character.grid_y][self.character.grid_x] == 3):
                 # Once the computer finds a ladder, it'll need to randomly decide to climb it or not
                 if (random.randint(0, 1) == 0): 
-                    self.requested_random_movement = "UP"
+                    self.requested_movement = "UP"
                     climbing = True
             # If the player is about to walk into a wall then force it to move the other way
-            elif (self.character_map[self.character.grid_y][self.character.grid_x - 1] == 0):
-                self.requested_random_movement = "RIGHT"
-            elif (self.character_map[self.character.grid_y][self.character.grid_x + 1] == 0):
-                self.requested_random_movement = "LEFT"
+            elif (self._walkable_maze_matrix[self.character.grid_y][self.character.grid_x - 1] == 0):
+                self.requested_movement = "RIGHT"
+            elif (self._walkable_maze_matrix[self.character.grid_y][self.character.grid_x + 1] == 0):
+                self.requested_movement = "LEFT"
             else:
-                self.requested_random_movement = random.choice(moves)
+                self.requested_movement = random.choice(moves)
+
             time.sleep(1)
-
-    def move(self, screen, world_data, asset_groups, game_over):
-        return self.character.draw_animation(screen, world_data, asset_groups, game_over, self.requested_random_movement)
-
+    
 
     

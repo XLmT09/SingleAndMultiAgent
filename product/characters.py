@@ -71,7 +71,7 @@ class CharacterAnimationManager:
         self.animation_actions[animation_desciption] = Player(sprite_sheet, self.width, self.height, animation_steps)
 
     def draw_outline(self, screen):
-        pygame.draw.rect(screen, WHITE, self.rect, 2)
+        #pygame.draw.rect(screen, WHITE, self.rect, 2)
         pygame.draw.rect(screen, WHITE, self.hitbox_rect, 2)
 
     def human_player_movement(self, world_tile_data):
@@ -115,6 +115,9 @@ class CharacterAnimationManager:
             self.requested_animation = "climb"
             self.dy -= 1
             self.dx -= 1
+        if direction == "None":
+            self.dx, self.dy = 0, 0
+            self.requested_animation = "idle"
     
     def draw_animation(self, screen, world_tile_data, world_assets, game_over, direction = None):
         self.requested_animation = "idle"
@@ -161,9 +164,12 @@ class CharacterAnimationManager:
                 elif self.vel_y >= 0:
                     self.dy = tile[1].top - self.hitbox_rect.bottom
                     self.vel_y = 0
-
-        self.grid_x = self.hitbox_rect.x // 50
-        self.grid_y = self.hitbox_rect.y // 50
+        
+        if self.look_left:
+            self.grid_x = (self.hitbox_rect.x + self.width) // 50
+        else:
+            self.grid_x = self.hitbox_rect.x // 50
+        self.grid_y = (self.hitbox_rect.y + self.height) // 50
 
         #print(f"grid {self.grid_x}, {self.grid_y}")
         #check for collision with diamond
@@ -189,4 +195,7 @@ class CharacterAnimationManager:
     
     def get_player_score(self) -> int:
         return self._score
+
+    def get_player_grid_coordinates(self) -> int:
+        return (self.grid_y, self.grid_x)
         
