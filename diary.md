@@ -4,6 +4,10 @@
 - When the diamond re-spawns, I have made sure the BFS algorithm will automatically start finding a path to the new diamond location.
 - I have split the computer class up with child classes, these child classes will represent its own algorithm. For example, <code>BFSComputer</code> and <code>RandomComputer</code>.
 
+<ins>**Testing**</ins>
+- I have written two test cases, one which checks if there is a diamond in the maze.
+- The other test checks if the BFS algo generates the expected path to the target.
+
 <ins>**Problems/ Potenial Issues**</ins>
 - Right now the BFS algorithm **first** finds a path, once a path is found the character is able to move. I'm not sure if this going to cause problems or not, but for now this is how I have implemented it.
 - When <code>BFSComputer</code> is running, the game is lagging. I'm pretty sure this is an issue related with the thread that had been generated to do the path finding. Also, when <code>RandomComputer</code> is running there is no noticable lag. 
