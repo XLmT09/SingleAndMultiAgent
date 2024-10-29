@@ -130,6 +130,13 @@ class World:
                     img_rect.y = row_cnt * TILE_SIZE
                     tile = (img, img_rect)
                     self._non_collidable_tile_list.append(tile)
+                if tile == 4:
+                    img = pygame.transform.scale(self._tile_list_images[3], (TILE_SIZE, TILE_SIZE))
+                    img_rect = img.get_rect()
+                    img_rect.x = col_cnt * TILE_SIZE
+                    img_rect.y = row_cnt * TILE_SIZE
+                    tile = (img, img_rect)
+                    self._collidable_tile_list.append(tile) 
                 col_cnt += 1
             row_cnt += 1
 
