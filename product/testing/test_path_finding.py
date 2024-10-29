@@ -3,7 +3,7 @@ import sys, os
 import pygame 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from computer import Computer 
+from computer import BFSComputer 
 from characters import CharacterAnimationManager
 from world import World
 
@@ -56,7 +56,7 @@ class TestComputer(unittest.TestCase):
                 
 
     def test_bfs_can_find_path_in_small_maze(self):
-        computer = Computer(self.player, self.world.get_walkable_maze_matrix())
+        computer = BFSComputer(self.player, self.world.get_walkable_maze_matrix())
         path = computer.bfs_path_find()
         computer.stop_thread = True
         self.assertEqual(path, 

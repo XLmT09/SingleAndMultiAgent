@@ -1,7 +1,7 @@
 import pygame
 from characters import CharacterAnimationManager
 from world import World
-from computer import Computer
+from computer import *
 from text import Text
 
 pygame.init()
@@ -50,7 +50,8 @@ player.set_char_animation("climb", r"product\assets\images\characters\Dude_Monst
 
 world = World(data)
 # world.print_walkable_maze_matrix()
-computer = Computer(player, world.get_walkable_maze_matrix())
+computer = BFSComputer(player, world.get_walkable_maze_matrix())
+computer.start_thread()
 #computer.bfs_path_find()
 
 def game():
@@ -65,13 +66,13 @@ def game():
         # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                computer.stop_thread = True
+                computer.stop_path_find_algo_thread()
                 pygame.quit()
                 quit()
         
         key = pygame.key.get_pressed()
         if key[pygame.K_c]:
-            computer.stop_thread = True
+            computer.stop_path_find_algo_thread()
         
         if player.get_is_diamond_found():
             world.update_diamond_position()
