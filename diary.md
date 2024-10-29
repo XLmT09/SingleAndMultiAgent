@@ -1,3 +1,13 @@
+### Week 5
+- I have implemented the first real algorithm (BFS) the character will use to get to a diamond.
+- There was an issue with threading because after i close the main application a child thread that was doing path finding kept running. To solve this I added a function into computer.py and when called it should terminate any threads that it had called.
+- When the diamond re-spawns, I have made sure the BFS algorithm will automatically start finding a path to the new diamond location.
+- I have split the computer class up with child classes, these child classes will represent its own algorithm. For example, <code>BFSComputer</code> and <code>RandomComputer</code>.
+
+<ins>**Problems/ Potenial Issues**</ins>
+- Right now the BFS algorithm **first** finds a path, once a path is found the character is able to move. I'm not sure if this going to cause problems or not, but for now this is how I have implemented it.
+- When <code>BFSComputer</code> is running, the game is lagging. I'm pretty sure this is an issue related with the thread that had been generated to do the path finding. Also, when <code>RandomComputer</code> is running there is no noticable lag. 
+
 ### Week 4
 - Added logic so that diamonds are able to respawn when the player collides with them, on top of this I have also added a score counter which increments every time the player collides with a diamond.
 - The first algorithm for the agent has been implemented where it will randomly move around the map.
