@@ -46,21 +46,28 @@ class Computer:
         """ Set the walkable maze matrix with a new one. """
         self._walkable_maze_matrix = walkable_maze
 
-class BFSComputer(Computer):
-    """ This class will control the character and do BFS path find. """
-    def __init__(self, character, walkable_maze):
-        super().__init__(character, walkable_maze)
+    def reconstruct_path(self, search_path_histroy, end) -> None:
+        """ Some algo's will store store contents of every path its looked into, in this
+        function we will extract the path its found to the target.
 
-    def perfrom_path_find(self):
-        """ This functions keeps searching for a path until the stop_thread flag is set. """
-        while not self.stop_thread:
-            self.move_based_on_path_instructions()
-        print("Thread is finished")
+        Args:
+            search_path_histroy (list of tuples): A list of all the paths that has been looked into.
+            end (list): The coord of the diamond.
+        """
+        final_path = []
+        current = end
 
+        while current is not None:
+            final_path.append(current)
+            current = search_path_histroy[current]
+            
+        final_path.reverse()
+        return final_path
+    
     def move_based_on_path_instructions(self):
         """ This function will get the BFS path, then  move the character to follow the
         path it's found. """
-        path_to_follow = self.bfs_path_find()
+        path_to_follow = self.generate_path()
         instruction_number = 0
         target = path_to_follow[-1]
         climbing = False
@@ -101,8 +108,19 @@ class BFSComputer(Computer):
                         
         self.requested_movement = "None"
         return
+
+class BFSComputer(Computer):
+    """ This class will control the character and do BFS path find. """
+    def __init__(self, character, walkable_maze):
+        super().__init__(character, walkable_maze)
+
+    def perfrom_path_find(self):
+        """ This functions keeps searching for a path until the stop_thread flag is set. """
+        while not self.stop_thread:
+            self.move_based_on_path_instructions()
+        print("Thread is finished")
     
-    def bfs_path_find(self) -> list:
+    def generate_path(self) -> list:
         """ This function uses bfs search to find the path to the diamond. """
         start = self.character.get_player_grid_coordinates()
         queue = deque([start])
@@ -127,24 +145,38 @@ class BFSComputer(Computer):
                     search_path_histroy[next_grid] = current         
 
         return None           
+    
+class DFSComputer(Computer):
+    def __init__(self, character, walkable_maze):
+        super().__init__(character, walkable_maze)
+    
+    def perfrom_path_find(self):
+        """ This functions keeps searching for a path until the stop_thread flag is set. """
+        while not self.stop_thread:
+            self.move_based_on_path_instructions()
+        print("Thread is finished")
 
-    def reconstruct_path(self, search_path_histroy, end) -> None:
-        """ The bfs algo will store store contents of every path its looked into, in this
-        function we will extract the path its found to the target.
+    def generate_path(self) -> list:
+        start = self.character.get_player_grid_coordinates()
+        stack = [start]
+        visited = {start}
+        search_path_history = {start:None}
 
-        Args:
-            search_path_histroy (list of tuples): A list of all the paths bfs has looked into.
-            end (list): The coord of the diamond.
-        """
-        final_path = []
-        current = end
+        while stack:
+            current = stack.pop()
 
-        while current is not None:
-            final_path.append(current)
-            current = search_path_histroy[current]
-            
-        final_path.reverse()
-        return final_path
+            if self._walkable_maze_matrix[current[0]][current[1]] == 2:
+                return self.reconstruct_path(search_path_history, current)
+
+            for direction in self._directions:
+                next_grid = (current[0] + direction[0], current[1] + direction[1])
+
+                if (self._walkable_maze_matrix[next_grid[0]][next_grid[1]] != 0 and next_grid not in visited):
+                    stack.append(next_grid)
+                    visited.add(next_grid)
+                    search_path_history[next_grid] = current
+
+                # Apply movement on charcter from the generated DFS path
 
 
 class RandomComputer(Computer):

@@ -50,7 +50,7 @@ player.set_char_animation("climb", r"product\assets\images\characters\Dude_Monst
 
 world = World(data)
 # world.print_walkable_maze_matrix()
-computer = BFSComputer(player, world.get_walkable_maze_matrix())
+computer = DFSComputer(player, world.get_walkable_maze_matrix())
 computer.start_thread()
 #computer.bfs_path_find()
 
