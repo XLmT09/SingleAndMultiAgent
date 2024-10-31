@@ -44,15 +44,18 @@ class CharacterAnimationManager:
         self.width = width
         self.height = height
         self.rect = pygame.Rect(x, y, width * 1.8, height * 1.8)
+        self.pos_x, self.pos_y = x, y
+        self.rect.center = (self.pos_x, self.pos_y)
 
         # character hitbox
         # add offset to width and height to make hitbox smaller
         self.hitbox_width = width
         self.hitbox_height = height + 14
-        self.hitbox_rect = pygame.Rect(x + 10, 
-                                       y + 9, 
+        self.hitbox_rect = pygame.Rect(x, 
+                                       y, 
                                        self.hitbox_width, 
                                        self.hitbox_height)
+        self.hitbox_rect.center = (self.pos_x - 1, self.pos_y + 4)
 
         self.animation_actions = {}
         self.requested_animation = "idle"
@@ -178,10 +181,13 @@ class CharacterAnimationManager:
             self._score += 1
             print(self._score)
 
-        self.rect.x += self.dx
-        self.rect.y += self.dy
-        self.hitbox_rect.x += self.dx
-        self.hitbox_rect.y += self.dy
+        self.pos_x += self.dx
+        self.pos_y += self.dy
+
+        # Update the center values, therefore we can use decimal movemnt. Directly updating the center values,
+        # does not support decimal movement.
+        self.rect.center = (self.pos_x, self.pos_y)
+        self.hitbox_rect.center = (self.pos_x - 1, self.pos_y + 4)
 
         self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame, self.look_left)
 
