@@ -102,11 +102,17 @@ class CharacterAnimationManager:
         if direction == "RIGHT":
             self.requested_animation = "walk"
             self.look_left = False
-            self.dx += 1
+            if self._on_a_slow_block():
+                self.dx += 0.5
+            else:
+                self.dx += 1
         if direction == "LEFT":
             self.requested_animation = "walk"
             self.look_left = True
-            self.dx -= 1
+            if self._on_a_slow_block():
+                self.dx -= 0.5
+            else:
+                self.dx -= 1
         if direction == "UP" and self.maze_data[self.grid_y][self.grid_x] == 3:
             self.requested_animation = "climb"
             self.dy -= 1
@@ -188,10 +194,13 @@ class CharacterAnimationManager:
         else:
             self.grid_x = self.hitbox_rect.x // 50
         self.grid_y = (self.hitbox_rect.y + self.height) // 50
-        
+
         self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame, self.look_left)
 
         return game_over
+    
+    def _on_a_slow_block(self) -> bool:
+        return self.maze_data[self.grid_y + 1][self.grid_x] == 4
 
     def get_is_diamond_found(self) -> bool:
         return self._is_diamond_found
