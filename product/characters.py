@@ -107,7 +107,7 @@ class CharacterAnimationManager:
             self.requested_animation = "walk"
             self.look_left = True
             self.dx -= 1
-        if direction == "UP":
+        if direction == "UP" and self.maze_data[self.grid_y][self.grid_x] == 3:
             self.requested_animation = "climb"
             self.dy -= 1
         if direction == "UP RIGHT":
@@ -167,12 +167,6 @@ class CharacterAnimationManager:
                 elif self.vel_y >= 0:
                     self.dy = tile[1].top - self.hitbox_rect.bottom
                     self.vel_y = 0
-        
-        if self.look_left:
-            self.grid_x = (self.hitbox_rect.x + self.width) // 50
-        else:
-            self.grid_x = self.hitbox_rect.x // 50
-        self.grid_y = (self.hitbox_rect.y + self.height) // 50
 
         #print(f"grid {self.grid_x}, {self.grid_y}")
         #check for collision with diamond
@@ -189,6 +183,12 @@ class CharacterAnimationManager:
         self.rect.center = (self.pos_x, self.pos_y)
         self.hitbox_rect.center = (self.pos_x - 1, self.pos_y + 4)
 
+        if self.look_left:
+            self.grid_x = (self.hitbox_rect.x + self.width) // 50
+        else:
+            self.grid_x = self.hitbox_rect.x // 50
+        self.grid_y = (self.hitbox_rect.y + self.height) // 50
+        
         self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame, self.look_left)
 
         return game_over
