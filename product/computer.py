@@ -62,6 +62,7 @@ class Computer:
             current = search_path_histroy[current]
             
         final_path.reverse()
+        print(final_path)
         return final_path
     
     def move_based_on_path_instructions(self):
@@ -123,6 +124,7 @@ class BFSComputer(Computer):
     def generate_path(self) -> list:
         """ This function uses bfs search to find the path to the diamond. """
         start = self.character.get_player_grid_coordinates()
+        print(f"start coord are {start}")
         queue = deque([start])
         visited = {start}
         # This will contain the all the potential paths, bfs has looked into
