@@ -74,7 +74,6 @@ class Computer:
         climbing = False
         player_position = (self.character.grid_y, self.character.grid_x)
 
-
         while player_position != target:
             if self.stop_thread:
                 print("exit is set")
@@ -87,8 +86,12 @@ class Computer:
             if (pos_diff == (0, 0)):
                 instruction_number += 1
                 continue
-            
-            if (climbing and pos_diff[1] > 0):
+
+            if (pos_diff[1] > 0 and not climbing):
+                self.requested_movement = "LEFT"
+            elif (pos_diff[1] < 0 and not climbing):
+                self.requested_movement = "RIGHT"          
+            elif (climbing and pos_diff[1] > 0):
                 self.requested_movement = "UP LEFT"
                 time.sleep(1)
                 climbing = False
@@ -99,10 +102,6 @@ class Computer:
             elif (pos_diff[0] > 0 or climbing):
                 self.requested_movement = "UP"
                 climbing = True
-            elif (pos_diff[1] > 0):
-                self.requested_movement = "LEFT"
-            elif (pos_diff[1] < 0):
-                self.requested_movement = "RIGHT"
             
             # update the player position value
             player_position = (self.character.grid_y, self.character.grid_x)
