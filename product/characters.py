@@ -44,15 +44,18 @@ class CharacterAnimationManager:
         self.width = width
         self.height = height
         self.rect = pygame.Rect(x, y, width * 1.8, height * 1.8)
+        self.pos_x, self.pos_y = x, y
+        self.rect.center = (self.pos_x, self.pos_y)
 
         # character hitbox
         # add offset to width and height to make hitbox smaller
         self.hitbox_width = width
         self.hitbox_height = height + 14
-        self.hitbox_rect = pygame.Rect(x + 10, 
-                                       y + 9, 
+        self.hitbox_rect = pygame.Rect(x, 
+                                       y, 
                                        self.hitbox_width, 
                                        self.hitbox_height)
+        self.hitbox_rect.center = (self.pos_x - 1, self.pos_y + 4)
 
         self.animation_actions = {}
         self.requested_animation = "idle"
@@ -61,8 +64,11 @@ class CharacterAnimationManager:
         self.look_left = False
         self.jumped = False
         self.is_controlled_by_computer = is_controlled_by_computer
-        self.grid_x = self.hitbox_rect.x // 50
-        self.grid_y = self.hitbox_rect.y // 50
+        if self.look_left:
+            self.grid_x = (self.hitbox_rect.x + self.width) // 50
+        else:
+            self.grid_x = self.hitbox_rect.x // 50
+        self.grid_y = (self.hitbox_rect.y) // 50
         self.maze_data = maze_data
         self._is_diamond_found = False
         self._score = 0
@@ -99,29 +105,29 @@ class CharacterAnimationManager:
         if direction == "RIGHT":
             self.requested_animation = "walk"
             self.look_left = False
-            if self._on_a_slow_block():
+            if self._on_a_slow_block(): 
                 self.dx += 0.5
-            else:
+            else: 
                 self.dx += 1
-        if direction == "LEFT":
+        elif direction == "LEFT":
             self.requested_animation = "walk"
             self.look_left = True
-            if self._on_a_slow_block():
+            if self._on_a_slow_block(): 
                 self.dx -= 0.5
-            else:
+            else: 
                 self.dx -= 1
-        if direction == "UP" and self.maze_data[self.grid_y][self.grid_x] == 3:
+        elif direction == "UP" and self.maze_data[self.grid_y][self.grid_x] == 3:
             self.requested_animation = "climb"
             self.dy -= 1
-        if direction == "UP RIGHT":
+        elif direction == "UP RIGHT" and self.maze_data[self.grid_y][self.grid_x] == 3:
             self.requested_animation = "climb"
             self.dy -= 1
             self.dx += 1
-        if direction == "UP LEFT":
+        elif direction == "UP LEFT" and self.maze_data[self.grid_y][self.grid_x] == 3:
             self.requested_animation = "climb"
             self.dy -= 1
             self.dx -= 1
-        if direction == "None":
+        elif direction == "None":
             self.dx, self.dy = 0, 0
             self.requested_animation = "idle"
     
@@ -178,16 +184,19 @@ class CharacterAnimationManager:
             self._score += 1
             print(self._score)
 
-        self.rect.x += self.dx
-        self.rect.y += self.dy
-        self.hitbox_rect.x += self.dx
-        self.hitbox_rect.y += self.dy
+        self.pos_x += self.dx
+        self.pos_y += self.dy
+
+        # Update the center values, therefore we can use decimal movemnt. Directly updating the center values,
+        # does not support decimal movement.
+        self.rect.center = (self.pos_x, self.pos_y)
+        self.hitbox_rect.center = (self.pos_x - 1, self.pos_y + 4)
 
         if self.look_left:
             self.grid_x = (self.hitbox_rect.x + self.width) // 50
         else:
             self.grid_x = self.hitbox_rect.x // 50
-        self.grid_y = (self.hitbox_rect.y + self.height) // 50
+        self.grid_y = (self.hitbox_rect.y) // 50
 
         self.animation_actions[self.requested_animation].draw_animation(screen, self.rect, update_frame, self.look_left)
 
