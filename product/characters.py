@@ -116,14 +116,14 @@ class CharacterAnimationManager:
                 self.dx -= 0.5
             else: 
                 self.dx -= 1
-        elif direction == "UP" and self.maze_data[self.grid_y][self.grid_x] == 3:
+        elif direction == "UP":
             self.requested_animation = "climb"
             self.dy -= 1
-        elif direction == "UP RIGHT" and self.maze_data[self.grid_y][self.grid_x] == 3:
+        elif direction == "UP RIGHT":
             self.requested_animation = "climb"
             self.dy -= 1
             self.dx += 1
-        elif direction == "UP LEFT" and self.maze_data[self.grid_y][self.grid_x] == 3:
+        elif direction == "UP LEFT":
             self.requested_animation = "climb"
             self.dy -= 1
             self.dx -= 1

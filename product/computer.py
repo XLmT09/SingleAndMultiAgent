@@ -87,11 +87,7 @@ class Computer:
                 instruction_number += 1
                 continue
 
-            if (pos_diff[1] > 0 and not climbing):
-                self.requested_movement = "LEFT"
-            elif (pos_diff[1] < 0 and not climbing):
-                self.requested_movement = "RIGHT"          
-            elif (climbing and pos_diff[1] > 0):
+            if (climbing and pos_diff[1] > 0):
                 self.requested_movement = "UP LEFT"
                 time.sleep(1)
                 climbing = False
@@ -101,7 +97,11 @@ class Computer:
                 climbing = False
             elif (pos_diff[0] > 0 or climbing):
                 self.requested_movement = "UP"
-                climbing = True
+                climbing = True  
+            elif (pos_diff[1] > 0 and not climbing):
+                self.requested_movement = "LEFT"
+            elif (pos_diff[1] < 0 and not climbing):
+                self.requested_movement = "RIGHT"          
             
             # update the player position value
             player_position = (self.character.grid_y, self.character.grid_x)
