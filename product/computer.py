@@ -62,6 +62,7 @@ class Computer:
             current = search_path_histroy[current]
             
         final_path.reverse()
+        print(final_path)
         return final_path
     
     def move_based_on_path_instructions(self):
@@ -72,7 +73,6 @@ class Computer:
         target = path_to_follow[-1]
         climbing = False
         player_position = (self.character.grid_y, self.character.grid_x)
-
 
         while player_position != target:
             if self.stop_thread:
@@ -86,7 +86,7 @@ class Computer:
             if (pos_diff == (0, 0)):
                 instruction_number += 1
                 continue
-            
+
             if (climbing and pos_diff[1] > 0):
                 self.requested_movement = "UP LEFT"
                 time.sleep(1)
@@ -97,11 +97,11 @@ class Computer:
                 climbing = False
             elif (pos_diff[0] > 0 or climbing):
                 self.requested_movement = "UP"
-                climbing = True
-            elif (pos_diff[1] > 0):
+                climbing = True  
+            elif (pos_diff[1] > 0 and not climbing):
                 self.requested_movement = "LEFT"
-            elif (pos_diff[1] < 0):
-                self.requested_movement = "RIGHT"
+            elif (pos_diff[1] < 0 and not climbing):
+                self.requested_movement = "RIGHT"          
             
             # update the player position value
             player_position = (self.character.grid_y, self.character.grid_x)
@@ -123,6 +123,7 @@ class BFSComputer(Computer):
     def generate_path(self) -> list:
         """ This function uses bfs search to find the path to the diamond. """
         start = self.character.get_player_grid_coordinates()
+        print(f"start coord are {start}")
         queue = deque([start])
         visited = {start}
         # This will contain the all the potential paths, bfs has looked into

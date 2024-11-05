@@ -130,6 +130,13 @@ class World:
                     img_rect.y = row_cnt * TILE_SIZE
                     tile = (img, img_rect)
                     self._non_collidable_tile_list.append(tile)
+                if tile == 4:
+                    img = pygame.transform.scale(self._tile_list_images[3], (TILE_SIZE, TILE_SIZE))
+                    img_rect = img.get_rect()
+                    img_rect.x = col_cnt * TILE_SIZE
+                    img_rect.y = row_cnt * TILE_SIZE
+                    tile = (img, img_rect)
+                    self._collidable_tile_list.append(tile) 
                 col_cnt += 1
             row_cnt += 1
 
@@ -143,20 +150,31 @@ class World:
         A tile is considered climable is there is a ladder i.e. a 3 in the world
         matrix.
         """
+        walkable_tiles = {1, 4}
         for i in range(len(self._world_matrix)):
             for j in range(len(self._world_matrix[0])):
                 # Check if the tile is empty and that there is a tile above and below it
-                if(self._world_matrix[i][j] == 0):
-                    if ((i - 1 >= 0) and (j - 1 >= 0) and (i + 1 < len(self._world_matrix)) and 
-                        (j + 1 < len(self._world_matrix[0]))):
-                        if ((self._world_matrix[i-1][j] == 1) and (self._world_matrix[i + 1][j] == 1)):
-                            self._walkable_maze_matrix[i][j] = 1
-                elif(self._world_matrix[i][j] == 2):
+                if(self._world_matrix[i][j] == 2):
                     self._walkable_maze_matrix[i][j] = 2
                 # Check if the tile contains a ladder
                 elif(self._world_matrix[i][j] == 3):
                     self._walkable_maze_matrix[i][j] = 3
-    
+                # Statements with continue in the body check if the cell is walkable, if its not
+                # walkable then leave as 0 and go to the next loop.
+                elif (not (self._world_matrix[i][j] == 0)):
+                    continue
+                elif not ((i - 1 >= 0) and (j - 1 >= 0) and (i + 1 < len(self._world_matrix)) and 
+                    (j + 1 < len(self._world_matrix[0]))):
+                    continue           
+                elif not ((self._world_matrix[i-1][j] in walkable_tiles) and (self._world_matrix[i + 1][j] in walkable_tiles)):
+                    continue
+                elif (self._world_matrix[i-1][j] == 1):
+                    # 1 indicates a normal block
+                    self._walkable_maze_matrix[i][j] = 1
+                elif (self._world_matrix[i-1][j] == 4):
+                    # 4 indicates a slow block
+                    self._walkable_maze_matrix[i][j] = 4                
+
     def _randomly_update_diamond_location(self) -> None:
         """ This function randomly updates the location of the diamond,
         in a valid spot on the maze.
