@@ -168,10 +168,10 @@ class World:
                     continue           
                 elif not ((self._world_matrix[i-1][j] in walkable_tiles) and (self._world_matrix[i + 1][j] in walkable_tiles)):
                     continue
-                elif (self._world_matrix[i-1][j] == 1):
+                elif (self._world_matrix[i+1][j] == 1):
                     # 1 indicates a normal block
                     self._walkable_maze_matrix[i][j] = 1
-                elif (self._world_matrix[i-1][j] == 4):
+                elif (self._world_matrix[i+1][j] == 4):
                     # 4 indicates a slow block
                     self._walkable_maze_matrix[i][j] = 4                
 
