@@ -70,6 +70,7 @@ class Computer:
         """ This function will get the BFS path, then  move the character to follow the
         path it's found. """
         path_to_follow = self.generate_path()
+        print(path_to_follow)
         instruction_number = 0
         target = path_to_follow[-1]
         climbing = False
