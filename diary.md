@@ -1,3 +1,15 @@
+### Week 7
+<ins>**Updates on Algorithm**</ins>
+- Now that the game has slow tiles, different paths will have different costs. This means a new algorithm is needed to consider these factors, and the one I have implemented is Uniform Cost Search.
+
+<ins>**Problems and Fixes**</ins>
+- There were problems, though; first of all, my uniform cost search algorithm was not working as intended because it was not finding the most optimal path. I know this because I deliberately made a really slow path and a fast one, and it will always go for the slow one because it was shorter in distance. The reason for this is that this whole time, the algorithm was checking the tiles over it and not under it. Everything had been working fine before because the tile values were all 1, but now that I had added slow tiles with a value of 2, I was able to spot this mistake.
+
+<ins>**Updates on Game**</ins>
+- I also created a medium-sized maze.
+
+<ins>**Testing**</ins>
+- I have written test cases for the medium-size maze, testing the three path algorithms that have been written so far and seeing if they generate the expected path.
 ### Week 6
 
 <ins>**Updates to Game**</ins>
@@ -15,11 +27,6 @@
 - Then, the next issue I encountered was that I could not lower the movement from 1 to something like 0.5. This is because pygame.rect.x and pygame.rect.y do not take in float values. If we pass them float values, it will just convert them into integers, meaning the player will stop (rounds down to 0) or continue working at normal speed (rounds up to 1).
   I found a "hacky" solution on StackOverflow to resolve this issue. Instead of changing the x/y values of a rect, I can update its centre coordinates, allowing for decimal input.
   But then this caused issues with collisions, and it felt like the player was walking through the maze. This is because I also had to change and update the hitbox rect and manipulate its centre values.
-
-<ins>**Unsolved Issues**</ins>
-
-- I got another problem after that which I will solve in week 7:
-  When the computer moves the player, the player sometimes freezes. I notice this happens when it tries to climb a ladder.
 
 ### Week 5
 
