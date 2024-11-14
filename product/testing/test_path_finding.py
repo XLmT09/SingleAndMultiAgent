@@ -1,6 +1,6 @@
 import unittest
 import sys, os
-import pygame 
+import pygame, pickle
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from computer import *
@@ -11,30 +11,14 @@ CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32
 SCREEN_WIDTH = 1400
 SCREEN_HEIGHT = 800
-class TestComputer(unittest.TestCase):
-    maze_map = [
-        [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 0, 0 , 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-        [1, 1, 1, 1 , 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 0, 0 , 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 2, 0, 0, 0, 1, 1],
-        [1, 1, 1, 1 , 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 0, 0 , 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-        [1, 1, 1, 1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-        ]
+# Test cases will generate the maze map
+maze_map = None
 
-    def setUp(self):
+class TestComputer(unittest.TestCase):
+    def setUp(self, pos_x, pos_y):
         pygame.init()
         pygame.display.set_mode((1,1), 0, 32)
-        self.player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, self.maze_map, True, 500, 700)
+        self.player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, self.maze_map, True, pos_x, pos_y)
         self.player.set_char_animation("idle", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png", 4)  
         self.player.set_char_animation("jump", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Jump_8.png", 8)
         self.player.set_char_animation("walk", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Walk_6.png", 6)
@@ -44,6 +28,13 @@ class TestComputer(unittest.TestCase):
     
     def tearDown(self):
         pygame.quit()
+class TestComputerSmallMaze(TestComputer, unittest.TestCase):
+    """ Test path finding algorithms can work on a small maze. """
+    with open('maze_1', 'rb') as file:
+        maze_map = pickle.load(file)
+
+    def setUp(self):
+        super().setUp(500, 700)
 
     def test_maze_has_diamond(self):
         diamond_found = False
@@ -79,38 +70,13 @@ class TestComputer(unittest.TestCase):
                         [(13, 9), (12, 9), (12, 10), (12, 11), (12, 12), (12, 13), (12, 14)])        
         computer.stop_thread = True
 
-class TestComputerMidMaze(unittest.TestCase):
-    maze_map = [
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 4, 4, 1, 3, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 4, 3, 4, 4, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0, 0, 3, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 4, 4, 4, 1, 1, 3, 1, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1],
-        [1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1],
-        [1, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 4, 4, 4, 4, 4, 4, 4, 4, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+class TestComputerMidMaze(TestComputer, unittest.TestCase):
+    """ Test path finding algorithms can work on a mid size maze. """
+    with open('maze_2', 'rb') as file:
+        maze_map = pickle.load(file)
 
     def setUp(self):
-        pygame.init()
-        pygame.display.set_mode((1,1), 0, 32)
-        self.player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, self.maze_map, True, 500, 700)
-        self.player.set_char_animation("idle", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png", 4)  
-        self.player.set_char_animation("jump", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Jump_8.png", 8)
-        self.player.set_char_animation("walk", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Walk_6.png", 6)
-        self.player.set_char_animation("climb", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Climb_4.png", 4)
-
-        self.world = World(self.maze_map)
-    
-    def tearDown(self):
-        pygame.quit()
+        super().setUp(500, 700)
 
     def test_bfs_can_find_path_in_mid_maze(self):
         computer = BFSComputer(self.player, self.world.get_walkable_maze_matrix())
@@ -148,38 +114,13 @@ class TestComputerMidMaze(unittest.TestCase):
                          (8, 14), (8, 15), (8, 16), (8, 17), (8, 18)])        
         computer.stop_thread = True
 
-class TestComputerLargeMaze(unittest.TestCase):
-    maze_map = [
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 4, 4, 1, 3, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 1, 1, 1, 1, 1, 1, 4, 4, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1],
-        [1, 1, 1, 4, 3, 4, 4, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 3, 1],
-        [1, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 4, 4, 4, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 3, 2, 0, 0, 0, 0, 0, 0, 0, 3, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1],
-        [1, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1],
-        [1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 4, 4, 1, 3, 1],
-        [1, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
-
-    def setUp(self):
-        pygame.init()
-        pygame.display.set_mode((1,1), 0, 32)
-        # The player will start at a different postion in this test dure to its size
-        self.player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, self.maze_map, True, 480, 600)
-        self.player.set_char_animation("idle", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png", 4)  
-        self.player.set_char_animation("jump", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Jump_8.png", 8)
-        self.player.set_char_animation("walk", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Walk_6.png", 6)
-        self.player.set_char_animation("climb", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Climb_4.png", 4)
-
-        self.world = World(self.maze_map)
+class TestComputerLargeMaze(TestComputer, unittest.TestCase):
+    """ Test path finding algorithms can work on a large maze. """
+    with open('maze_3', 'rb') as file:
+        maze_map = pickle.load(file)
     
-    def tearDown(self):
-        pygame.quit()
+    def setUp(self):
+        super().setUp(480, 600)
 
     def test_bfs_can_find_path_in_large_maze(self):
         computer = BFSComputer(self.player, self.world.get_walkable_maze_matrix())
@@ -217,38 +158,12 @@ class TestComputerLargeMaze(unittest.TestCase):
                          (7, 15), (7, 16), (7, 17), (7, 18)])        
         computer.stop_thread = True
 
-class TestExtraUCSPathFinding(unittest.TestCase):
-    maze_map = [
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 4, 4, 1, 3, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 4, 3, 4, 4, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0, 0, 3, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 4, 4, 4, 1, 1, 3, 1, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1],
-        [1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1],
-        [1, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3, 0, 0, 2, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+class TestExtraUCSPathFinding(TestComputer, unittest.TestCase):
+    with open('maze_4', 'rb') as file:
+        maze_map = pickle.load(file)
 
     def setUp(self):
-        pygame.init()
-        pygame.display.set_mode((1,1), 0, 32)
-        # The player will start at a different postion in this test dure to its size
-        self.player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, self.maze_map, True, 480, 600)
-        self.player.set_char_animation("idle", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png", 4)  
-        self.player.set_char_animation("jump", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Jump_8.png", 8)
-        self.player.set_char_animation("walk", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Walk_6.png", 6)
-        self.player.set_char_animation("climb", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Climb_4.png", 4)
-
-        self.world = World(self.maze_map)
-    
-    def tearDown(self):
-        pygame.quit()
+        super().setUp(480, 600)
 
     def test_ucs_chooses_low_cost_path_over_a_high_cost_one(self):
         """ The map given has two routes the player can take, one path is shorter but 
