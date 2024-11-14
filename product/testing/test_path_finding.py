@@ -217,6 +217,54 @@ class TestComputerLargeMaze(unittest.TestCase):
                          (7, 15), (7, 16), (7, 17), (7, 18)])        
         computer.stop_thread = True
 
+class TestExtraUCSPathFinding(unittest.TestCase):
+    maze_map = [
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 4, 4, 1, 3, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 4, 3, 4, 4, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0, 0, 3, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 4, 4, 4, 1, 1, 3, 1, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1],
+        [1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1],
+        [1, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3, 0, 0, 2, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+
+    def setUp(self):
+        pygame.init()
+        pygame.display.set_mode((1,1), 0, 32)
+        # The player will start at a different postion in this test dure to its size
+        self.player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, self.maze_map, True, 480, 600)
+        self.player.set_char_animation("idle", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png", 4)  
+        self.player.set_char_animation("jump", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Jump_8.png", 8)
+        self.player.set_char_animation("walk", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Walk_6.png", 6)
+        self.player.set_char_animation("climb", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Climb_4.png", 4)
+
+        self.world = World(self.maze_map)
+    
+    def tearDown(self):
+        pygame.quit()
+
+    def test_ucs_chooses_low_cost_path_over_a_high_cost_one(self):
+        """ The map given has two routes the player can take, one path is shorter but 
+        with slow tiles and the other path is longer but with normal tiles. The UCS 
+        algo is expected to take the later path. 
+        """
+        computer = UCSComputer(self.player, self.world.get_walkable_maze_matrix())
+        computer.stop_thread = True
+        path = computer.generate_path()
+        self.assertEqual(path, 
+                        [(11, 9), (11, 8), (11, 7), (11, 6), (11, 5), (11, 4), (10, 4), 
+                        (9, 4), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9), (9, 10), (9, 11), 
+                        (9, 12), (9, 13), (9, 14), (9, 15), (10, 15), (11, 15), (11, 16), 
+                        (11, 17), (11, 18)])        
+        computer.stop_thread = True
+
 if __name__ == '__main__':
     unittest.main()
 
