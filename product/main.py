@@ -9,7 +9,7 @@ pygame.init()
 
 # Constants
 SCREEN_WIDTH = 1400
-SCREEN_HEIGHT = 800
+SCREEN_HEIGHT = 750
 CHARACTER_WIDTH = 32 
 CHARACTER_HEIGHT = 32
 FPS = 60
@@ -25,10 +25,10 @@ pygame.display.set_caption("Maze Game")
 cave_bg = pygame.image.load(r"product\assets\images\background\cave.png").convert_alpha()
 
 data = None
-with open('maze_1', 'rb') as file:
+with open('maze_3', 'rb') as file:
     data = pickle.load(file)
 
-player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, data, True, 480, 700)
+player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, data, True, 480, 600)
 player.set_char_animation("idle", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png", 4)
 player.set_char_animation("jump", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Jump_8.png", 8)
 player.set_char_animation("walk", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Walk_6.png", 6)
