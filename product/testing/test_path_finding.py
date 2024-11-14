@@ -191,6 +191,20 @@ class TestComputerLargeMaze(unittest.TestCase):
                          (7, 10), (7, 11), (7, 12), (7, 13), (7, 14), (7, 15), (7, 16),
                          (7, 17), (7, 18)])        
         computer.stop_thread = True
+    
+    def test_dfs_can_find_path_in_large_maze(self):
+        computer = DFSComputer(self.player, self.world.get_walkable_maze_matrix())
+        computer.stop_thread = True
+        path = computer.generate_path()
+        self.assertEqual(path, 
+                        [(11, 9), (11, 8), (11, 7), (11, 6), (11, 5), (11, 4), 
+                         (10, 4), (9, 4), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9), 
+                         (8, 9), (7, 9), (6, 9), (5, 9), (5, 8), (5, 7), (5, 6), 
+                         (5, 5), (5, 4), (4, 4), (3, 4), (3, 5), (3, 6), (3, 7), 
+                         (3, 8), (3, 9), (3, 10), (3, 11), (3, 12), (4, 12), (5, 12), 
+                         (5, 13), (5, 14), (5, 15), (5, 16), (5, 17), (6, 17), 
+                         (7, 17), (7, 18)])        
+        computer.stop_thread = True
 
 if __name__ == '__main__':
     unittest.main()
