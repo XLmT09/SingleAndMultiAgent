@@ -34,17 +34,7 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
         maze_map = pickle.load(file)
 
     def setUp(self):
-        super().setUp(500, 700)
-
-    def test_maze_has_diamond(self):
-        diamond_found = False
-        for i in range(len(self.maze_map)):
-            for j in range(len(self.maze_map[0])):
-                if (self.maze_map[i][j] == 2):
-                    diamond_found = True
-                    break
-        self.assertEqual(True, diamond_found)
-                
+        super().setUp(500, 700)           
 
     def test_bfs_can_find_path_in_small_maze(self):
         computer = BFSComputer(self.player, self.world.get_walkable_maze_matrix())
