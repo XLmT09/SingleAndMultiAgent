@@ -1,3 +1,5 @@
+script:
+  - ls -l product/assets/images/characters/Dude_Monster/
 test:
   stage: test
   script: 
