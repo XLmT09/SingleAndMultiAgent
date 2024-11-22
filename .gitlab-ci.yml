@@ -1,12 +1,19 @@
+stages:
+  - build
+  - test
+
 build:
   stage: build
-  script: 
+  script:
     - echo "Generating the mazes"
     - python product/create_maze.py
     - echo "Mazes have been generated"
+  artifacts:
+    paths:
+      - maze*
 
 test:
   stage: test
-  script: 
+  script:
     - ls -l product/assets/images/characters/Dude_Monster/
     - python -m unittest discover ./product/testing/
