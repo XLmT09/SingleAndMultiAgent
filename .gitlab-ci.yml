@@ -1,4 +1,4 @@
 test:
   stage: test
   script: 
-    - python -m unittest discover .\product\testing\
+    - python -m unittest discover ./product/testing/
