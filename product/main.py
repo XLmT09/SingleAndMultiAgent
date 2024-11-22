@@ -22,17 +22,17 @@ clock = pygame.time.Clock()
 pygame.display.set_caption("Maze Game")
 
 # Background image for the game
-cave_bg = pygame.image.load(r"product\assets\images\background\cave.png").convert_alpha()
+cave_bg = pygame.image.load("product/assets/images/background/cave.png").convert_alpha()
 
 data = None
 with open('maze_3', 'rb') as file:
     data = pickle.load(file)
 
 player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, data, True, 480, 600)
-player.set_char_animation("idle", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png", 4)
-player.set_char_animation("jump", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Jump_8.png", 8)
-player.set_char_animation("walk", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Walk_6.png", 6)
-player.set_char_animation("climb", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Climb_4.png", 4)
+player.set_char_animation("idle", "product/assets/images/characters/Dude_Monster/Dude_Monster_Idle_4.png", 4)  
+player.set_char_animation("jump", "product/assets/images/characters/Dude_Monster/Dude_Monster_Jump_8.png", 8)
+player.set_char_animation("walk", "product/assets/images/characters/Dude_Monster/Dude_Monster_Walk_6.png", 6)
+player.set_char_animation("climb", "product/assets/images/characters/Dude_Monster/Dude_Monster_Climb_4.png", 4)
 
 world = World(data)
 world.print_walkable_maze_matrix()

@@ -19,10 +19,10 @@ class TestComputer(unittest.TestCase):
         pygame.init()
         pygame.display.set_mode((1,1), 0, 32)
         self.player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, self.maze_map, True, pos_x, pos_y)
-        self.player.set_char_animation("idle", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Idle_4.png", 4)  
-        self.player.set_char_animation("jump", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Jump_8.png", 8)
-        self.player.set_char_animation("walk", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Walk_6.png", 6)
-        self.player.set_char_animation("climb", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Climb_4.png", 4)
+        self.player.set_char_animation("idle", "product/assets/images/characters/Dude_Monster/Dude_Monster_Idle_4.png", 4)  
+        self.player.set_char_animation("jump", "product/assets/images/characters/Dude_Monster/Dude_Monster_Jump_8.png", 8)
+        self.player.set_char_animation("walk", "product/assets/images/characters/Dude_Monster/Dude_Monster_Walk_6.png", 6)
+        self.player.set_char_animation("climb", "product/assets/images/characters/Dude_Monster/Dude_Monster_Climb_4.png", 4)
 
         self.world = World(self.maze_map)
     
