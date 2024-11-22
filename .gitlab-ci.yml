@@ -1,3 +1,9 @@
+build:
+  stage: build
+  script: 
+    - echo "Generating the mazes"
+    - python product/create_maze.py
+    - echo "Mazes have been generated"
 
 test:
   stage: test
