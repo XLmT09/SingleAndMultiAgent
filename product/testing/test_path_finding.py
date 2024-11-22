@@ -170,6 +170,14 @@ class TestExtraUCSPathFinding(TestComputer, unittest.TestCase):
                         (11, 17), (11, 18)])        
         computer.stop_thread = True
 
+class TestComputerStartIsGoalState(TestComputer, unittest.TestCase):
+    with open('maze_3', 'rb') as file:
+        maze_map = pickle.load(file)
+
+    def setUp(self):
+        super().setUp(950, 400)      
+
+
 if __name__ == '__main__':
     unittest.main()
 
