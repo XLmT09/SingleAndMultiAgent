@@ -29,7 +29,7 @@ with open('maze_3', 'rb') as file:
     data = pickle.load(file)
 
 player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, data, True, 480, 600)
-player.set_char_animation("idle", "product/assets/images/characters/Dude_Monster/Dude_Monster_Idle_4.png", 4)
+player.set_char_animation("idle", "assets/images/characters/Dude_Monster/Dude_Monster_Idle_4.png", 4)
 player.set_char_animation("jump", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Jump_8.png", 8)
 player.set_char_animation("walk", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Walk_6.png", 6)
 player.set_char_animation("climb", r"product\assets\images\characters\Dude_Monster\Dude_Monster_Climb_4.png", 4)
