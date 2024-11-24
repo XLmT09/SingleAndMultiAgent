@@ -7,8 +7,6 @@ stages:
 
 checkstyle:
   stage: checkstyle
-  before_script:
-    - pip install flake8
   script:
     - python3.12 -m flake8
 
