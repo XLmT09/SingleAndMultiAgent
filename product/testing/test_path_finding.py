@@ -1,33 +1,43 @@
+from product.computer import DFSComputer, BFSComputer, UCSComputer
+from product.characters import CharacterAnimationManager
+from product.world import World
+from product.constants import player_sprint_file_paths
+
 import unittest
-import sys, os
-import pygame, pickle
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import pygame
+import pickle
 
-from computer import *
-from characters import CharacterAnimationManager
-from world import World
-
-CHARACTER_WIDTH = 32 
+CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32
 SCREEN_WIDTH = 1400
 SCREEN_HEIGHT = 800
 # Test cases will generate the maze map
 maze_map = None
 
+
 class TestComputer(unittest.TestCase):
     def setUp(self, pos_x, pos_y):
         pygame.init()
         pygame.display.set_mode((1,1), 0, 32)
-        self.player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, self.maze_map, True, pos_x, pos_y)
-        self.player.set_char_animation("idle", "product/assets/images/characters/Dude_Monster/Dude_Monster_Idle_4.png", 4)  
-        self.player.set_char_animation("jump", "product/assets/images/characters/Dude_Monster/Dude_Monster_Jump_8.png", 8)
-        self.player.set_char_animation("walk", "product/assets/images/characters/Dude_Monster/Dude_Monster_Walk_6.png", 6)
-        self.player.set_char_animation("climb", "product/assets/images/characters/Dude_Monster/Dude_Monster_Climb_4.png", 4)
+        self.player = CharacterAnimationManager(CHARACTER_WIDTH,
+                                                CHARACTER_HEIGHT,
+                                                self.maze_map, True,
+                                                pos_x, pos_y)
+        self.player.set_char_animation("idle",
+                                       player_sprint_file_paths["idle"], 4)
+        self.player.set_char_animation("jump",
+                                       player_sprint_file_paths["jump"], 8)
+        self.player.set_char_animation("walk",
+                                       player_sprint_file_paths["walk"], 6)
+        self.player.set_char_animation("climb",
+                                       player_sprint_file_paths["climb"], 4)
 
         self.world = World(self.maze_map)
-    
+
     def tearDown(self):
         pygame.quit()
+
+
 class TestComputerSmallMaze(TestComputer, unittest.TestCase):
     """ Test path finding algorithms can work on a small maze. """
     with open('maze_1', 'rb') as file:
@@ -43,7 +53,7 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
         self.assertEqual(path, 
                         [(13, 9), (12, 9), (12, 10), (12, 11), (12, 12), (12, 13), (12, 14)])        
         computer.stop_thread = True
-    
+
     def test_dfs_can_find_path_in_small_maze(self):
         computer = DFSComputer(self.player, self.world.get_walkable_maze_matrix())
         computer.stop_thread = True
@@ -51,7 +61,7 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
         self.assertEqual(path, 
                         [(13, 9), (12, 9), (12, 10), (12, 11), (12, 12), (12, 13), (12, 14)])        
         computer.stop_thread = True
-    
+
     def test_ucs_can_find_path_in_small_maze(self):
         computer = UCSComputer(self.player, self.world.get_walkable_maze_matrix())
         computer.stop_thread = True
@@ -59,6 +69,7 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
         self.assertEqual(path, 
                         [(13, 9), (12, 9), (12, 10), (12, 11), (12, 12), (12, 13), (12, 14)])        
         computer.stop_thread = True
+
 
 class TestComputerMidMaze(TestComputer, unittest.TestCase):
     """ Test path finding algorithms can work on a mid size maze. """
