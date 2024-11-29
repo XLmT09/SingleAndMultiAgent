@@ -1,6 +1,14 @@
+image: python:3.12
+
 stages:
+  - checkstyle
   - build
   - test
+
+checkstyle:
+  stage: checkstyle
+  script:
+    - python3.12 -m flake8
 
 build:
   stage: build
