@@ -1,6 +1,6 @@
 from product.characters import CharacterAnimationManager
 from product.world import World
-from product.constants import player_sprint_file_paths
+from product.constants import player_sprite_file_paths
 
 import pygame
 import unittest
@@ -26,13 +26,13 @@ class TestMazeEnviorment(unittest.TestCase):
                                                 self.maze_map,
                                                 True, 500, 700)
         self.player.set_char_animation("idle",
-                                       player_sprint_file_paths["idle"], 4)
+                                       player_sprite_file_paths["idle"], 4)
         self.player.set_char_animation("jump",
-                                       player_sprint_file_paths["jump"], 8)
+                                       player_sprite_file_paths["jump"], 8)
         self.player.set_char_animation("walk",
-                                       player_sprint_file_paths["walk"], 6)
+                                       player_sprite_file_paths["walk"], 6)
         self.player.set_char_animation("climb",
-                                       player_sprint_file_paths["climb"], 4)
+                                       player_sprite_file_paths["climb"], 4)
 
         self.world = World(self.maze_map)
 
