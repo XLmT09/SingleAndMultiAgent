@@ -14,7 +14,7 @@ PLAYER_CLIMB_FILE_PATH = (
     "product/assets/images/characters/Dude_Monster/Dude_Monster_Climb_4.png"
 )
 
-player_sprint_file_paths = {
+player_sprite_file_paths = {
     "idle": PLAYER_IDLE_FILE_PATH,
     "jump": PLAYER_JUMP_FILE_PATH,
     "walk": PLAYER_WALK_FILE_PATH,

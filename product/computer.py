@@ -6,7 +6,6 @@ import numpy as np
 from queue import PriorityQueue
 
 moves = ["LEFT", "RIGHT"]
-
 class Computer:
     """ This class will represent the agent different pathfinding algos available to use.
 
@@ -283,6 +282,9 @@ class UCSComputer(Computer):
         
         return sorted(neighbours, key=lambda x: x[0])
 
-    
 
-    
+agent_types = {"random": RandomComputer,
+               "bfs": BFSComputer,
+               "dfs": DFSComputer,
+               "ucs": UCSComputer
+               }
