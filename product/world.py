@@ -1,4 +1,4 @@
-from constants import diamond_sprite_images
+from product.constants import diamond_sprite_images
 
 import pygame
 import random
