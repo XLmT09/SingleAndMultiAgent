@@ -26,5 +26,4 @@ build:
 test:
   stage: test
   script:
-    - ls -l product/assets/images/characters/Dude_Monster/
     - python -m unittest discover ./testing/
