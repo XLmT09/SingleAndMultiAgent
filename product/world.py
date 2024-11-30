@@ -226,6 +226,7 @@ class World:
         self._world_matrix[new_diamond_row][new_diamond_col] = 2
         # We should also update the walkable maze so that the player knows
         # where the new diamond is
+        self._walkable_maze_matrix[new_diamond_row][new_diamond_col] = 2
         for diamond in self._diamond_group:
             # we pass new_diamond_index[1] as y and vise versa, as went iterate
             # through the column using the second index
