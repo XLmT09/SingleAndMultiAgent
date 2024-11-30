@@ -1,4 +1,4 @@
-from product.constants import diamond_sprite_images
+from constants import diamond_sprite_images
 
 import pygame
 import random
@@ -95,7 +95,7 @@ class World:
         self._tile_list_images = []
         self._diamond_group = pygame.sprite.Group()
         self._ladder_img = pygame.image.load(
-            "product/assets/images/blocks/ladder.png")
+            "assets/images/blocks/ladder.png")
         self._walkable_maze_matrix = (
             [[0 for _ in range(len(self._world_matrix[0]))]
                 for _ in range(len(self._world_matrix))]
@@ -112,7 +112,7 @@ class World:
         the game. """
         for i in range(1, 5):
             image = pygame.image.load(
-                f"product/assets/images/blocks/tile{i}.png").convert_alpha()
+                f"assets/images/blocks/tile{i}.png").convert_alpha()
             self._tile_list_images.append(image)
 
     def _genrate_world_tiles_and_assets(self) -> None:

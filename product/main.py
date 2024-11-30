@@ -25,7 +25,7 @@ pygame.display.set_caption("Maze Game")
 
 # Background image for the game
 cave_bg = pygame.image.load(
-            "product/assets/images/background/cave.png").convert_alpha()
+            "assets/images/background/cave.png").convert_alpha()
 
 data = None
 with open('maze_3', 'rb') as file:

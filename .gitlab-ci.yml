@@ -1,5 +1,8 @@
 image: python:3.12
 
+before_script:
+  - cd product
+
 stages:
   - checkstyle
   - build
@@ -14,7 +17,7 @@ build:
   stage: build
   script:
     - echo "Generating the mazes"
-    - python product/create_maze.py
+    - python create_maze.py
     - echo "Mazes have been generated"
   artifacts:
     paths:
@@ -24,4 +27,4 @@ test:
   stage: test
   script:
     - ls -l product/assets/images/characters/Dude_Monster/
-    - python -m unittest discover ./product/testing/
+    - python -m unittest discover ./testing/

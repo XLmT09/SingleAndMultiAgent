@@ -2,5 +2,5 @@ product/__pycache__/
 product/testing/__pycache__/
 .gitlab-ci.yml~
 ..gitlab-ci.yml.un~
-maze_*
+product/maze_*
 

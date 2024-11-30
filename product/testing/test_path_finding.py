@@ -1,7 +1,7 @@
-from product.computer import DFSComputer, BFSComputer, UCSComputer
-from product.characters import CharacterAnimationManager
-from product.world import World
-from product.constants import player_sprite_file_paths
+from computer import DFSComputer, BFSComputer, UCSComputer
+from characters import CharacterAnimationManager
+from world import World
+from constants import player_sprite_file_paths
 
 import unittest
 import pygame
