@@ -21,7 +21,7 @@ build:
     - echo "Mazes have been generated"
   artifacts:
     paths:
-      - maze*
+      - product/maze*
 
 test:
   stage: test
