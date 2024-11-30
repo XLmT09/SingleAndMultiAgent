@@ -16,7 +16,14 @@ maze_map = None
 
 
 class TestComputer(unittest.TestCase):
+    """ Setup class which the other tests classes in this file will inherit
+    from. """
     def setUp(self, pos_x, pos_y):
+        """
+        Args:
+            pos_x (int): x position of the agent.
+            pos_y (int): y position of the agent.
+        """
         pygame.init()
         pygame.display.set_mode((1, 1), 0, 32)
         self.player = CharacterAnimationManager(CHARACTER_WIDTH,
@@ -44,7 +51,7 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
         maze_map = pickle.load(file)
 
     def setUp(self):
-        super().setUp(500, 700)
+        super().setUp(pos_x=500, pos_y=700)
 
     def test_bfs_can_find_path_in_small_maze(self):
         computer = BFSComputer(self.player,
@@ -209,7 +216,32 @@ class TestComputerStartIsGoalState(TestComputer, unittest.TestCase):
         maze_map = pickle.load(file)
 
     def setUp(self):
+        # Position of the player is in the same grid as the diamond
         super().setUp(950, 400)
+
+    def test_bfs_algo_when_start_is_goal(self):
+        computer = BFSComputer(self.player,
+                               self.world.get_walkable_maze_matrix())
+        path = computer.generate_path()
+        computer.stop_thread = True
+        self.assertEqual(path, [(7, 18)])
+        computer.stop_thread = True
+
+    def test_dfs_algo_when_start_is_goal(self):
+        computer = DFSComputer(self.player,
+                               self.world.get_walkable_maze_matrix())
+        path = computer.generate_path()
+        computer.stop_thread = True
+        self.assertEqual(path, [(7, 18)])
+        computer.stop_thread = True
+
+    def test_ucs_algo_when_start_is_goal(self):
+        computer = UCSComputer(self.player,
+                               self.world.get_walkable_maze_matrix())
+        path = computer.generate_path()
+        computer.stop_thread = True
+        self.assertEqual(path, [(7, 18)])
+        computer.stop_thread = True
 
 
 if __name__ == '__main__':
