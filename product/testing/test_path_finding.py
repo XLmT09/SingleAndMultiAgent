@@ -47,7 +47,7 @@ class TestComputer(unittest.TestCase):
 
 class TestComputerSmallMaze(TestComputer, unittest.TestCase):
     """ Test path finding algorithms can work on a small maze. """
-    with open('maze_1', 'rb') as file:
+    with open('maze/maze_1', 'rb') as file:
         maze_map = pickle.load(file)
 
     def setUp(self):
@@ -86,7 +86,7 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
 
 class TestComputerMidMaze(TestComputer, unittest.TestCase):
     """ Test path finding algorithms can work on a mid size maze. """
-    with open('maze_2', 'rb') as file:
+    with open('maze/maze_2', 'rb') as file:
         maze_map = pickle.load(file)
 
     def setUp(self):
@@ -137,7 +137,7 @@ class TestComputerMidMaze(TestComputer, unittest.TestCase):
 
 class TestComputerLargeMaze(TestComputer, unittest.TestCase):
     """ Test path finding algorithms can work on a large maze. """
-    with open('maze_3', 'rb') as file:
+    with open('maze/maze_3', 'rb') as file:
         maze_map = pickle.load(file)
 
     def setUp(self):
@@ -187,7 +187,7 @@ class TestComputerLargeMaze(TestComputer, unittest.TestCase):
 
 
 class TestExtraUCSPathFinding(TestComputer, unittest.TestCase):
-    with open('maze_4', 'rb') as file:
+    with open('maze/maze_4', 'rb') as file:
         maze_map = pickle.load(file)
 
     def setUp(self):
@@ -212,7 +212,7 @@ class TestExtraUCSPathFinding(TestComputer, unittest.TestCase):
 
 
 class TestComputerStartIsGoalState(TestComputer, unittest.TestCase):
-    with open('maze_3', 'rb') as file:
+    with open('maze/maze_3', 'rb') as file:
         maze_map = pickle.load(file)
 
     def setUp(self):

@@ -28,7 +28,7 @@ cave_bg = pygame.image.load(
             "assets/images/background/cave.png").convert_alpha()
 
 data = None
-with open('maze_3', 'rb') as file:
+with open('maze/maze_3', 'rb') as file:
     data = pickle.load(file)
 
 player = CharacterAnimationManager(CHARACTER_WIDTH, CHARACTER_HEIGHT, data,

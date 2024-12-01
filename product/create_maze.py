@@ -1,4 +1,9 @@
+import os
 import pickle
+
+""" In this file you will see inline comments with the tag E501, this is
+telling the flake8 checkstyle to ignore the fact that these lines are too
+long. Its more readable if each row is on its own line and not multiple. """
 
 small_maze = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -74,14 +79,17 @@ slow_fast_path_maze = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
-with open('maze_1', 'wb') as file:
+# create a maze dir
+os.makedirs('maze', exist_ok=True)
+
+with open('maze/maze_1', 'wb') as file:
     pickle.dump(small_maze, file)
 
-with open('maze_2', 'wb') as file:
+with open('maze/maze_2', 'wb') as file:
     pickle.dump(mid_size_maze, file)
 
-with open('maze_3', 'wb') as file:
+with open('maze/maze_3', 'wb') as file:
     pickle.dump(large_size_maze, file)
 
-with open('maze_4', 'wb') as file:
+with open('maze/maze_4', 'wb') as file:
     pickle.dump(slow_fast_path_maze, file)
