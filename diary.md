@@ -1,3 +1,17 @@
+### Week 10
+
+<ins>**Interim Report**</ins>
+- For background and theory I have added information about BFS.
+
+<ins>**GitLab Pipeline**</ins>
+- I have included a checkstyle stage onto the pipeline where the code must follow python flake8 style.
+
+<ins>**Problems and Fixes**</ins>
+- The algos were crashing after it reaches the diamond, so it wasent automatically finding a path for the new generated diamond. This is because when refactoring my code to follow the flake8 style, i removed a line on accident. You can see more on this [commit](d09757cfdb4e5c57ff652103cdb8817c6e1d04c6).
+
+<ins>**Testing**</ins>
+- I have written a test to check if the algorithms can produce a path when the start state is a goal state.
+
 ### Week 9
 
 <ins>**Interim Report**</ins>
