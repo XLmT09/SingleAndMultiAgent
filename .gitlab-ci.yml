@@ -1,0 +1,29 @@
+image: python:3.12
+
+before_script:
+  - cd product
+
+stages:
+  - checkstyle
+  - build
+  - test
+
+checkstyle:
+  stage: checkstyle
+  script:
+    - python3.12 -m flake8
+
+build:
+  stage: build
+  script:
+    - echo "Generating the mazes"
+    - python create_maze.py
+    - echo "Mazes have been generated"
+  artifacts:
+    paths:
+      - product/maze/maze*
+
+test:
+  stage: test
+  script:
+    - python -m unittest discover ./testing/

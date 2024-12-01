@@ -3,13 +3,14 @@ import pygame
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
+
 class Text:
     """ This class represents the text objects that can be used to
     blit onto the maze game.
 
     Attributes:
         _font (Font): Font type and size for the text.
-    
+
     Args:
         size (int): The font size for the text.
     """
