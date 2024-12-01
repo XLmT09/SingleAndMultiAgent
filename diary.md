@@ -1,3 +1,18 @@
+### Week 8
+
+<ins>**Interim Report**</ins>
+- I have begun writing mmy interim report. I have written the abstract for now.
+
+<ins>**Updates on Game**</ins>
+- I have created a large maze, the game window how to shrink a little to make the game look better as there were some empty gaps around the maze.
+
+<ins>**Problems and Fixes**</ins>
+- Because the array size for the large maze was larger than the others, the position of the player was outside the maze (not in the game window). I just needed to re position the start coord of the player to fix this.
+
+<ins>**Testing**</ins>
+- I have written tests for BFS, DFS nad UCS to see if it can generate a path in a large maze.
+- I wrote another test for UCS to see if it will actually choose the faster path over a slower one.
+
 ### Week 7
 <ins>**Updates on Algorithm**</ins>
 - Now that the game has slow tiles, different paths will have different costs. This means a new algorithm is needed to consider these factors, and the one I have implemented is Uniform Cost Search.
