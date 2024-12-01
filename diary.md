@@ -1,3 +1,13 @@
+### Week 9
+
+<ins>**Interim Report**</ins>
+- I have written the poject spec and overview.
+- I have written aims and objectives.
+- I have written background knowladge for dfs.
+
+<ins>**GitLab Pipeline**</ins>
+- I have setup a pipeline on gitlab which contains a build and testing stage.
+
 ### Week 8
 
 <ins>**Interim Report**</ins>
