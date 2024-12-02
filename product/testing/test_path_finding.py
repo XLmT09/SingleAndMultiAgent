@@ -9,8 +9,6 @@ import pickle
 
 CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32
-SCREEN_WIDTH = 1400
-SCREEN_HEIGHT = 800
 # Test cases will generate the maze map
 maze_map = None
 
@@ -51,7 +49,7 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
         maze_map = pickle.load(file)
 
     def setUp(self):
-        super().setUp(pos_x=500, pos_y=700)
+        super().setUp(pos_x=300, pos_y=300)
 
     def test_bfs_can_find_path_in_small_maze(self):
         computer = BFSComputer(self.player,
@@ -59,8 +57,8 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
         path = computer.generate_path()
         computer.stop_thread = True
         self.assertEqual(path,
-                         [(13, 9), (12, 9), (12, 10), (12, 11),
-                          (12, 12), (12, 13), (12, 14)])
+                         [(5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (4, 9),
+                          (3, 9), (3, 10), (3, 11), (3, 12), (3, 13), (3, 14)])
         computer.stop_thread = True
 
     def test_dfs_can_find_path_in_small_maze(self):
@@ -69,8 +67,11 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
         computer.stop_thread = True
         path = computer.generate_path()
         self.assertEqual(path,
-                         [(13, 9), (12, 9), (12, 10), (12, 11),
-                          (12, 12), (12, 13), (12, 14)])
+                         [(5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (4, 9),
+                          (3, 9), (3, 8), (3, 7), (3, 6), (3, 5), (3, 4),
+                          (2, 4), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
+                          (1, 9), (1, 10), (1, 11), (1, 12), (1, 13),
+                          (1, 14), (1, 15), (2, 15), (3, 15), (3, 14)])
         computer.stop_thread = True
 
     def test_ucs_can_find_path_in_small_maze(self):
@@ -79,8 +80,8 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
         computer.stop_thread = True
         path = computer.generate_path()
         self.assertEqual(path,
-                         [(13, 9), (12, 9), (12, 10), (12, 11),
-                          (12, 12), (12, 13), (12, 14)])
+                         [(5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (4, 9),
+                          (3, 9), (3, 10), (3, 11), (3, 12), (3, 13), (3, 14)])
         computer.stop_thread = True
 
 
