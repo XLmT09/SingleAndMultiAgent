@@ -9,9 +9,9 @@ class TestCli(unittest.TestCase):
 
     @patch('sys.argv', ['main', '--size', 'small', '--algo', 'bfs'])
     def test_small_size_and_bfs(self):
-        """This tests to see the correct width and height are produced
+        """ This tests to see the correct width and height are produced
         for a small maze. It also tests id bfs is recorded as a valuse
-        in the algo key."""
+        in the algo key. """
         result = process_args()
         self.assertEqual(result["screen_width"], 850)
         self.assertEqual(result["screen_height"], 350)
@@ -20,9 +20,9 @@ class TestCli(unittest.TestCase):
 
     @patch('sys.argv', ['main', '--size', 'medium', '--algo', 'dfs'])
     def test_small_size_and_dfs(self):
-        """This tests to see the correct width and height are produced
+        """ his tests to see the correct width and height are produced
         for a medium maze. It also tests id dfs is recorded as a valuse
-        in the algo key."""
+        in the algo key. """
         result = process_args()
         self.assertEqual(result["screen_width"], 1000)
         self.assertEqual(result["screen_height"], 750)
@@ -31,11 +31,35 @@ class TestCli(unittest.TestCase):
 
     @patch('sys.argv', ['main', '--size', 'large', '--algo', 'ucs'])
     def test_large_size_and_dfs(self):
-        """This tests to see the correct width and height are produced
-        for a medium maze. It also tests id dfs is recorded as a valuse
-        in the algo key."""
+        """ This tests to see the correct width and height are produced
+        for a large maze. It also tests id  is recorded as a valuse
+        in the algo key. """
         result = process_args()
         self.assertEqual(result["screen_width"], 1400)
         self.assertEqual(result["screen_height"], 750)
         self.assertEqual(result["maze_path"], "maze/maze_3")
         self.assertEqual(result["algo"], "ucs")
+
+    @patch('sys.argv', ['program_name', '--size', 'bogus', '--algo', 'BFS'])
+    def test_invalid_size_argument(self):
+        """ Give the size flag an invalid value and check that
+        it throws a error. """
+        # argparse calls sys.exit() on a invlaid input
+        with self.assertRaises(SystemExit):
+            process_args()
+
+    @patch('sys.argv', ['program_name', '--size', 'small', '--algo', 'bogus'])
+    def test_invalid_algo_argument(self):
+        """ Give the algo flag an invalid value and check that
+        it throws a error. """
+        # argparse calls sys.exit() on a invlaid input
+        with self.assertRaises(SystemExit):
+            process_args()
+
+    @patch('sys.argv', ['program_name', '--size', 'bogus', '--algo', 'bogus'])
+    def test_invalid_algo_and_size_argument(self):
+        """ Give the algo amd size flag an invalid value and check that
+        it throws a error. """
+        # argparse calls sys.exit() on a invlaid input
+        with self.assertRaises(SystemExit):
+            process_args()
