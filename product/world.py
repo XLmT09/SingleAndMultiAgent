@@ -264,6 +264,17 @@ class World:
         self._diamond_group.draw(screen)
         self._diamond_group.update()
 
+    def highlight_visited_grids(self, screen, visited_list):
+        highlight_color = (255, 255, 0, 128)
+
+        highlight_surface = pygame.Surface((50, 50), pygame.SRCALPHA)
+
+        highlight_surface.fill(highlight_color)
+
+        for grid in visited_list:
+            print(f"grid coord's are {grid[0]} and {grid[1]}")
+            screen.blit(highlight_surface, (grid[1] * 50, grid[0] * 50))
+
     def print_walkable_maze_matrix(self) -> None:
         """ Print walkable maze matrix in a nice format """
         print(*self._walkable_maze_matrix, sep="\n")
