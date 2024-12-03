@@ -98,7 +98,7 @@ class Computer:
 
         return final_path
 
-    def move_based_on_path_instructions(self):
+    def move_based_on_path_instructions(self) -> None:
         """ This function will get the BFS path, then  move the character
         to follow the path it's found. """
         path_to_follow = self.generate_path()
@@ -154,7 +154,7 @@ class RandomComputer(Computer):
     def __init__(self, character, walkable_maze, perfrom_analysis=False):
         super().__init__(character, walkable_maze, perfrom_analysis)
 
-    def perfrom_path_find(self):
+    def perfrom_path_find(self) -> None:
         """ This function will use the random libary to randomly select a
         movement for the character to do, it does this by randomly updating
         self.requested_movement.
@@ -216,7 +216,7 @@ class BFSComputer(Computer):
     def __init__(self, character, walkable_maze, perfrom_analysis=False):
         super().__init__(character, walkable_maze, perfrom_analysis)
 
-    def perfrom_path_find(self):
+    def perfrom_path_find(self) -> None:
         """ This functions keeps searching for a path until the stop_thread
         flag is set. """
         while not self.stop_thread:
@@ -263,7 +263,7 @@ class DFSComputer(Computer):
     def __init__(self, character, walkable_maze, perfrom_analysis=False):
         super().__init__(character, walkable_maze, perfrom_analysis)
 
-    def perfrom_path_find(self):
+    def perfrom_path_find(self) -> None:
         """ This functions keeps searching for a path until the stop_thread
         flag is set. """
         while not self.stop_thread:
@@ -271,10 +271,8 @@ class DFSComputer(Computer):
         print("PERFORM_PATH_FIND THREAD HAS STOPPED")
 
     def generate_path(self) -> list:
-        """ This function generates a path to the goal using DFS by recording
-        the path history and then calling reconstruct function to return as a
-        tidy list.
-        """
+        """ This function uses dfs search to find the path to the diamond. """
+
         start = self.character.get_player_grid_coordinates()
         stack = [start]
         visited = []
@@ -310,37 +308,48 @@ class UCSComputer(Computer):
     def __init__(self, character, walkable_maze, perfrom_analysis=False):
         super().__init__(character, walkable_maze, perfrom_analysis)
 
-    def perfrom_path_find(self):
+    def perfrom_path_find(self) -> None:
         """ This functions keeps searching for a path until the stop_thread
         flag is set. """
         while not self.stop_thread:
             self.move_based_on_path_instructions()
         print("PERFORM_PATH_FIND THREAD HAS STOPPED")
 
-    def generate_path(self):
-        start = self.character.get_player_grid_coordinates()
+    def generate_path(self) -> list:
+        """ This function uses ucs search to find the path to the diamond. """
 
+        start = self.character.get_player_grid_coordinates()
         fringe = PriorityQueue()
+        # This dict records the lowest cost currently seen for any
+        # vertex encountered.
         costs = {start: 0}
+        # We will use this dict to go to generate the final path when
+        # the goal is found.
         came_from = {start: None}
 
+        # The fringe will record the (cost, position) of the grids
         fringe.put((0, start))
 
         while not fringe.empty():
             cost, current = fringe.get()
 
-            # Check if we found the diamond
+            # When we found the diamond we can stop the algorithm
             if self._walkable_maze_matrix[current[0]][current[1]] == 2:
-
                 if self.perfrom_analysis:
                     print(f"The number of visited nodes is: {len(came_from)}")
 
                 path = []
+
+                # use the came_from dict to reconctruct the final path which
+                # the agent should follow.
                 while current:
                     path.append(current)
                     current = came_from[current]
                 return path[::-1]
 
+            # Loop through the neighbours of the current vertex and add to
+            # the fringe if its not been recorded in the costs dict, or if it
+            # has been recoeded then see if it can grant as a lower path cost.
             for neighbour in self.get_neighbour(current, cost):
                 new_cost, neighbour_pos = neighbour
                 if ((neighbour_pos not in costs) or
@@ -349,26 +358,35 @@ class UCSComputer(Computer):
                     came_from[neighbour_pos] = current
                     fringe.put((new_cost, neighbour_pos))
 
-    def get_neighbour(self, current, cost):
+    def get_neighbour(self, current, cost) -> list:
+        """ Get the neighbours and its costs from a grid/vertex. """
+
         neighbours = []
+
+        # Loop through all the neighbours
         for direction in self._directions:
             new_cost = 0
             neighbour = (current[0] + direction[0], current[1] + direction[1])
 
+            # Get the type of grid the neighbour is
             neighbour_grid_vlaue = (
                 self._walkable_maze_matrix[neighbour[0]][neighbour[1]]
             )
 
+            # If the neighbour is a wall or floor then skip
             if (neighbour_grid_vlaue == 0):
                 continue
 
+            # Check if the neighbour is a empty space or a ladder
             if (neighbour_grid_vlaue == 1 or neighbour_grid_vlaue == 3):
                 new_cost = cost + 1
+            # Check of the neighbour is a slow tile
             elif (neighbour_grid_vlaue == 4):
                 new_cost = cost + 20
 
             neighbours.append((new_cost, neighbour))
 
+        # sort neighbour from low to high using the cost value
         return sorted(neighbours, key=lambda x: x[0])
 
 
