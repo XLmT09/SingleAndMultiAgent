@@ -59,7 +59,7 @@ class Computer:
     def get_visited_grids(self):
         """ Highlight the grids the algorithm had visisted. """
 
-        print(f"number of grids = {self.visited_grids}")
+        print(f"The list of visited grids is: {self.visited_grids}")
         if (self.visited_grids == [] or self.visited_grids is None):
             print("Error: Cannot get visited grids as there are no grids"
                   "in the list")
@@ -230,7 +230,7 @@ class BFSComputer(Computer):
             current = queue.popleft()
             visited.append(current)
             if self._walkable_maze_matrix[current[0]][current[1]] == 2:
-       
+
                 self.visited_grids = visited
 
                 if self.perfrom_analysis:
