@@ -271,23 +271,31 @@ class DFSComputer(Computer):
         print("PERFORM_PATH_FIND THREAD HAS STOPPED")
 
     def generate_path(self) -> list:
+        """ This function generates a path to the goal using DFS by recording
+        the path history and then calling reconstruct function to return as a
+        tidy list.
+        """
         start = self.character.get_player_grid_coordinates()
         stack = [start]
-        visited = {start}
+        visited = []
+        # We will use this dict to go to generate the final path when
+        # the goal is found.
         search_path_history = {start: None}
 
         while stack:
             current = stack.pop()
+            visited.append(current)
 
+            # When we reach the goal state we can end the algorithm
             if self._walkable_maze_matrix[current[0]][current[1]] == 2:
-
                 self.visited_grids = visited
-
                 if self.perfrom_analysis:
                     print(f"The number of visited nodes is: {len(visited)}")
 
                 return self.reconstruct_path(search_path_history, current)
 
+            # Loop through the neighbours of the current vertex and add to
+            # the stack if its not been visited or out of bounds.
             for direction in self._directions:
                 next_grid = (current[0] + direction[0],
                              current[1] + direction[1])
@@ -295,7 +303,6 @@ class DFSComputer(Computer):
                 if (self._walkable_maze_matrix[next_grid[0]][next_grid[1]]
                         != 0 and next_grid not in visited):
                     stack.append(next_grid)
-                    visited.add(next_grid)
                     search_path_history[next_grid] = current
 
 
