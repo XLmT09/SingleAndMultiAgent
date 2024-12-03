@@ -6,6 +6,7 @@ from constants import player_sprite_file_paths
 import unittest
 import pygame
 import pickle
+import time
 
 CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32
@@ -237,6 +238,47 @@ class TestComputerStartIsGoalState(TestComputer, unittest.TestCase):
         self.assertEqual(path, [(7, 18)])
         computer.stop_thread = True
 
+
+class TestVisitedGrids(TestComputer, unittest.TestCase):
+    """ This class will test the get visited grids fucntion with the context
+    of a large maze on multiple algorithms."""
+
+    with open('maze/maze_3', 'rb') as file:
+        maze_map = pickle.load(file)
+
+    def setUp(self):
+        # Position of the player is in the same grid as the diamond
+        super().setUp(pos_x=350, pos_y=300)
+
+    def test_get_visited_grids_on_bfs(self):
+        computer = BFSComputer(self.player,
+                               self.world.get_walkable_maze_matrix())
+        computer.start_thread()
+
+        # Wait for the visited grid to be generated
+        time.sleep(2)
+
+        path = computer.get_visited_grids()
+        computer.stop_thread = True
+        self.assertEqual(path, [(5, 6), (5, 7), (5, 5), (5, 8), (5, 4),
+                                (5, 9), (5, 3), (4, 4), (5, 10), (6, 9),
+                                (5, 2), (3, 4), (5, 11), (7, 9), (5, 1),
+                                (3, 5), (3, 3), (2, 4), (5, 12), (7, 10),
+                                (8, 9), (7, 8), (3, 6), (3, 2), (1, 4),
+                                (5, 13), (4, 12), (7, 11), (9, 9), (7, 7),
+                                (3, 7), (3, 1), (1, 5), (1, 3), (5, 14),
+                                (3, 12), (7, 12), (9, 10), (9, 8), (7, 6),
+                                (3, 8), (1, 6), (1, 2), (5, 15), (3, 13),
+                                (3, 11), (7, 13), (9, 11), (9, 7), (7, 5),
+                                (3, 9), (1, 7), (1, 1), (5, 16), (3, 14),
+                                (3, 10), (7, 14), (9, 12), (9, 6), (7, 4),
+                                (3, 10), (1, 8), (5, 17), (3, 15), (7, 15),
+                                (9, 13), (9, 5), (7, 3), (1, 9), (5, 18),
+                                (6, 17), (3, 16), (7, 16), (9, 14), (9, 4),
+                                (7, 2), (1, 10), (7, 17), (3, 17), (7, 17),
+                                (9, 15), (10, 4), (9, 3), (7, 1), (1, 11),
+                                (7, 18)])
+        computer.stop_thread = True
 
 if __name__ == '__main__':
     unittest.main()
