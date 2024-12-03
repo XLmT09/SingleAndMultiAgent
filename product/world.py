@@ -14,7 +14,7 @@ class Diamond(pygame.sprite.Sprite):
 
     Attributes:
         DIAMOND_ANIMATION_SPEED (float): The speed to transition to the next
-            sprite image.
+        sprite image.
         _diamond_sprite_list (list): List which stores the sprite images.
         _current_sprite (int): The index we are currently on in
             _diamond_sprite_list.
