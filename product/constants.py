@@ -1,3 +1,18 @@
+game_values = {
+    "character_width": 32,
+    "character_height": 32,
+    "FPS": 60
+}
+
+# colours
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+
+colour_vals = {
+    "black": BLACK,
+    "white": WHITE
+}
+
 PLAYER_IDLE_FILE_PATH = (
     "assets/images/characters/Dude_Monster/Dude_Monster_Idle_4.png"
 )
