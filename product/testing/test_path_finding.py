@@ -99,9 +99,9 @@ class TestComputerMidMaze(TestComputer, unittest.TestCase):
         path = computer.generate_path()
         computer.stop_thread = True
         self.assertEqual(path,
-                         [(5, 6), (5, 7), (5, 8), (5, 9), (5, 10), (5, 11),
-                          (5, 12), (5, 13), (5, 14), (5, 15), (5, 16),
-                          (5, 17), (6, 17), (7, 17), (7, 18)])
+                         [(5, 6), (5, 7), (5, 8), (5, 9), (6, 9), (7, 9),
+                          (7, 10), (7, 11), (7, 12), (7, 13), (7, 14),
+                          (7, 15), (7, 16), (7, 17), (7, 18)])
         computer.stop_thread = True
 
     def test_dfs_can_find_path_in_mid_maze(self):
