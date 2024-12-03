@@ -31,7 +31,7 @@ class Computer:
         walkable_maze (list of list): The maze which represents the walakable
             areas of the character.
     """
-    def __init__(self, character, walkable_maze, perform_anlysis=False):
+    def __init__(self, character, walkable_maze, perfrom_analysis):
         self.character = character
         self.requested_movement = "RIGHT"
         self._walkable_maze_matrix = walkable_maze
@@ -39,7 +39,7 @@ class Computer:
         self._directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
         self.stop_thread = False
         self.th = threading.Thread(target=self.perfrom_path_find)
-        self.perfrom_analysis = perform_anlysis
+        self.perfrom_analysis = perfrom_analysis
 
     def start_thread(self) -> None:
         """ Start the path find thread. """
@@ -133,8 +133,8 @@ class Computer:
 
 class RandomComputer(Computer):
     """ This class will randomly move the character around the map. """
-    def __init__(self, character, walkable_maze):
-        super().__init__(character, walkable_maze)
+    def __init__(self, character, walkable_maze, perfrom_analysis=False):
+        super().__init__(character, walkable_maze, perfrom_analysis)
 
     def perfrom_path_find(self):
         """ This function will use the random libary to randomly select a
@@ -195,8 +195,8 @@ class RandomComputer(Computer):
 
 class BFSComputer(Computer):
     """ This class will control the character and do BFS path find. """
-    def __init__(self, character, walkable_maze):
-        super().__init__(character, walkable_maze)
+    def __init__(self, character, walkable_maze, perfrom_analysis=False):
+        super().__init__(character, walkable_maze, perfrom_analysis)
 
     def perfrom_path_find(self):
         """ This functions keeps searching for a path until the stop_thread
@@ -216,8 +216,11 @@ class BFSComputer(Computer):
 
         while queue:
             current = queue.popleft()
-
             if self._walkable_maze_matrix[current[0]][current[1]] == 2:
+
+                if self.perfrom_analysis:
+                    print(f"The number of visited nodes is: {len(visited)}")
+
                 return self.reconstruct_path(search_path_histroy, current)
 
             # Loop through all 4 directions the computer can take
@@ -225,8 +228,8 @@ class BFSComputer(Computer):
                 next_grid = (current[0] + direction[0],
                              current[1] + direction[1])
 
-                # Check if the next grid we are looking at is walkable and not
-                # visited
+                # Check if the next grid we are looking at is
+                # walkable and not visited.
                 if (self._walkable_maze_matrix[next_grid[0]][next_grid[1]]
                         != 0 and next_grid not in visited):
                     queue.append(next_grid)
@@ -237,8 +240,8 @@ class BFSComputer(Computer):
 
 
 class DFSComputer(Computer):
-    def __init__(self, character, walkable_maze):
-        super().__init__(character, walkable_maze)
+    def __init__(self, character, walkable_maze, perfrom_analysis=False):
+        super().__init__(character, walkable_maze, perfrom_analysis)
 
     def perfrom_path_find(self):
         """ This functions keeps searching for a path until the stop_thread
@@ -257,6 +260,10 @@ class DFSComputer(Computer):
             current = stack.pop()
 
             if self._walkable_maze_matrix[current[0]][current[1]] == 2:
+
+                if self.perfrom_analysis:
+                    print(f"The number of visited nodes is: {len(visited)}")
+
                 return self.reconstruct_path(search_path_history, current)
 
             for direction in self._directions:
@@ -271,8 +278,8 @@ class DFSComputer(Computer):
 
 
 class UCSComputer(Computer):
-    def __init__(self, character, walkable_maze):
-        super().__init__(character, walkable_maze)
+    def __init__(self, character, walkable_maze, perfrom_analysis=False):
+        super().__init__(character, walkable_maze, perfrom_analysis)
 
     def perfrom_path_find(self):
         """ This functions keeps searching for a path until the stop_thread
@@ -295,6 +302,10 @@ class UCSComputer(Computer):
 
             # Check if we found the diamond
             if self._walkable_maze_matrix[current[0]][current[1]] == 2:
+
+                if self.perfrom_analysis:
+                    print(f"The number of visited nodes is: {len(came_from)}")
+
                 path = []
                 while current:
                     path.append(current)
@@ -332,8 +343,9 @@ class UCSComputer(Computer):
         return sorted(neighbours, key=lambda x: x[0])
 
 
-agent_types = {"random": RandomComputer,
-               "bfs": BFSComputer,
-               "dfs": DFSComputer,
-               "ucs": UCSComputer
-               }
+agent_types = {
+    "random": RandomComputer,
+    "bfs": BFSComputer,
+    "dfs": DFSComputer,
+    "ucs": UCSComputer
+}
