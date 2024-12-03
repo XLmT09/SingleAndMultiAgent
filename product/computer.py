@@ -326,19 +326,25 @@ class UCSComputer(Computer):
         # We will use this dict to go to generate the final path when
         # the goal is found.
         came_from = {start: None}
+        # I haved coded this algo such that a visited list is not needed but
+        # we still want to use it for showing which grids were visited on
+        # the maze game.
+        visited = []
 
         # The fringe will record the (cost, position) of the grids
         fringe.put((0, start))
 
         while not fringe.empty():
             cost, current = fringe.get()
+            visited.append(current)
 
             # When we found the diamond we can stop the algorithm
             if self._walkable_maze_matrix[current[0]][current[1]] == 2:
+                path = []
+                self.visited_grids = visited
+
                 if self.perfrom_analysis:
                     print(f"The number of visited nodes is: {len(came_from)}")
-
-                path = []
 
                 # use the came_from dict to reconctruct the final path which
                 # the agent should follow.
