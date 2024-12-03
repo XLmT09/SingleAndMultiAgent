@@ -9,8 +9,6 @@ import pickle
 
 CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32
-SCREEN_WIDTH = 1400
-SCREEN_HEIGHT = 800
 # Test cases will generate the maze map
 maze_map = None
 
@@ -51,7 +49,7 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
         maze_map = pickle.load(file)
 
     def setUp(self):
-        super().setUp(pos_x=500, pos_y=700)
+        super().setUp(pos_x=300, pos_y=300)
 
     def test_bfs_can_find_path_in_small_maze(self):
         computer = BFSComputer(self.player,
@@ -59,8 +57,8 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
         path = computer.generate_path()
         computer.stop_thread = True
         self.assertEqual(path,
-                         [(13, 9), (12, 9), (12, 10), (12, 11),
-                          (12, 12), (12, 13), (12, 14)])
+                         [(5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (4, 9),
+                          (3, 9), (3, 10), (3, 11), (3, 12), (3, 13), (3, 14)])
         computer.stop_thread = True
 
     def test_dfs_can_find_path_in_small_maze(self):
@@ -69,8 +67,11 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
         computer.stop_thread = True
         path = computer.generate_path()
         self.assertEqual(path,
-                         [(13, 9), (12, 9), (12, 10), (12, 11),
-                          (12, 12), (12, 13), (12, 14)])
+                         [(5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (4, 9),
+                          (3, 9), (3, 8), (3, 7), (3, 6), (3, 5), (3, 4),
+                          (2, 4), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
+                          (1, 9), (1, 10), (1, 11), (1, 12), (1, 13),
+                          (1, 14), (1, 15), (2, 15), (3, 15), (3, 14)])
         computer.stop_thread = True
 
     def test_ucs_can_find_path_in_small_maze(self):
@@ -79,8 +80,8 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
         computer.stop_thread = True
         path = computer.generate_path()
         self.assertEqual(path,
-                         [(13, 9), (12, 9), (12, 10), (12, 11),
-                          (12, 12), (12, 13), (12, 14)])
+                         [(5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (4, 9),
+                          (3, 9), (3, 10), (3, 11), (3, 12), (3, 13), (3, 14)])
         computer.stop_thread = True
 
 
@@ -90,7 +91,7 @@ class TestComputerMidMaze(TestComputer, unittest.TestCase):
         maze_map = pickle.load(file)
 
     def setUp(self):
-        super().setUp(500, 700)
+        super().setUp(pos_x=350, pos_y=300)
 
     def test_bfs_can_find_path_in_mid_maze(self):
         computer = BFSComputer(self.player,
@@ -98,11 +99,9 @@ class TestComputerMidMaze(TestComputer, unittest.TestCase):
         path = computer.generate_path()
         computer.stop_thread = True
         self.assertEqual(path,
-                         [(13, 9), (12, 9), (12, 8), (12, 7), (12, 6), (12, 5),
-                          (12, 4), (11, 4), (10, 4), (10, 5), (10, 6), (10, 7),
-                          (10, 8), (10, 9), (9, 9), (8, 9), (8, 10), (8, 11),
-                          (8, 12), (8, 13), (8, 14), (8, 15), (8, 16),
-                          (8, 17), (8, 18)])
+                         [(5, 6), (5, 7), (5, 8), (5, 9), (5, 10), (5, 11),
+                          (5, 12), (5, 13), (5, 14), (5, 15), (5, 16),
+                          (5, 17), (6, 17), (7, 17), (7, 18)])
         computer.stop_thread = True
 
     def test_dfs_can_find_path_in_mid_maze(self):
@@ -111,14 +110,11 @@ class TestComputerMidMaze(TestComputer, unittest.TestCase):
         computer.stop_thread = True
         path = computer.generate_path()
         self.assertEqual(path,
-                         [(13, 9), (12, 9), (12, 8), (12, 7), (12, 6), (12, 5),
-                          (12, 4), (11, 4), (10, 4), (10, 5), (10, 6), (10, 7),
-                          (10, 8), (10, 9), (9, 9), (8, 9), (7, 9), (6, 9),
-                          (6, 8), (6, 7), (6, 6), (6, 5), (6, 4), (5, 4),
-                          (4, 4), (4, 5), (4, 6), (4, 7), (4, 8), (4, 9),
-                          (4, 10), (4, 11), (4, 12), (5, 12), (6, 12), (6, 13),
-                          (6, 14), (6, 15), (6, 16), (6, 17), (7, 17),
-                          (8, 17), (8, 18)])
+                         [(5, 6), (5, 5), (5, 4), (4, 4), (3, 4), (3, 5),
+                          (3, 6), (3, 7), (3, 8), (3, 9), (3, 10), (3, 11),
+                          (3, 12), (4, 12), (5, 12), (5, 11), (5, 10), (5, 9),
+                          (6, 9), (7, 9), (7, 10), (7, 11), (7, 12), (7, 13),
+                          (7, 14), (7, 15), (7, 16), (7, 17), (7, 18)])
         computer.stop_thread = True
 
     def test_ucs_can_find_path_in_mid_maze(self):
@@ -127,11 +123,9 @@ class TestComputerMidMaze(TestComputer, unittest.TestCase):
         computer.stop_thread = True
         path = computer.generate_path()
         self.assertEqual(path,
-                         [(13, 9), (12, 9), (12, 8), (12, 7), (12, 6), (12, 5),
-                          (12, 4), (11, 4), (10, 4), (10, 5), (10, 6), (10, 7),
-                          (10, 8), (10, 9), (9, 9), (8, 9), (8, 10), (8, 11),
-                          (8, 12), (8, 13), (8, 14), (8, 15), (8, 16), (8, 17),
-                          (8, 18)])
+                         [(5, 6), (5, 7), (5, 8), (5, 9), (6, 9), (7, 9),
+                          (7, 10), (7, 11), (7, 12), (7, 13), (7, 14), (7, 15),
+                          (7, 16), (7, 17), (7, 18)])
         computer.stop_thread = True
 
 
@@ -141,7 +135,7 @@ class TestComputerLargeMaze(TestComputer, unittest.TestCase):
         maze_map = pickle.load(file)
 
     def setUp(self):
-        super().setUp(480, 600)
+        super().setUp(pos_x=480, pos_y=600)
 
     def test_bfs_can_find_path_in_large_maze(self):
         computer = BFSComputer(self.player,
@@ -191,7 +185,7 @@ class TestExtraUCSPathFinding(TestComputer, unittest.TestCase):
         maze_map = pickle.load(file)
 
     def setUp(self):
-        super().setUp(480, 600)
+        super().setUp(pos_x=480, pos_y=600)
 
     def test_ucs_chooses_low_cost_path_over_a_high_cost_one(self):
         """ The map given has two routes the player can take, one path is
@@ -217,7 +211,7 @@ class TestComputerStartIsGoalState(TestComputer, unittest.TestCase):
 
     def setUp(self):
         # Position of the player is in the same grid as the diamond
-        super().setUp(950, 400)
+        super().setUp(pos_x=950, pos_y=400)
 
     def test_bfs_algo_when_start_is_goal(self):
         computer = BFSComputer(self.player,

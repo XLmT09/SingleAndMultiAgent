@@ -28,7 +28,7 @@ class TestMazeEnviorment(unittest.TestCase):
         self.player = CharacterAnimationManager(CHARACTER_WIDTH,
                                                 CHARACTER_HEIGHT,
                                                 self.maze_map,
-                                                True, 500, 700)
+                                                True, 300, 300)
         self.player.set_char_animation("idle",
                                        player_sprite_file_paths["idle"], 4)
         self.player.set_char_animation("jump",
