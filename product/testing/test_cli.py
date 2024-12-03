@@ -4,7 +4,7 @@ from main import process_args
 
 
 class TestCli(unittest.TestCase):
-    """This class will test the cli flags the user can use 
+    """This class will test the cli flags the user can use
     for this application."""
 
     @patch('sys.argv', ['main', '--size', 'small', '--algo', 'bfs'])
