@@ -58,8 +58,34 @@ class TestCli(unittest.TestCase):
 
     @patch('sys.argv', ['program_name', '--size', 'bogus', '--algo', 'bogus'])
     def test_invalid_algo_and_size_argument(self):
-        """ Give the algo amd size flag an invalid value and check that
+        """ Give the algo and size flag an invalid value and check that
         it throws a error. """
+        # argparse calls sys.exit() on a invlaid input
+        with self.assertRaises(SystemExit):
+            process_args()
+
+    @patch('sys.argv', ['program_name', '--algo', 'bfs'])
+    def test_no_size_flag(self):
+        """ Dont pass a size flag and we expect to see an error
+        as this flag is needed for the application to decided
+        what type of maze to generate."""
+        # argparse calls sys.exit() on a invlaid input
+        with self.assertRaises(SystemExit):
+            process_args()
+
+    @patch('sys.argv', ['program_name', '--size', 'small'])
+    def test_no_algo_flag(self):
+        """ Dont pass a algo flag and we expect to see an error
+        as this flag is needed for the application to decided
+        what type of agent to use."""
+        # argparse calls sys.exit() on a invlaid input
+        with self.assertRaises(SystemExit):
+            process_args()
+
+    @patch('sys.argv', ['program_name'])
+    def test_no_size_and_algo_flag(self):
+        """ Dont pass a algo adn size flag and we expect to see an error
+        as the application will not know the type of maze and agent to use."""
         # argparse calls sys.exit() on a invlaid input
         with self.assertRaises(SystemExit):
             process_args()
