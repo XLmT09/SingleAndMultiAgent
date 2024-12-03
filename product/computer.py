@@ -40,6 +40,7 @@ class Computer:
         self.stop_thread = False
         self.th = threading.Thread(target=self.perfrom_path_find)
         self.perfrom_analysis = perfrom_analysis
+        self.visited_grids = []
 
     def start_thread(self) -> None:
         """ Start the path find thread. """
@@ -54,6 +55,16 @@ class Computer:
         return self.character.draw_animation(screen, world_data, asset_groups,
                                              game_over,
                                              self.requested_movement)
+
+    def get_visited_grids(self):
+        """ Highlight the grids the algorithm had visisted. """
+
+        if (self.visited_grids == [] or self.visited_grids is None):
+            print("Error: Cannot get visited grids as there are no grids"
+                  "in the list")
+            return None
+
+        return self.visited_grids
 
     def set_walkable_maze(self, walkable_maze) -> None:
         """ Set the walkable maze matrix with a new one. """
@@ -210,7 +221,7 @@ class BFSComputer(Computer):
         start = self.character.get_player_grid_coordinates()
         print(f"start coord are {start}")
         queue = deque([start])
-        visited = {start}
+        visited = [start]
         # This will contain the all the potential paths, bfs has looked into
         search_path_histroy = {start: None}
 
@@ -233,7 +244,7 @@ class BFSComputer(Computer):
                 if (self._walkable_maze_matrix[next_grid[0]][next_grid[1]]
                         != 0 and next_grid not in visited):
                     queue.append(next_grid)
-                    visited.add(next_grid)
+                    visited.append(next_grid)
                     search_path_histroy[next_grid] = current
 
         return None
@@ -260,6 +271,8 @@ class DFSComputer(Computer):
             current = stack.pop()
 
             if self._walkable_maze_matrix[current[0]][current[1]] == 2:
+
+                self.visited_grids = visited
 
                 if self.perfrom_analysis:
                     print(f"The number of visited nodes is: {len(visited)}")
