@@ -7,10 +7,12 @@ game_values = {
 # colours
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+RED_TRANSPARENT = (255, 0, 0, 150)
 
 colour_vals = {
     "black": BLACK,
-    "white": WHITE
+    "white": WHITE,
+    "red_transparent": RED_TRANSPARENT
 }
 
 PLAYER_IDLE_FILE_PATH = (

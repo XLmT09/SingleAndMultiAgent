@@ -1,7 +1,8 @@
-from constants import diamond_sprite_images
+from constants import diamond_sprite_images, colour_vals
 
 import pygame
 import random
+import time
 
 TILE_SIZE = 50
 WHITE = (255, 255, 255)
@@ -264,16 +265,32 @@ class World:
         self._diamond_group.draw(screen)
         self._diamond_group.update()
 
-    def highlight_visited_grids(self, screen, visited_list):
-        highlight_color = (255, 255, 0, 128)
+    def highlight_grids_visited_by_algo(self, screen, visited_list) -> None:
+        """ This function will highlight the grids the algorithm currently in
+        use had visited.
 
-        highlight_surface = pygame.Surface((50, 50), pygame.SRCALPHA)
+        Args:
+            screen (pygame.display): The screen we want to blit the maze onto.
+            visited_list (list of tuples): The list of coords the algorithm
+                had visited.
+        """
 
-        highlight_surface.fill(highlight_color)
+        # Create a transparent cube to use to highlight the grid
+        grid_higlight_size = (TILE_SIZE, TILE_SIZE)
+        highlight_surface = pygame.Surface(grid_higlight_size, pygame.SRCALPHA)
+        highlight_surface.fill(colour_vals["red_transparent"])
 
-        for grid in visited_list:
-            print(f"grid coord's are {grid[0]} and {grid[1]}")
-            screen.blit(highlight_surface, (grid[1] * 50, grid[0] * 50))
+        # Iteratate through every position the algortihm visited and
+        # highlight thise grids/
+        for top_right_grid_position in visited_list:
+            time.sleep(0.04)
+            screen.blit(highlight_surface,
+                        (top_right_grid_position[1] * TILE_SIZE,
+                         top_right_grid_position[0] * TILE_SIZE))
+
+            # We need to update the screen on every iteration to see the
+            # visually see the sequential order of the grids visited.
+            pygame.display.update()
 
     def print_walkable_maze_matrix(self) -> None:
         """ Print walkable maze matrix in a nice format """
