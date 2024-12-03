@@ -42,7 +42,7 @@ def process_args() -> dict:
     # parse args from command line
     args = parser.parse_args()
 
-    screen_width, screen_height, maze = None
+    screen_width, screen_height, maze = None, None, None
 
     # setup the window width and height, depending on
     # the size the user specified.
