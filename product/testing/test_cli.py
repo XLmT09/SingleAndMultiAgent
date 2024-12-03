@@ -40,6 +40,15 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_3")
         self.assertEqual(result["algo"], "ucs")
 
+    @patch('sys.argv', ['main', '--algo', 'ucs', '--size', 'small'])
+    def test_algo_then_size_flag_given(self):
+        """ Test cli will still work when we switch the flag order. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 850)
+        self.assertEqual(result["screen_height"], 350)
+        self.assertEqual(result["maze_path"], "maze/maze_1")
+        self.assertEqual(result["algo"], "ucs")
+
     @patch('sys.argv', ['program_name', '--size', 'bogus', '--algo', 'BFS'])
     def test_invalid_size_argument(self):
         """ Give the size flag an invalid value and check that
