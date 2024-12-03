@@ -19,7 +19,7 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["algo"], "bfs")
 
     @patch('sys.argv', ['main', '--size', 'medium', '--algo', 'dfs'])
-    def test_small_medium_and_bfs(self):
+    def test_small_size_and_dfs(self):
         """This tests to see the correct width and height are produced
         for a medium maze. It also tests id dfs is recorded as a valuse
         in the algo key."""
@@ -28,3 +28,14 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["screen_height"], 750)
         self.assertEqual(result["maze_path"], "maze/maze_2")
         self.assertEqual(result["algo"], "dfs")
+
+    @patch('sys.argv', ['main', '--size', 'large', '--algo', 'ucs'])
+    def test_large_size_and_dfs(self):
+        """This tests to see the correct width and height are produced
+        for a medium maze. It also tests id dfs is recorded as a valuse
+        in the algo key."""
+        result = process_args()
+        self.assertEqual(result["screen_width"], 1400)
+        self.assertEqual(result["screen_height"], 750)
+        self.assertEqual(result["maze_path"], "maze/maze_3")
+        self.assertEqual(result["algo"], "ucs")
