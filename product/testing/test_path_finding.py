@@ -184,7 +184,7 @@ class TestComputerLargeMaze(TestComputer, unittest.TestCase):
 
 
 class TestExtraUCSPathFinding(TestComputer, unittest.TestCase):
-    """ Test to see if the UCS algorithm will actually choose the most 
+    """ Test to see if the UCS algorithm will actually choose the most
     optimal path and not the shortest one. """
 
     with open('maze/maze_4', 'rb') as file:
@@ -309,7 +309,7 @@ class TestVisitedGrids(TestComputer, unittest.TestCase):
         computer.start_thread()
         visited_grids_generated = computer.get_visited_grids()
         computer.stop_thread = True
-        self.assertEqual(visited_grids_generated, 
+        self.assertEqual(visited_grids_generated,
                          [(5, 6), (5, 7), (5, 5), (5, 8), (5, 4),
                           (5, 9), (5, 3), (4, 4), (5, 10), (6, 9),
                           (5, 2), (3, 4), (5, 11), (7, 9), (5, 1),
@@ -328,6 +328,30 @@ class TestVisitedGrids(TestComputer, unittest.TestCase):
                           (7, 2), (1, 10), (5, 19), (7, 17), (3, 17),
                           (7, 17), (9, 15), (10, 4), (9, 3), (7, 1),
                           (1, 11), (5, 20), (7, 18)])
+        computer.stop_thread = True
+
+    def test_get_visited_grids_on_ucs(self):
+        """ This function will test the list of visted grids generated matches
+        the data set we expect for ucs in a large maze.
+        """
+        computer = UCSComputer(self.player,
+                               self.world.get_walkable_maze_matrix())
+        computer.start_thread()
+        visited_grids_generated = computer.get_visited_grids()
+        computer.stop_thread = True
+        self.assertEqual(visited_grids_generated,
+                         [(5, 6), (5, 5), (5, 7), (5, 4), (5, 8), (4, 4),
+                          (5, 3), (5, 9), (3, 4), (5, 2), (5, 10), (6, 9),
+                          (2, 4), (5, 1), (5, 11), (7, 9), (1, 4), (5, 12),
+                          (7, 8), (7, 10), (8, 9), (1, 3), (1, 5), (4, 12),
+                          (7, 7), (7, 11), (9, 9), (1, 6), (3, 12), (7, 6),
+                          (7, 12), (9, 8), (9, 10), (1, 7), (3, 11), (3, 13),
+                          (7, 5), (7, 13), (9, 7), (9, 11), (1, 8), (3, 10),
+                          (3, 14), (7, 4), (7, 14), (9, 6), (9, 12), (1, 9),
+                          (3, 9), (3, 15), (7, 3), (7, 15), (9, 5), (9, 13),
+                          (1, 10), (3, 8), (3, 16), (7, 2), (7, 16), (9, 4),
+                          (9, 14), (1, 11), (3, 7), (3, 17), (7, 1), (7, 17),
+                          (7, 18)])
         computer.stop_thread = True
 
 
