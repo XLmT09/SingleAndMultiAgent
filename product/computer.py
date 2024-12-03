@@ -14,23 +14,24 @@ class Computer:
 
     Attributes:
         character (CharacterAnimationManager): The character the computer will
-                                               be controlling.
+            be controlling.
         requested_movement (str): The movement the computer class will command
-                                  the character to perfrom.
+            the character to perfrom.
         _walkable_maze_matrix (list of list): The maze which represents the
-                                              walakable areas of the character.
+            walakable areas of the character.
         _directions (list of tuple): The directions the computer can command
-                                     the player to do.
+            the player to do.
         stop_thread (bool): A flag to stop the path find algo thread.
         th (Thread): The thread which will do the pathfinding.
-
+        perfrom_analysis (bool): When this flag is set it records and prints
+            analysis of the particular algo being used.
     Args:
         character (CharacterAnimationManager): The character the computer will
-                                               be controlling.
+            be controlling.
         walkable_maze (list of list): The maze which represents the walakable
-                                      areas of the character.
+            areas of the character.
     """
-    def __init__(self, character, walkable_maze):
+    def __init__(self, character, walkable_maze, perform_anlysis=False):
         self.character = character
         self.requested_movement = "RIGHT"
         self._walkable_maze_matrix = walkable_maze
@@ -38,6 +39,7 @@ class Computer:
         self._directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
         self.stop_thread = False
         self.th = threading.Thread(target=self.perfrom_path_find)
+        self.perfrom_analysis = perform_anlysis
 
     def start_thread(self) -> None:
         """ Start the path find thread. """
@@ -82,7 +84,11 @@ class Computer:
         """ This function will get the BFS path, then  move the character
         to follow the path it's found. """
         path_to_follow = self.generate_path()
-        print(path_to_follow)
+
+        if self.perfrom_analysis:
+            print(f"The path is: {path_to_follow}")
+            print(f"Path length is: {len(path_to_follow)}")
+
         instruction_number = 0
         target = path_to_follow[-1]
         climbing = False
@@ -262,8 +268,6 @@ class DFSComputer(Computer):
                     stack.append(next_grid)
                     visited.add(next_grid)
                     search_path_history[next_grid] = current
-
-                # Apply movement on charcter from the generated DFS path
 
 
 class UCSComputer(Computer):
