@@ -113,3 +113,10 @@ class TestCli(unittest.TestCase):
             # argparse calls sys.exit() on a invlaid input
             with self.assertRaises(SystemExit):
                 process_args()
+
+    @patch('sys.argv', ['main', '--algo', 'ucs', '--size', 'small',
+                        '--highlight'])
+    def test_cli_highlight_flag_input(self):
+        """ Test cli will still work when we switch the flag order. """
+        result = process_args()
+        self.assertEqual(result["enable_highlighter"], True)
