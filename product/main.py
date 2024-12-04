@@ -40,6 +40,15 @@ def process_args() -> dict:
         help="Choose a algorithm: dfs, bfs, or ucs"
     )
 
+    # define the algo flag
+    parser.add_argument(
+        "--highlight",
+        action="store_true",
+        required=False,
+        help="Highlights the visited grids and final path before moving the"
+             " agent"
+    )
+
     # parse args from command line
     args = parser.parse_args()
 
@@ -64,7 +73,8 @@ def process_args() -> dict:
         "maze_path": maze,
         "screen_width": screen_width,
         "screen_height": screen_height,
-        "algo": args.algo
+        "algo": args.algo,
+        "enable_highlighter": args.highlight
     }
 
 
@@ -111,7 +121,24 @@ def setup_game(config) -> dict:
     }
 
 
-def start_game(screen_width, screen_height,
+def highlight_visited_and_final_path(enable_highlight, world, screen,
+                                     computer):
+    """ This function highlights the visited grids and final path, if
+    collision with diamond is detected AND the visited/path lists have been
+    genrated. Otherwise we check again on the next iteration. """
+    if enable_highlight and not visited_and_path_data_flag.is_set():
+        was_executed = world.highlight_grids_visited_by_algo(
+            screen,
+            *(computer.get_visited_grids_and_path_to_goal())
+        )
+        # Only set to false if the highlight animation ran, if it didnt it
+        # means the algorithm is still generating the final path.
+        if was_executed:
+            enable_highlight = False
+            visited_and_path_data_flag.set()
+
+
+def start_game(screen_width, screen_height, enable_highlighter,
                screen, player, world, computer) -> None:
     """ This is the main game function, the game loop resides in here. """
 
@@ -163,19 +190,9 @@ def start_game(screen_width, screen_height,
         game_over = computer.move(screen, tile_data,
                                   diamond_positons, game_over)
 
-        # highlight the visited grids and final path, if collision with
-        # diamond is detected visited/path lists have been genrated.
-        # Otherwise we check again on the next iteration.
-        if enable_highlight and not visited_and_path_data_flag.is_set():
-            was_executed = world.highlight_grids_visited_by_algo(
-                screen,
-                *(computer.get_visited_grids_and_path_to_goal())
-            )
-            # Only set to false if the highlight animation ran, if it didnt it
-            # means the algorithm is still generating the final path.
-            if was_executed:
-                enable_highlight = False
-                visited_and_path_data_flag.set()
+        if enable_highlighter:
+            highlight_visited_and_final_path(enable_highlight, world, screen,
+                                             computer)
 
         # score test seen on the top left of the screen
         score_text.draw(screen, f"Score {player.get_player_score()}", 20, 20)
@@ -195,4 +212,5 @@ if __name__ == "__main__":
     # Start the agent thread
     game_data["computer"].start_thread()
 
-    start_game(config["screen_width"], config["screen_height"], **game_data)
+    start_game(config["screen_width"], config["screen_height"],
+               config["enable_highlighter"], **game_data)
