@@ -25,6 +25,11 @@ class Computer:
         th (Thread): The thread which will do the pathfinding.
         perfrom_analysis (bool): When this flag is set it records and prints
             analysis of the particular algo being used.
+        _visited_grids (list of tuple): List of grids visited to get to the
+            goal state by a algorithm.
+        _path_generated (list of grids): List of sequential grids from start 
+            to get to the goal state.
+
     Args:
         character (CharacterAnimationManager): The character the computer will
             be controlling.
@@ -40,7 +45,8 @@ class Computer:
         self.stop_thread = False
         self.th = threading.Thread(target=self.perfrom_path_find)
         self.perfrom_analysis = perfrom_analysis
-        self.visited_grids = []
+        self._visited_grids = []
+        self._path_generated = []
 
     def start_thread(self) -> None:
         """ Start the path find thread. """
@@ -61,14 +67,25 @@ class Computer:
         whatever algorithm is currently in use. """
 
         if self.perfrom_analysis:
-            print(f"The list of visited grids is: {self.visited_grids}")
+            print(f"The list of visited grids is: {self._visited_grids}")
 
-        if (self.visited_grids == [] or self.visited_grids is None):
+        if (self._visited_grids == [] or self._visited_grids is None):
             print("Error: Cannot get visited grids as there are no grids"
-                  "in the list")
+                  " in the list")
             return None
 
-        return self.visited_grids
+        return self._visited_grids
+
+    def get_path_to_goal(self) -> list:
+        """ This function retrives and returns the path from the start to
+        goal state. """
+
+        if (self._path_generated == [] or self._path_generated is None):
+            print("Error: Cannot get path as there are no grids"
+                  " in the list")
+            return None
+
+        return self._path_generated
 
     def set_walkable_maze(self, walkable_maze) -> None:
         """ Set the walkable maze matrix with a new one. """
@@ -95,6 +112,8 @@ class Computer:
 
         if self.perfrom_analysis:
             print(f"The path generated is: {final_path}")
+
+        self._path_generated = final_path
 
         return final_path
 
@@ -237,7 +256,7 @@ class BFSComputer(Computer):
             visited.append(current)
             if self._walkable_maze_matrix[current[0]][current[1]] == 2:
 
-                self.visited_grids = visited
+                self._visited_grids = visited
 
                 if self.perfrom_analysis:
                     print(f"The number of visited nodes is: {len(visited)}")
@@ -286,7 +305,7 @@ class DFSComputer(Computer):
 
             # When we reach the goal state we can end the algorithm
             if self._walkable_maze_matrix[current[0]][current[1]] == 2:
-                self.visited_grids = visited
+                self._visited_grids = visited
                 if self.perfrom_analysis:
                     print(f"The number of visited nodes is: {len(visited)}")
 
@@ -340,18 +359,11 @@ class UCSComputer(Computer):
 
             # When we found the diamond we can stop the algorithm
             if self._walkable_maze_matrix[current[0]][current[1]] == 2:
-                path = []
-                self.visited_grids = visited
-
+                self._visited_grids = visited
                 if self.perfrom_analysis:
                     print(f"The number of visited nodes is: {len(came_from)}")
 
-                # use the came_from dict to reconctruct the final path which
-                # the agent should follow.
-                while current:
-                    path.append(current)
-                    current = came_from[current]
-                return path[::-1]
+                return self.reconstruct_path(came_from, current)
 
             # Loop through the neighbours of the current vertex and add to
             # the fringe if its not been recorded in the costs dict, or if it

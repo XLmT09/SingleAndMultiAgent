@@ -265,7 +265,8 @@ class World:
         self._diamond_group.draw(screen)
         self._diamond_group.update()
 
-    def highlight_grids_visited_by_algo(self, screen, visited_list) -> None:
+    def highlight_grids_visited_by_algo(self, screen, visited_list,
+                                        path_to_goal) -> None:
         """ This function will highlight the grids the algorithm currently in
         use had visited.
 
@@ -273,24 +274,45 @@ class World:
             screen (pygame.display): The screen we want to blit the maze onto.
             visited_list (list of tuples): The list of coords the algorithm
                 had visited.
+            path_to_goal (list of tuples): The list of coords from player start
+                position to the goal state.
         """
 
         # Create a transparent cube to use to highlight the grid
         grid_higlight_size = (TILE_SIZE, TILE_SIZE)
-        highlight_surface = pygame.Surface(grid_higlight_size, pygame.SRCALPHA)
-        highlight_surface.fill(colour_vals["red_transparent"])
+
+        highlight_visited_surface = pygame.Surface(grid_higlight_size,
+                                                   pygame.SRCALPHA)
+        highlight_visited_surface.fill(colour_vals["red_transparent"])
+
+        highlight_path_surface = pygame.Surface(grid_higlight_size,
+                                                pygame.SRCALPHA)
+        highlight_path_surface.fill(colour_vals["blue_transparent"])
 
         # Iteratate through every position the algortihm visited and
         # highlight thise grids/
         for top_right_grid_position in visited_list:
             time.sleep(0.04)
-            screen.blit(highlight_surface,
+            screen.blit(highlight_visited_surface,
                         (top_right_grid_position[1] * TILE_SIZE,
                          top_right_grid_position[0] * TILE_SIZE))
 
             # We need to update the screen on every iteration to see the
             # visually see the sequential order of the grids visited.
             pygame.display.update()
+
+        # Now that we have highlighted the visited grids, we will end it off
+        # by highlighting the final path found.
+        for top_right_grid_position in path_to_goal:
+            time.sleep(0.04)
+            screen.blit(highlight_path_surface,
+                        (top_right_grid_position[1] * TILE_SIZE,
+                         top_right_grid_position[0] * TILE_SIZE))
+
+            # Update the screen on every blit iteration
+            pygame.display.update()
+
+        time.sleep(4)
 
     def print_walkable_maze_matrix(self) -> None:
         """ Print walkable maze matrix in a nice format """
