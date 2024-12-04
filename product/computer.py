@@ -45,10 +45,10 @@ class Computer:
         # right, left, up, down
         self._directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
         self.stop_thread = False
-        self.th = threading.Thread(target=self.perfrom_path_find)
         self.perfrom_analysis = perfrom_analysis
         self._visited_grids = []
         self._path_generated = []
+        self.th = threading.Thread(target=self.perfrom_path_find)
 
     def start_thread(self) -> None:
         """ Start the path find thread. """
