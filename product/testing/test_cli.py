@@ -117,6 +117,14 @@ class TestCli(unittest.TestCase):
     @patch('sys.argv', ['main', '--algo', 'ucs', '--size', 'small',
                         '--highlight'])
     def test_cli_highlight_flag_input(self):
-        """ Test cli will still work when we switch the flag order. """
+        """ Test checks that when highlight flag is given it is registerd as
+        True in the config dict. """
         result = process_args()
         self.assertEqual(result["enable_highlighter"], True)
+
+    @patch('sys.argv', ['main', '--algo', 'ucs', '--size', 'small'])
+    def test_cli_highlight_flag_no_given(self):
+        """ Test checks that when highlight flag is not given it is registerd
+        as False in the config dict by default."""
+        result = process_args()
+        self.assertEqual(result["enable_highlighter"], False)
