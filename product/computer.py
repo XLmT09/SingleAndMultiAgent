@@ -4,6 +4,7 @@ import random
 from collections import deque
 import numpy as np
 from queue import PriorityQueue
+import inspect
 
 moves = ["LEFT", "RIGHT"]
 
@@ -70,22 +71,28 @@ class Computer:
             print(f"The list of visited grids is: {self._visited_grids}")
 
         if (self._visited_grids == [] or self._visited_grids is None):
-            print("Error: Cannot get visited grids as there are no grids"
-                  " in the list")
+            print(f"{inspect.currentframe().f_code.co_name}: Cannot get "
+                  "visited grids")
             return None
 
-        return self._visited_grids
+        # clear list so that we dont re-run the same data
+        temp = self._visited_grids
+        self._visited_grids = None
+        return temp
 
     def get_path_to_goal(self) -> list:
         """ This function retrives and returns the path from the start to
         goal state. """
 
         if (self._path_generated == [] or self._path_generated is None):
-            print("Error: Cannot get path as there are no grids"
-                  " in the list")
+            print(f"{inspect.currentframe().f_code.co_name}: Cannot get path "
+                  "as there are no grids")
             return None
 
-        return self._path_generated
+        # clear list so that we dont re-run the same data
+        temp = self._path_generated
+        self._path_generated = None
+        return temp
 
     def set_walkable_maze(self, walkable_maze) -> None:
         """ Set the walkable maze matrix with a new one. """

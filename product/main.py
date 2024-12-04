@@ -97,7 +97,6 @@ def setup_game(config) -> dict:
 
     # Generate the maze
     world = World(maze_array)
-    world.print_walkable_maze_matrix()
 
     # Initialize a specific computer class and pass arguments to constructor
     computer = agent_types[config["algo"]](player,
@@ -120,6 +119,8 @@ def start_game(screen_width, screen_height,
     tile_data = world.get_collidable_tile_list()
     diamond_positons = world.get_diamond_group()
     score_text = Text(24)
+
+    enable_highlight = True
 
     # Background image for the game
     cave_bg = pygame.image.load(
@@ -150,7 +151,7 @@ def start_game(screen_width, screen_height,
             world.update_diamond_position()
             player.set_is_diamond_found_to_false()
             diamond_positons = world.get_diamond_group()
-            world.print_walkable_maze_matrix()
+            enable_highlight = True
 
         # Draw the maze on the screen
         world.load_world(screen)
@@ -160,6 +161,18 @@ def start_game(screen_width, screen_height,
         # Move and draw the agent
         game_over = computer.move(screen, tile_data,
                                   diamond_positons, game_over)
+
+        # highlight the visited grids and final path
+        if enable_highlight:
+            was_executed = world.highlight_grids_visited_by_algo(
+                screen,
+                computer.get_visited_grids(),
+                computer.get_path_to_goal()
+            )
+            # Only set to false if the highlight animation ran, if it didnt it
+            # means the algorithm is still generating the final path.
+            if was_executed:
+                enable_highlight = False
 
         # score test seen on the top left of the screen
         score_text.draw(screen, f"Score {player.get_player_score()}", 20, 20)

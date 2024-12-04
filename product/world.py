@@ -1,8 +1,10 @@
-from constants import diamond_sprite_images, colour_vals
+from constants import diamond_sprite_images, colour_vals, PASS, FAIL
 
 import pygame
 import random
 import time
+import inspect
+
 
 TILE_SIZE = 50
 WHITE = (255, 255, 255)
@@ -107,6 +109,7 @@ class World:
         self._genrate_world_tiles_and_assets()
         # Also initalize the walkable maze now, so that the computer can use it
         self._find_walkable_areas_in_the_maze()
+        self.was_highlight_ran = False
 
     def _load_asset_and_tile_images(self) -> None:
         """ Load and store all images/sprites of sprites/assets to be used in
@@ -266,7 +269,7 @@ class World:
         self._diamond_group.update()
 
     def highlight_grids_visited_by_algo(self, screen, visited_list,
-                                        path_to_goal) -> None:
+                                        path_to_goal) -> int:
         """ This function will highlight the grids the algorithm currently in
         use had visited.
 
@@ -277,6 +280,12 @@ class World:
             path_to_goal (list of tuples): The list of coords from player start
                 position to the goal state.
         """
+
+        if visited_list is None or path_to_goal is None:
+            print(f"{inspect.currentframe().f_code.co_name}: Skipping "
+                  "execution because the visited_list and/or path_to_goal have "
+                  "not yet been generated.")
+            return FAIL
 
         # Create a transparent cube to use to highlight the grid
         grid_higlight_size = (TILE_SIZE, TILE_SIZE)
@@ -312,7 +321,8 @@ class World:
             # Update the screen on every blit iteration
             pygame.display.update()
 
-        time.sleep(4)
+        time.sleep(3)
+        return PASS
 
     def print_walkable_maze_matrix(self) -> None:
         """ Print walkable maze matrix in a nice format """

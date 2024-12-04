@@ -1,3 +1,7 @@
+# Use these values to return wheather a opertion was successful or not.
+PASS = 1
+FAIL = 0
+
 game_values = {
     "character_width": 32,
     "character_height": 32,
