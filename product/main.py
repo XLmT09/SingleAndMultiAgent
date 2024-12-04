@@ -3,6 +3,7 @@ from world import World
 from computer import agent_types
 from constants import player_sprite_file_paths, game_values
 from text import Text
+from lock import visited_and_path_data_flag
 
 import pygame
 import pickle
@@ -162,17 +163,19 @@ def start_game(screen_width, screen_height,
         game_over = computer.move(screen, tile_data,
                                   diamond_positons, game_over)
 
-        # highlight the visited grids and final path
-        if enable_highlight:
+        # highlight the visited grids and final path, if collision with
+        # diamond is detected visited/path lists have been genrated.
+        # Otherwise we check again on the next iteration.
+        if enable_highlight and not visited_and_path_data_flag.is_set():
             was_executed = world.highlight_grids_visited_by_algo(
                 screen,
-                computer.get_visited_grids(),
-                computer.get_path_to_goal()
+                *(computer.get_visited_grids_and_path_to_goal())
             )
             # Only set to false if the highlight animation ran, if it didnt it
             # means the algorithm is still generating the final path.
             if was_executed:
                 enable_highlight = False
+                visited_and_path_data_flag.set()
 
         # score test seen on the top left of the screen
         score_text.draw(screen, f"Score {player.get_player_score()}", 20, 20)
