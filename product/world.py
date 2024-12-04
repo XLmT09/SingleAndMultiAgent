@@ -283,8 +283,8 @@ class World:
 
         if visited_list is None or path_to_goal is None:
             print(f"{inspect.currentframe().f_code.co_name}: Skipping "
-                  "execution because the visited_list and/or path_to_goal have "
-                  "not yet been generated.")
+                  "execution because the visited_list and/or path_to_goal have"
+                  " not yet been generated.")
             return FAIL
 
         # Create a transparent cube to use to highlight the grid
