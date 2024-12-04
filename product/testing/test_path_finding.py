@@ -265,7 +265,9 @@ class TestVisitedGrids(TestComputer, unittest.TestCase):
         computer = DFSComputer(self.player,
                                self.world.get_walkable_maze_matrix())
         computer.start_thread()
-        visited_grids_generated = computer.get_visited_grids()
+        visited_grids_generated = (
+            computer.get_visited_grids_and_path_to_goal()[0]
+        )
         computer.stop_thread = True
         self.assertEqual(visited_grids_generated,
                          [(5, 6), (5, 5), (5, 4), (4, 4), (3, 4), (2, 4),
@@ -307,7 +309,9 @@ class TestVisitedGrids(TestComputer, unittest.TestCase):
         computer = BFSComputer(self.player,
                                self.world.get_walkable_maze_matrix())
         computer.start_thread()
-        visited_grids_generated = computer.get_visited_grids()
+        visited_grids_generated = (
+            computer.get_visited_grids_and_path_to_goal()[0]
+        )
         computer.stop_thread = True
         self.assertEqual(visited_grids_generated,
                          [(5, 6), (5, 7), (5, 5), (5, 8), (5, 4),
@@ -337,7 +341,9 @@ class TestVisitedGrids(TestComputer, unittest.TestCase):
         computer = UCSComputer(self.player,
                                self.world.get_walkable_maze_matrix())
         computer.start_thread()
-        visited_grids_generated = computer.get_visited_grids()
+        visited_grids_generated = (
+            computer.get_visited_grids_and_path_to_goal()[0]
+        )
         computer.stop_thread = True
         self.assertEqual(visited_grids_generated,
                          [(5, 6), (5, 5), (5, 7), (5, 4), (5, 8), (4, 4),
