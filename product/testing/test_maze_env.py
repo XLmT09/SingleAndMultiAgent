@@ -76,6 +76,15 @@ class TestSmallMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
 
         self.assertEqual("small", self.world.get_maze_size())
 
+    def test_get_walkable_locations(self):
+        self.assertEqual([(1, 1), (1, 2), (1, 3), (1, 5), (1, 6), (1, 7),
+                          (1, 8), (1, 9), (1, 10), (1, 11), (1, 12), (1, 13),
+                          (1, 14), (3, 1), (3, 2), (3, 3), (3, 5), (3, 6),
+                          (3, 7), (3, 8), (3, 10), (3, 11), (3, 12), (3, 13),
+                          (5, 1), (5, 2), (5, 3), (5, 4), (5, 5), (5, 6),
+                          (5, 7), (5, 8), (5, 10), (5, 11), (5, 12), (5, 13),
+                          (5, 14)], self.world.get_walkable_locations())
+
 
 class TestMidMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
     """ This class will test functions and attributes for the medium maze
@@ -111,6 +120,7 @@ class TestLargeMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
         as large."""
 
         self.assertEqual("large", self.world.get_maze_size())
+
 
 class TestEveryMazeEnviormentSize(TestMazeEnviorment, unittest.TestCase):
     """ This class in every test case will loop through every maze size and
