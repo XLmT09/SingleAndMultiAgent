@@ -20,6 +20,12 @@ maze_dir = "maze"
 class TestMazeEnviorment(unittest.TestCase):
     """ Test if the maze enviorment and attributes functions as expected. """
 
+    # Load up a default map for use if child class does not load a maze
+    default_maze_map = None
+    with open('maze/maze_1', 'rb') as file:
+        default_maze_map = pickle.load(file)
+    maze_map = None
+
     def setUp(self, player_pos_x, player_pos_y):
         """
         Args:
@@ -28,11 +34,14 @@ class TestMazeEnviorment(unittest.TestCase):
         """
         pygame.init()
         pygame.display.set_mode((1, 1), 0, 32)
-        self.player = CharacterAnimationManager(CHARACTER_WIDTH,
-                                                CHARACTER_HEIGHT,
-                                                self.maze_map,
-                                                True, player_pos_x,
-                                                player_pos_y)
+
+        self.player = CharacterAnimationManager(
+            CHARACTER_WIDTH,
+            CHARACTER_HEIGHT,
+            self.maze_map if self.maze_map else self.default_maze_map,
+            True, player_pos_x,
+            player_pos_y
+        )
         self.player.set_char_animation("idle",
                                        player_sprite_file_paths["idle"], 4)
         self.player.set_char_animation("jump",
@@ -42,7 +51,9 @@ class TestMazeEnviorment(unittest.TestCase):
         self.player.set_char_animation("climb",
                                        player_sprite_file_paths["climb"], 4)
 
-        self.world = World(self.maze_map)
+        self.world = World(
+            self.maze_map if self.maze_map else self.default_maze_map
+        )
 
     def tearDown(self):
         pygame.quit()
@@ -57,20 +68,38 @@ class TestSmallMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
         maze_map = pickle.load(file)
 
     def setUp(self):
-        super().setUp(pos_x=300, pos_y=300)
+        super().setUp(player_pos_x=300, player_pos_y=300)
 
     def test_small_get_maze_size(self):
-        """ When we call get_maze_size() on a small maze it should output 
-        as'small'."""
+        """ When we call get_maze_size() on a small maze it should output
+        as small."""
 
         self.assertEqual("small", self.world.get_maze_size())
+
+
+class TestMidMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
+    """ This class will test functions and attributes for the medium maze
+    enviorment. """
+
+    # Load up the small maze
+    with open('maze/maze_2', 'rb') as file:
+        maze_map = pickle.load(file)
+
+    def setUp(self):
+        super().setUp(player_pos_x=300, player_pos_y=300)
+
+    def test_mid_get_maze_size(self):
+        """ When we call get_maze_size() on a medium maze it should output
+        as medium."""
+
+        self.assertEqual("medium", self.world.get_maze_size())
 
 
 class TestEveryMazeEnviormentSize(TestMazeEnviorment, unittest.TestCase):
     """ This class in every test case will loop through every maze size and
     test if common values and functions work as expected."""
     def setUp(self):
-        super().setUp(pos_x=300, pos_y=300)
+        super().setUp(player_pos_x=300, player_pos_y=300)
 
     def test_every_maze_generated_has_a_diamond(self):
         """ If a maze does not contain an diamond then the algos programmed
