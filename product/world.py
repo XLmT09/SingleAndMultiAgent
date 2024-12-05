@@ -240,8 +240,8 @@ class World:
             diamond.update_position(new_diamond_col, new_diamond_row)
 
     def _specific_update_diamond_location(self, positions_stack) -> int:
-        """ This function randomly updates the location of the diamond,
-        in a valid spot on the maze.
+        """ This function updates the location of the diamond at a user 
+        defined coord.
         """
 
         # First find all valid locations to place the diamond.
@@ -386,4 +386,5 @@ class World:
         return self._diamond_group
 
     def get_maze_size(self) -> str:
-        pass
+        if len(self._world_matrix) <= 7:
+            return "small"
