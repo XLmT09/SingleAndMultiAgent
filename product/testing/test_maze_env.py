@@ -76,7 +76,9 @@ class TestSmallMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
 
         self.assertEqual("small", self.world.get_maze_size())
 
-    def test_get_walkable_locations(self):
+    def test_small_get_walkable_locations(self):
+        """ Check get_walkable_locations() outputs the correct list of
+        verticies for a small maze."""
         self.assertEqual([(1, 1), (1, 2), (1, 3), (1, 5), (1, 6), (1, 7),
                           (1, 8), (1, 9), (1, 10), (1, 11), (1, 12), (1, 13),
                           (1, 14), (3, 1), (3, 2), (3, 3), (3, 5), (3, 6),
@@ -102,6 +104,29 @@ class TestMidMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
         as medium."""
 
         self.assertEqual("medium", self.world.get_maze_size())
+
+    def test_mid_get_walkable_locations(self):
+        """ Check get_walkable_locations() outputs the correct list of
+        verticies for a mid maze."""
+        self.assertEqual(
+            [(1, 3), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9),
+             (1, 10), (1, 11), (1, 15), (1, 16), (1, 17), (1, 18),
+             (3, 1), (3, 2), (3, 7), (3, 8), (3, 9), (3, 10),
+             (3, 11), (3, 13), (3, 14), (3, 15), (3, 16), (3, 17),
+             (3, 18), (5, 1), (5, 2), (5, 3), (5, 5), (5, 6),
+             (5, 7), (5, 8), (5, 10), (5, 11), (5, 15), (5, 16),
+             (5, 18), (7, 1), (7, 2), (7, 3), (7, 4), (7, 5),
+             (7, 6), (7, 7), (7, 8), (7, 10), (7, 11), (7, 12),
+             (7, 13), (7, 14), (7, 15), (7, 16), (9, 1), (9, 2),
+             (9, 3), (9, 5), (9, 6), (9, 7), (9, 8), (9, 10),
+             (9, 11), (9, 12), (9, 13), (9, 14), (9, 16), (9, 17),
+             (9, 18), (11, 1), (11, 2), (11, 3), (11, 5), (11, 6),
+             (11, 7), (11, 8), (11, 10), (13, 1), (13, 2),
+             (13, 3), (13, 4), (13, 5), (13, 6), (13, 7), (13, 8),
+             (13, 10), (13, 11), (13, 12), (13, 13), (13, 14),
+             (13, 15), (13, 16), (13, 17), (13, 18)],
+            self.world.get_walkable_locations()
+        )
 
 
 class TestLargeMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
