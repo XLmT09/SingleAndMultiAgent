@@ -8,6 +8,7 @@ from lock import visited_and_path_data_flag
 import pygame
 import pickle
 import argparse
+import time
 
 # Setup some inital pygame logic, which is needed
 # regardless of the options we choose.
@@ -150,6 +151,9 @@ def start_game(screen_width, screen_height, enable_highlighter,
 
     enable_highlight = True
 
+    # Measure run time of the applicatiob
+    start = time.time()
+
     # Background image for the game
     cave_bg = pygame.image.load(
         "assets/images/background/cave.png"
@@ -176,7 +180,9 @@ def start_game(screen_width, screen_height, enable_highlighter,
         # When the diamond is found we will call to regenerate
         # at a new position.
         if player.get_is_diamond_found():
-            if world.update_diamond_position(are_locations_defined=False) == 2:
+            if world.update_diamond_position(are_locations_defined=True) == 2:
+                end = time()
+                print(f"Time ran is: {start - end}")
                 game_over = 1
                 computer.stop_path_find_algo_thread()
             player.set_is_diamond_found_to_false()
