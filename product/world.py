@@ -390,5 +390,8 @@ class World:
          data"""
         if len(self._world_matrix) <= 7:
             return "small"
-        elif len(self._world_matrix) <= 15 and len(self._world_matrix) <= 20:
+        elif (len(self._world_matrix) <= 15 and
+              len(self._world_matrix[0]) <= 20):
             return "medium"
+        else:
+            return "large"
