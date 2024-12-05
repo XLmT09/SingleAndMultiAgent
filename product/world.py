@@ -114,7 +114,9 @@ class World:
         self.diamond_regeneration_positions = {"small": [(1, 13), (5, 11),
                                                          (1, 6), (5, 2)],
                                                "medium": [(3, 7), (13, 18),
-                                                          (7, 8), (1, 18)]}
+                                                          (7, 8), (1, 18)],
+                                               "large": [(4, 2), (13, 17),
+                                                         (11, 21), (1, 15)]}
 
     def _load_asset_and_tile_images(self) -> None:
         """ Load and store all images/sprites of sprites/assets to be used in
@@ -230,8 +232,6 @@ class World:
                     self._world_matrix[i][j] = 0
                     self._walkable_maze_matrix[i][j] = 0
 
-        print(location_of_ones_in_matrix)
-
         return location_of_ones_in_matrix
 
     def update_diamond_position(self, are_locations_defined=False):
@@ -239,7 +239,7 @@ class World:
         the current diamond and placing a new diamond at a different location.
 
         Args:
-            are_locations_defined (list of tuples): A flag which when set will 
+            are_locations_defined (list of tuples): A flag which when set will
                 place diamonds at specific locations and not randomly.
         """
         # Before starting we should update the walkable areas in the maze,

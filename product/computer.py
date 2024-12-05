@@ -392,7 +392,7 @@ class UCSComputer(Computer):
                 new_cost = cost + 1
             # Check of the neighbour is a slow tile
             elif (neighbour_grid_vlaue == 4):
-                new_cost = cost + 20
+                new_cost = cost + 3
 
             neighbours.append((new_cost, neighbour))
 
