@@ -110,6 +110,7 @@ class World:
         # Also initalize the walkable maze now, so that the computer can use it
         self._find_walkable_areas_in_the_maze()
         self.was_highlight_ran = False
+        self.diamond_regeneration_positions = {"small": []}
 
     def _load_asset_and_tile_images(self) -> None:
         """ Load and store all images/sprites of sprites/assets to be used in
@@ -236,6 +237,42 @@ class World:
             # through the column using the second index
             diamond.update_position(new_diamond_col, new_diamond_row)
 
+    def _specific_update_diamond_location(self, positions_stack) -> int:
+        """ This function randomly updates the location of the diamond,
+        in a valid spot on the maze.
+        """
+
+        # First find all valid locations to place the diamond.
+        # Valid location will have a one in the walkable matrix, so
+        # we will store all instances of these.
+        location_of_one_indices = []
+        for i in range(len(self._walkable_maze_matrix)):
+            for j in range(len(self._walkable_maze_matrix[0])):
+                if self._walkable_maze_matrix[i][j] == 1:
+                    location_of_one_indices.append((i, j))
+                # During this loop we can also clear the position of the
+                # current diamond location, on the original maze.
+                if self._world_matrix[i][j] == 2:
+                    self._world_matrix[i][j] = 0
+                    self._walkable_maze_matrix[i][j] = 0
+
+        if not positions_stack:
+            return 2
+
+        new_diamond_row, new_diamond_col = positions_stack.pop()
+
+        # Now we can update the position of the diamond rect and maze index
+        self._world_matrix[new_diamond_row][new_diamond_col] = 2
+        # We should also update the walkable maze so that the player knows
+        # where the new diamond is
+        self._walkable_maze_matrix[new_diamond_row][new_diamond_col] = 2
+        for diamond in self._diamond_group:
+            # we pass new_diamond_index[1] as y and vise versa, as went iterate
+            # through the column using the second index
+            diamond.update_position(new_diamond_col, new_diamond_row)
+
+        return PASS
+
     def draw_grid(self, screen, screen_height, screen_width) -> None:
         """ This functions draws out the grids on the game, to help visualize
         on what grid every asset is, or which grid the player is currently on.
@@ -248,12 +285,20 @@ class World:
             pygame.draw.line(screen, WHITE, (0, line * TILE_SIZE),
                              (screen_width, line * TILE_SIZE))
 
-    def update_diamond_position(self):
+    def update_diamond_position(self, set_specific_locations=False):
         """ This function will find the walkable paths and then update the
         location of diamond onto the walkable path.
+
+        Args:
+            new_diamond_positions (list of tuples): A list of specified
+                diamond positions on regeneration.
         """
         self._find_walkable_areas_in_the_maze()
-        self._randomly_update_diamond_location()
+        if set_specific_locations:
+            return self._specific_update_diamond_location(
+                                self.diamond_regeneration_positions["small"])
+        else:
+            return self._randomly_update_diamond_location()
 
     def load_world(self, screen) -> None:
         """ This function blits the maze onto the screen.

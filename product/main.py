@@ -176,7 +176,9 @@ def start_game(screen_width, screen_height, enable_highlighter,
         # When the diamond is found we will call to regenerate
         # at a new position.
         if player.get_is_diamond_found():
-            world.update_diamond_position()
+            if world.update_diamond_position(set_specific_locations=True) == 2:
+                game_over = 1
+                computer.stop_path_find_algo_thread()
             player.set_is_diamond_found_to_false()
             diamond_positons = world.get_diamond_group()
             enable_highlight = True
