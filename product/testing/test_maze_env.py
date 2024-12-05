@@ -81,7 +81,7 @@ class TestMidMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
     """ This class will test functions and attributes for the medium maze
     enviorment. """
 
-    # Load up the small maze
+    # Load up the medium maze
     with open('maze/maze_2', 'rb') as file:
         maze_map = pickle.load(file)
 
@@ -94,6 +94,23 @@ class TestMidMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
 
         self.assertEqual("medium", self.world.get_maze_size())
 
+
+class TestLargeMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
+    """ This class will test functions and attributes for the large maze
+    enviorment. """
+
+    # Load up the large maze
+    with open('maze/maze_3', 'rb') as file:
+        maze_map = pickle.load(file)
+
+    def setUp(self):
+        super().setUp(player_pos_x=300, player_pos_y=300)
+
+    def test_large_get_maze_size(self):
+        """ When we call get_maze_size() on a large maze it should output
+        as large."""
+
+        self.assertEqual("large", self.world.get_maze_size())
 
 class TestEveryMazeEnviormentSize(TestMazeEnviorment, unittest.TestCase):
     """ This class in every test case will loop through every maze size and
