@@ -93,6 +93,7 @@ class World:
             maze.
         """
         self._world_matrix = world_matrix
+        self._maze_size = self.get_maze_size()
         self._collidable_tile_list = []
         self._non_collidable_tile_list = []
         self._tile_list_images = []
@@ -110,7 +111,8 @@ class World:
         # Also initalize the walkable maze now, so that the computer can use it
         self._find_walkable_areas_in_the_maze()
         self.was_highlight_ran = False
-        self.diamond_regeneration_positions = {"small": []}
+        self.diamond_regeneration_positions = {"small": [(1, 13), (5, 11),
+                                                         (1, 6), (5, 2)]}
 
     def _load_asset_and_tile_images(self) -> None:
         """ Load and store all images/sprites of sprites/assets to be used in
@@ -257,6 +259,7 @@ class World:
                     self._walkable_maze_matrix[i][j] = 0
 
         if not positions_stack:
+            self.stop_path_find_algo_thread()
             return 2
 
         new_diamond_row, new_diamond_col = positions_stack.pop()
@@ -273,18 +276,6 @@ class World:
 
         return PASS
 
-    def draw_grid(self, screen, screen_height, screen_width) -> None:
-        """ This functions draws out the grids on the game, to help visualize
-        on what grid every asset is, or which grid the player is currently on.
-        """
-        for line in range(29):
-            # Draw the vertical lines
-            pygame.draw.line(screen, WHITE, (line * TILE_SIZE, 0),
-                             (line * TILE_SIZE, screen_height))
-            # Draw the horizontal lines
-            pygame.draw.line(screen, WHITE, (0, line * TILE_SIZE),
-                             (screen_width, line * TILE_SIZE))
-
     def update_diamond_position(self, set_specific_locations=False):
         """ This function will find the walkable paths and then update the
         location of diamond onto the walkable path.
@@ -298,7 +289,19 @@ class World:
             return self._specific_update_diamond_location(
                                 self.diamond_regeneration_positions["small"])
         else:
-            return self._randomly_update_diamond_location()
+            self._randomly_update_diamond_location()
+
+    def draw_grid(self, screen, screen_height, screen_width) -> None:
+        """ This functions draws out the grids on the game, to help visualize
+        on what grid every asset is, or which grid the player is currently on.
+        """
+        for line in range(29):
+            # Draw the vertical lines
+            pygame.draw.line(screen, WHITE, (line * TILE_SIZE, 0),
+                             (line * TILE_SIZE, screen_height))
+            # Draw the horizontal lines
+            pygame.draw.line(screen, WHITE, (0, line * TILE_SIZE),
+                             (screen_width, line * TILE_SIZE))
 
     def load_world(self, screen) -> None:
         """ This function blits the maze onto the screen.
@@ -381,3 +384,6 @@ class World:
 
     def get_diamond_group(self) -> list:
         return self._diamond_group
+
+    def get_maze_size(self) -> str:
+        pass

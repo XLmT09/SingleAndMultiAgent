@@ -18,17 +18,21 @@ maze_dir = "maze"
 
 
 class TestMazeEnviorment(unittest.TestCase):
-    """ Test if the maze enviorment is setup as expected. """
-    with open('maze/maze_1', 'rb') as file:
-        maze_map = pickle.load(file)
+    """ Test if the maze enviorment and attributes functions as expected. """
 
-    def setUp(self):
+    def setUp(self, player_pos_x, player_pos_y):
+        """
+        Args:
+            pos_x (int): x position of the agent.
+            pos_y (int): y position of the agent.
+        """
         pygame.init()
         pygame.display.set_mode((1, 1), 0, 32)
         self.player = CharacterAnimationManager(CHARACTER_WIDTH,
                                                 CHARACTER_HEIGHT,
                                                 self.maze_map,
-                                                True, 300, 300)
+                                                True, player_pos_x,
+                                                player_pos_y)
         self.player.set_char_animation("idle",
                                        player_sprite_file_paths["idle"], 4)
         self.player.set_char_animation("jump",
@@ -42,6 +46,31 @@ class TestMazeEnviorment(unittest.TestCase):
 
     def tearDown(self):
         pygame.quit()
+
+
+class TestSmallMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
+    """ This class will test functions and attributes for the small maze
+    enviorment. """
+
+    # Load up the small maze
+    with open('maze/maze_1', 'rb') as file:
+        maze_map = pickle.load(file)
+
+    def setUp(self):
+        super().setUp(pos_x=300, pos_y=300)
+
+    def test_small_get_maze_size(self):
+        """ When we call get_maze_size() on a small maze it should output 
+        as'small'."""
+
+        self.assertEqual("small", self.world.get_maze_size())
+
+
+class TestEveryMazeEnviormentSize(TestMazeEnviorment, unittest.TestCase):
+    """ This class in every test case will loop through every maze size and
+    test if common values and functions work as expected."""
+    def setUp(self):
+        super().setUp(pos_x=300, pos_y=300)
 
     def test_every_maze_generated_has_a_diamond(self):
         """ If a maze does not contain an diamond then the algos programmed
