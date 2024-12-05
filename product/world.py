@@ -174,8 +174,8 @@ class World:
         A tile is considered walkable if it is empty and there is a tile
         platform directly above and below it.
 
-        A tile is considered climable is there is a ladder i.e. a 3 in the#
-        world matrix.
+        A tile is considered climbable if there there is a ladder i.e. a 3 in
+        the world matrix.
         """
         walkable_tiles = {1, 4}
         for i in range(len(self._world_matrix)):
@@ -206,63 +206,65 @@ class World:
                     # 4 indicates a slow block
                     self._walkable_maze_matrix[i][j] = 4
 
-    def _randomly_update_diamond_location(self) -> None:
-        """ This function randomly updates the location of the diamond,
-        in a valid spot on the maze.
+    def get_walkable_locations(self, clear_diamond_pos=True) -> list:
+        """ Loop through the walkable matrix and return the list of coords
+        that are walkable.
+
+        Args:
+            clear_diamond_pos (bool): When looping the matix we will clear
+                the diamond location when spotted.
         """
+        # Valid walkable locations will have a one in the matrix
+        location_of_ones_in_matrix = []
 
         # First find all valid locations to place the diamond.
-        # Valid location will have a one in the walkable matrix, so
-        # we will store all instances of these.
-        location_of_one_indices = []
         for i in range(len(self._walkable_maze_matrix)):
             for j in range(len(self._walkable_maze_matrix[0])):
                 if self._walkable_maze_matrix[i][j] == 1:
-                    location_of_one_indices.append((i, j))
+                    location_of_ones_in_matrix.append((i, j))
                 # During this loop we can also clear the position of the
                 # current diamond location, on the original maze.
-                if self._world_matrix[i][j] == 2:
+                if self._world_matrix[i][j] == 2 and clear_diamond_pos:
                     self._world_matrix[i][j] = 0
                     self._walkable_maze_matrix[i][j] = 0
 
-        # Next we randomly choose a index to place our diamond
-        new_diamond_row, new_diamond_col = random.choice(
-                                            location_of_one_indices)
+        print(location_of_ones_in_matrix)
 
-        # Now we can update the position of the diamond rect and maze index
-        self._world_matrix[new_diamond_row][new_diamond_col] = 2
-        # We should also update the walkable maze so that the player knows
-        # where the new diamond is
-        self._walkable_maze_matrix[new_diamond_row][new_diamond_col] = 2
-        for diamond in self._diamond_group:
-            # we pass new_diamond_index[1] as y and vise versa, as went iterate
-            # through the column using the second index
-            diamond.update_position(new_diamond_col, new_diamond_row)
+        return location_of_ones_in_matrix
 
-    def _specific_update_diamond_location(self, positions_stack) -> int:
-        """ This function updates the location of the diamond at a user
-        defined coord.
+    def update_diamond_position(self, are_locations_defined=False):
+        """ This function will find update the coords of a diamond by removing
+        the current diamond and placing a new diamond at a different location.
+
+        Args:
+            are_locations_defined (list of tuples): A flag which when set will 
+                place diamonds at specific locations and not randomly.
         """
+        # Before starting we should update the walkable areas in the maze,
+        # as the diamond has moved positions.
+        self._find_walkable_areas_in_the_maze()
 
-        # First find all valid locations to place the diamond.
-        # Valid location will have a one in the walkable matrix, so
-        # we will store all instances of these.
-        location_of_one_indices = []
-        for i in range(len(self._walkable_maze_matrix)):
-            for j in range(len(self._walkable_maze_matrix[0])):
-                if self._walkable_maze_matrix[i][j] == 1:
-                    location_of_one_indices.append((i, j))
-                # During this loop we can also clear the position of the
-                # current diamond location, on the original maze.
-                if self._world_matrix[i][j] == 2:
-                    self._world_matrix[i][j] = 0
-                    self._walkable_maze_matrix[i][j] = 0
+        # We will get the list of walkable verticies and also clear the current
+        # diamond position.
+        walkable_vertices = self.get_walkable_locations(clear_diamond_pos=True)
 
-        if not positions_stack:
+        new_diamond_row, new_diamond_col = None, None
+        diamond_locations_stack = (
+            self.diamond_regeneration_positions[self._maze_size]
+        )
+
+        # If we are you using defined positions and the stack is empty, then
+        # we have found all the diamonds and can stop execution.
+        if are_locations_defined and not diamond_locations_stack:
             self.stop_path_find_algo_thread()
             return 2
-
-        new_diamond_row, new_diamond_col = positions_stack.pop()
+        elif are_locations_defined:
+            new_diamond_row, new_diamond_col = diamond_locations_stack.pop()
+        else:
+            # we randomly choose a random walkable vertex to place our diamond,
+            # if locations specified flag is off.
+            new_diamond_row, new_diamond_col = random.choice(
+                                                walkable_vertices)
 
         # Now we can update the position of the diamond rect and maze index
         self._world_matrix[new_diamond_row][new_diamond_col] = 2
@@ -275,21 +277,6 @@ class World:
             diamond.update_position(new_diamond_col, new_diamond_row)
 
         return PASS
-
-    def update_diamond_position(self, set_specific_locations=False):
-        """ This function will find the walkable paths and then update the
-        location of diamond onto the walkable path.
-
-        Args:
-            new_diamond_positions (list of tuples): A list of specified
-                diamond positions on regeneration.
-        """
-        self._find_walkable_areas_in_the_maze()
-        if set_specific_locations:
-            return self._specific_update_diamond_location(
-                                self.diamond_regeneration_positions["small"])
-        else:
-            self._randomly_update_diamond_location()
 
     def draw_grid(self, screen, screen_height, screen_width) -> None:
         """ This functions draws out the grids on the game, to help visualize

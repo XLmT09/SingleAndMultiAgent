@@ -154,7 +154,7 @@ def start_game(screen_width, screen_height, enable_highlighter,
     cave_bg = pygame.image.load(
         "assets/images/background/cave.png"
         ).convert_alpha()
-
+    world.get_walkable_locations()
     # Game loop logic
     while True:
         # We want to draw the background first, then
@@ -176,7 +176,7 @@ def start_game(screen_width, screen_height, enable_highlighter,
         # When the diamond is found we will call to regenerate
         # at a new position.
         if player.get_is_diamond_found():
-            if world.update_diamond_position(set_specific_locations=True) == 2:
+            if world.update_diamond_position(are_locations_defined=False) == 2:
                 game_over = 1
                 computer.stop_path_find_algo_thread()
             player.set_is_diamond_found_to_false()
