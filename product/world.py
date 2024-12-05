@@ -112,7 +112,9 @@ class World:
         self._find_walkable_areas_in_the_maze()
         self.was_highlight_ran = False
         self.diamond_regeneration_positions = {"small": [(1, 13), (5, 11),
-                                                         (1, 6), (5, 2)]}
+                                                         (1, 6), (5, 2)],
+                                               "medium": [(3, 7), (13, 18),
+                                                          (7, 8), (1, 18)]}
 
     def _load_asset_and_tile_images(self) -> None:
         """ Load and store all images/sprites of sprites/assets to be used in
@@ -256,7 +258,6 @@ class World:
         # If we are you using defined positions and the stack is empty, then
         # we have found all the diamonds and can stop execution.
         if are_locations_defined and not diamond_locations_stack:
-            self.stop_path_find_algo_thread()
             return 2
         elif are_locations_defined:
             new_diamond_row, new_diamond_col = diamond_locations_stack.pop()
