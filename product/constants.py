@@ -11,6 +11,11 @@ game_values = {
     "FPS": 60
 }
 
+# grid type
+FREE_GRID = 0
+DIAMOND_GRID = 2
+LADDER_GRID = 4
+
 # colours
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)

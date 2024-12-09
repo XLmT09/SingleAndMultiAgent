@@ -1,5 +1,5 @@
 import pygame
-import constants as CONST
+import constants as C
 
 
 class Player:
@@ -94,7 +94,7 @@ class Player:
             image = pygame.transform.flip(image, True, False)
 
         # This will make the background transparent
-        image.set_colorkey(CONST.BLACK)
+        image.set_colorkey(C.BLACK)
 
         return image
 
@@ -233,7 +233,7 @@ class CharacterAnimationManager:
     def draw_outline(self, screen):
         """ This function draws the outline of the player rect. """
         border_width = 2
-        pygame.draw.rect(screen, CONST.WHITE, self.hitbox_rect, border_width)
+        pygame.draw.rect(screen, C.WHITE, self.hitbox_rect, border_width)
 
     def human_player_movement(self) -> None:
         """ This function handles player movement by the user, by registering
@@ -343,7 +343,7 @@ class CharacterAnimationManager:
         # Update the aniamtion if the current one is past cooldown limit.
         # Animation cooldwon is used to make sure transisiton between the
         # different sprite images are smooth.
-        if current_time - self._last_update >= CONST.ANIMATION_COOLDOWN:
+        if current_time - self._last_update >= C.ANIMATION_COOLDOWN:
             self._last_update = current_time
             update_frame = True
 
@@ -405,10 +405,10 @@ class CharacterAnimationManager:
         # of the rect so we add the width. This is because the left side if
         # the rect will be outside the grid when moving left.
         if self.look_left:
-            self.grid_x = (self.hitbox_rect.x + self.width) // CONST.TILE_SIZE
+            self.grid_x = (self.hitbox_rect.x + self.width) // C.TILE_SIZE
         else:
-            self.grid_x = self.hitbox_rect.x // CONST.TILE_SIZE
-        self.grid_y = (self.hitbox_rect.y) // CONST.TILE_SIZE
+            self.grid_x = self.hitbox_rect.x // C.TILE_SIZE
+        self.grid_y = (self.hitbox_rect.y) // C.TILE_SIZE
 
         # Now draw the animation using the Player class draw_animation
         # function, as thats where the frames of the different aniamtions
@@ -421,7 +421,9 @@ class CharacterAnimationManager:
 
     def _on_a_slow_block(self) -> bool:
         """ Check the player is moving over a slow block """
-        return self._maze_data[self.grid_y + 1][self.grid_x] == 4
+        return self._maze_data[self.grid_y + 1][self.grid_x] == (
+            C.LADDER_GRID
+        )
 
     def get_is_diamond_found(self) -> bool:
         return self._is_diamond_found
