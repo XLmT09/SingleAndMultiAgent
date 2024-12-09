@@ -2,6 +2,8 @@ import unittest
 from unittest.mock import patch
 from main import process_args
 
+import io
+
 
 class TestCli(unittest.TestCase):
     """This class will test the cli flags the user can use
@@ -49,52 +51,80 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_1")
         self.assertEqual(result["algo"], "ucs")
 
-    @patch('sys.argv', ['program_name', '--size', 'bogus', '--algo', 'BFS'])
+    @patch('sys.argv', ['main', '--size', 'bogus', '--algo', 'BFS'])
     def test_invalid_size_argument(self):
         """ Give the size flag an invalid value and check that
         it throws a error. """
-        # argparse calls sys.exit() on a invlaid input
-        with self.assertRaises(SystemExit):
-            process_args()
+        # Redirect stderr to prevent error message from printing
+        with patch('sys.stderr', new=io.StringIO()):
+            # argparse calls sys.exit() on a invlaid input
+            with self.assertRaises(SystemExit):
+                process_args()
 
-    @patch('sys.argv', ['program_name', '--size', 'small', '--algo', 'bogus'])
+    @patch('sys.argv', ['main', '--size', 'small', '--algo', 'bogus'])
     def test_invalid_algo_argument(self):
         """ Give the algo flag an invalid value and check that
         it throws a error. """
-        # argparse calls sys.exit() on a invlaid input
-        with self.assertRaises(SystemExit):
-            process_args()
+        # Redirect stderr to prevent error message from printing
+        with patch('sys.stderr', new=io.StringIO()):
+            # argparse calls sys.exit() on a invlaid input
+            with self.assertRaises(SystemExit):
+                process_args()
 
-    @patch('sys.argv', ['program_name', '--size', 'bogus', '--algo', 'bogus'])
+    @patch('sys.argv', ['main', '--size', 'bogus', '--algo', 'bogus'])
     def test_invalid_algo_and_size_argument(self):
         """ Give the algo and size flag an invalid value and check that
         it throws a error. """
-        # argparse calls sys.exit() on a invlaid input
-        with self.assertRaises(SystemExit):
-            process_args()
+        # Redirect stderr to prevent error message from printing
+        with patch('sys.stderr', new=io.StringIO()):
+            # argparse calls sys.exit() on a invlaid input
+            with self.assertRaises(SystemExit):
+                process_args()
 
-    @patch('sys.argv', ['program_name', '--algo', 'bfs'])
+    @patch('sys.argv', ['main', '--algo', 'bfs'])
     def test_no_size_flag(self):
         """ Dont pass a size flag and we expect to see an error
         as this flag is needed for the application to decided
         what type of maze to generate."""
-        # argparse calls sys.exit() on a invlaid input
-        with self.assertRaises(SystemExit):
-            process_args()
+        # Redirect stderr to prevent error message from printing
+        with patch('sys.stderr', new=io.StringIO()):
+            # argparse calls sys.exit() on a invlaid input
+            with self.assertRaises(SystemExit):
+                process_args()
 
-    @patch('sys.argv', ['program_name', '--size', 'small'])
+    @patch('sys.argv', ['main', '--size', 'small'])
     def test_no_algo_flag(self):
         """ Dont pass a algo flag and we expect to see an error
         as this flag is needed for the application to decided
         what type of agent to use."""
-        # argparse calls sys.exit() on a invlaid input
-        with self.assertRaises(SystemExit):
-            process_args()
+        # Redirect stderr to prevent error message from printing
+        with patch('sys.stderr', new=io.StringIO()):
+            # argparse calls sys.exit() on a invlaid input
+            with self.assertRaises(SystemExit):
+                process_args()
 
-    @patch('sys.argv', ['program_name'])
+    @patch('sys.argv', ['main'])
     def test_no_size_and_algo_flag(self):
         """ Dont pass a algo adn size flag and we expect to see an error
         as the application will not know the type of maze and agent to use."""
         # argparse calls sys.exit() on a invlaid input
-        with self.assertRaises(SystemExit):
-            process_args()
+        # Redirect stderr to prevent error message from printing
+        with patch('sys.stderr', new=io.StringIO()):
+            # argparse calls sys.exit() on a invlaid input
+            with self.assertRaises(SystemExit):
+                process_args()
+
+    @patch('sys.argv', ['main', '--algo', 'ucs', '--size', 'small',
+                        '--highlight'])
+    def test_cli_highlight_flag_input(self):
+        """ Test checks that when highlight flag is given it is registerd as
+        True in the config dict. """
+        result = process_args()
+        self.assertEqual(result["enable_highlighter"], True)
+
+    @patch('sys.argv', ['main', '--algo', 'ucs', '--size', 'small'])
+    def test_cli_highlight_flag_no_given(self):
+        """ Test checks that when highlight flag is not given it is registerd
+        as False in the config dict by default."""
+        result = process_args()
+        self.assertEqual(result["enable_highlighter"], False)

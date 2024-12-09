@@ -1,10 +1,8 @@
-from constants import diamond_sprite_images
-
+import constants as C
 import pygame
 import random
-
-TILE_SIZE = 50
-WHITE = (255, 255, 255)
+import time
+import inspect
 
 
 class Diamond(pygame.sprite.Sprite):
@@ -18,7 +16,7 @@ class Diamond(pygame.sprite.Sprite):
         _diamond_sprite_list (list): List which stores the sprite images.
         _current_sprite (int): The index we are currently on in
             _diamond_sprite_list.
-        image (pygame.image): The image we are currently displaying of the
+        image (Surface): The image we are currently displaying of the
             diamond.
         rect (Rect): The rectangle which represents the hitbox of the diamond,
             and is also used to know exaclty where to put the diamond in the
@@ -43,13 +41,13 @@ class Diamond(pygame.sprite.Sprite):
 
     def _load_diamond_images(self) -> None:
         """ Load and store images of the diamond sprites """
-        for sprite_image in diamond_sprite_images:
+        for sprite_image in C.diamond_sprite_images:
             self._diamond_sprite_list.append(pygame.image.load(sprite_image))
 
     def update_position(self, x, y) -> None:
         """ Update the positon of the diamond """
-        self.rect.x = x * TILE_SIZE + 10
-        self.rect.y = y * TILE_SIZE + 10
+        self.rect.x = x * C.TILE_SIZE + 10
+        self.rect.y = y * C.TILE_SIZE + 10
 
     def update(self) -> None:
         """ This function moves to the next sprite image of the diamond
@@ -80,16 +78,17 @@ class World:
                 put in the maze that are non-collidable.
             _tile_list_images (list): The list which stores all the tile
                 images that can be used in the maze.
-            _diamond_group (pygame.sprite.Group): This holds all the diamonds
+            _diamond_group (Group): This holds all the diamonds
                 to be used in the game, and can be blit all at once with a
                 single method.
-            _ladder_img (pygame.image): Holds the image a ladder.
+            _ladder_img (Surface): Holds the image a ladder.
 
         Args:
             world_matrix (list of lists): The inital matrix to be used for the
             maze.
         """
         self._world_matrix = world_matrix
+        self._maze_size = self.get_maze_size()
         self._collidable_tile_list = []
         self._non_collidable_tile_list = []
         self._tile_list_images = []
@@ -106,6 +105,13 @@ class World:
         self._genrate_world_tiles_and_assets()
         # Also initalize the walkable maze now, so that the computer can use it
         self._find_walkable_areas_in_the_maze()
+        self.was_highlight_ran = False
+        self.diamond_regeneration_positions = {"small": [(1, 13), (5, 11),
+                                                         (1, 6), (5, 2)],
+                                               "medium": [(3, 7), (13, 18),
+                                                          (7, 8), (1, 18)],
+                                               "large": [(4, 2), (13, 17),
+                                                         (11, 21), (1, 15)]}
 
     def _load_asset_and_tile_images(self) -> None:
         """ Load and store all images/sprites of sprites/assets to be used in
@@ -128,33 +134,39 @@ class World:
             for tile in row:
                 # Check if the tile is a noraml platform block
                 if tile == 1:
-                    img = pygame.transform.scale(self._tile_list_images[0],
-                                                 (TILE_SIZE, TILE_SIZE))
+                    img = pygame.transform.scale(
+                        self._tile_list_images[0],
+                        (C.TILE_SIZE, C.TILE_SIZE)
+                    )
                     img_rect = img.get_rect()
-                    img_rect.x = col_cnt * TILE_SIZE
-                    img_rect.y = row_cnt * TILE_SIZE
+                    img_rect.x = col_cnt * C.TILE_SIZE
+                    img_rect.y = row_cnt * C.TILE_SIZE
                     tile = (img, img_rect)
                     self._collidable_tile_list.append(tile)
                 # Check if this tile will contain a diamond
                 if tile == 2:
-                    diamond = Diamond(col_cnt * TILE_SIZE + 10,
-                                      row_cnt * TILE_SIZE + 10)
+                    diamond = Diamond(col_cnt * C.TILE_SIZE + 10,
+                                      row_cnt * C.TILE_SIZE + 10)
                     self._diamond_group.add(diamond)
                 # Check if this tile should have a ladder
                 if tile == 3:
-                    img = pygame.transform.scale(self._ladder_img,
-                                                 (TILE_SIZE, TILE_SIZE))
+                    img = pygame.transform.scale(
+                        self._ladder_img,
+                        (C.TILE_SIZE, C.TILE_SIZE)
+                    )
                     img_rect = img.get_rect()
-                    img_rect.x = col_cnt * TILE_SIZE
-                    img_rect.y = row_cnt * TILE_SIZE
+                    img_rect.x = col_cnt * C.TILE_SIZE
+                    img_rect.y = row_cnt * C.TILE_SIZE
                     tile = (img, img_rect)
                     self._non_collidable_tile_list.append(tile)
                 if tile == 4:
-                    img = pygame.transform.scale(self._tile_list_images[3],
-                                                 (TILE_SIZE, TILE_SIZE))
+                    img = pygame.transform.scale(
+                        self._tile_list_images[3],
+                        (C.TILE_SIZE, C.TILE_SIZE)
+                    )
                     img_rect = img.get_rect()
-                    img_rect.x = col_cnt * TILE_SIZE
-                    img_rect.y = row_cnt * TILE_SIZE
+                    img_rect.x = col_cnt * C.TILE_SIZE
+                    img_rect.y = row_cnt * C.TILE_SIZE
                     tile = (img, img_rect)
                     self._collidable_tile_list.append(tile)
                 col_cnt += 1
@@ -167,8 +179,8 @@ class World:
         A tile is considered walkable if it is empty and there is a tile
         platform directly above and below it.
 
-        A tile is considered climable is there is a ladder i.e. a 3 in the#
-        world matrix.
+        A tile is considered climbable if there there is a ladder i.e. a 3 in
+        the world matrix.
         """
         walkable_tiles = {1, 4}
         for i in range(len(self._world_matrix)):
@@ -199,38 +211,78 @@ class World:
                     # 4 indicates a slow block
                     self._walkable_maze_matrix[i][j] = 4
 
-    def _randomly_update_diamond_location(self) -> None:
-        """ This function randomly updates the location of the diamond,
-        in a valid spot on the maze.
+    def get_walkable_locations(self, clear_diamond_pos=True) -> list:
+        """ Loop through the walkable matrix and return the list of coords
+        that are walkable.
+
+        Args:
+            clear_diamond_pos (bool): When looping the matix we will clear
+                the diamond location when spotted.
         """
+        # Valid walkable locations will have a one in the matrix
+        location_of_ones_in_matrix = []
 
         # First find all valid locations to place the diamond.
-        # Valid location will have a one in the walkable matrix, so
-        # we will store all instances of these.
-        location_of_one_indices = []
         for i in range(len(self._walkable_maze_matrix)):
             for j in range(len(self._walkable_maze_matrix[0])):
                 if self._walkable_maze_matrix[i][j] == 1:
-                    location_of_one_indices.append((i, j))
+                    location_of_ones_in_matrix.append((i, j))
                 # During this loop we can also clear the position of the
                 # current diamond location, on the original maze.
-                if self._world_matrix[i][j] == 2:
+                if self._world_matrix[i][j] == 2 and clear_diamond_pos:
                     self._world_matrix[i][j] = 0
                     self._walkable_maze_matrix[i][j] = 0
 
-        # Next we randomly choose a index to place our diamond
-        new_diamond_row, new_diamond_col = random.choice(
-                                            location_of_one_indices)
+        return location_of_ones_in_matrix
+
+    def update_diamond_position(self, are_locations_defined=False):
+        """ This function will find update the coords of a diamond by removing
+        the current diamond and placing a new diamond at a different location.
+
+        Args:
+            are_locations_defined (list of tuples): A flag which when set will
+                place diamonds at specific locations and not randomly.
+        """
+        # Before starting we should update the walkable areas in the maze,
+        # as the diamond has moved positions.
+        self._find_walkable_areas_in_the_maze()
+
+        # We will get the list of walkable verticies and also clear the current
+        # diamond position.
+        walkable_vertices = self.get_walkable_locations(clear_diamond_pos=True)
+
+        new_diamond_row, new_diamond_col = None, None
+        diamond_locations_stack = (
+            self.diamond_regeneration_positions[self._maze_size]
+        )
+
+        # If we are you using defined positions and the stack is empty, then
+        # we have found all the diamonds and can stop execution.
+        if are_locations_defined and not diamond_locations_stack:
+            return 2
+        elif are_locations_defined:
+            new_diamond_row, new_diamond_col = diamond_locations_stack.pop()
+        else:
+            # we randomly choose a random walkable vertex to place our diamond,
+            # if locations specified flag is off.
+            new_diamond_row, new_diamond_col = random.choice(
+                                                walkable_vertices)
 
         # Now we can update the position of the diamond rect and maze index
-        self._world_matrix[new_diamond_row][new_diamond_col] = 2
+        self._world_matrix[new_diamond_row][new_diamond_col] = (
+            C.DIAMOND_GRID
+        )
         # We should also update the walkable maze so that the player knows
         # where the new diamond is
-        self._walkable_maze_matrix[new_diamond_row][new_diamond_col] = 2
+        self._walkable_maze_matrix[new_diamond_row][new_diamond_col] = (
+            C.DIAMOND_GRID
+        )
         for diamond in self._diamond_group:
             # we pass new_diamond_index[1] as y and vise versa, as went iterate
             # through the column using the second index
             diamond.update_position(new_diamond_col, new_diamond_row)
+
+        return C.PASS
 
     def draw_grid(self, screen, screen_height, screen_width) -> None:
         """ This functions draws out the grids on the game, to help visualize
@@ -238,18 +290,11 @@ class World:
         """
         for line in range(29):
             # Draw the vertical lines
-            pygame.draw.line(screen, WHITE, (line * TILE_SIZE, 0),
-                             (line * TILE_SIZE, screen_height))
+            pygame.draw.line(screen, C.WHITE, (line * C.TILE_SIZE, 0),
+                             (line * C.TILE_SIZE, screen_height))
             # Draw the horizontal lines
-            pygame.draw.line(screen, WHITE, (0, line * TILE_SIZE),
-                             (screen_width, line * TILE_SIZE))
-
-    def update_diamond_position(self):
-        """ This function will find the walkable paths and then update the
-        location of diamond onto the walkable path.
-        """
-        self._find_walkable_areas_in_the_maze()
-        self._randomly_update_diamond_location()
+            pygame.draw.line(screen, C.WHITE, (0, line * C.TILE_SIZE),
+                             (screen_width, line * C.TILE_SIZE))
 
     def load_world(self, screen) -> None:
         """ This function blits the maze onto the screen.
@@ -264,6 +309,62 @@ class World:
         self._diamond_group.draw(screen)
         self._diamond_group.update()
 
+    def highlight_grids_visited_by_algo(self, screen, visited_list,
+                                        path_to_goal) -> int:
+        """ This function will highlight the grids the algorithm currently in
+        use had visited.
+
+        Args:
+            screen (pygame.display): The screen we want to blit the maze onto.
+            visited_list (list of tuples): The list of coords the algorithm
+                had visited.
+            path_to_goal (list of tuples): The list of coords from player start
+                position to the goal state.
+        """
+
+        if visited_list is None or path_to_goal is None:
+            print(f"{inspect.currentframe().f_code.co_name}: Skipping "
+                  "execution because the visited_list and/or path_to_goal have"
+                  " not yet been generated.")
+            return C.FAIL
+
+        # Create a transparent cube to use to highlight the grid
+        grid_higlight_size = (C.TILE_SIZE, C.TILE_SIZE)
+
+        highlight_visited_surface = pygame.Surface(grid_higlight_size,
+                                                   pygame.SRCALPHA)
+        highlight_visited_surface.fill(C.colour_vals["red_transparent"])
+
+        highlight_path_surface = pygame.Surface(grid_higlight_size,
+                                                pygame.SRCALPHA)
+        highlight_path_surface.fill(C.colour_vals["blue_transparent"])
+
+        # Iteratate through every position the algortihm visited and
+        # highlight thise grids/
+        for top_right_grid_position in visited_list:
+            time.sleep(0.04)
+            screen.blit(highlight_visited_surface,
+                        (top_right_grid_position[1] * C.TILE_SIZE,
+                         top_right_grid_position[0] * C.TILE_SIZE))
+
+            # We need to update the screen on every iteration to see the
+            # visually see the sequential order of the grids visited.
+            pygame.display.update()
+
+        # Now that we have highlighted the visited grids, we will end it off
+        # by highlighting the final path found.
+        for top_right_grid_position in path_to_goal:
+            time.sleep(0.04)
+            screen.blit(highlight_path_surface,
+                        (top_right_grid_position[1] * C.TILE_SIZE,
+                         top_right_grid_position[0] * C.TILE_SIZE))
+
+            # Update the screen on every blit iteration
+            pygame.display.update()
+
+        time.sleep(3)
+        return C.PASS
+
     def print_walkable_maze_matrix(self) -> None:
         """ Print walkable maze matrix in a nice format """
         print(*self._walkable_maze_matrix, sep="\n")
@@ -276,3 +377,14 @@ class World:
 
     def get_diamond_group(self) -> list:
         return self._diamond_group
+
+    def get_maze_size(self) -> str:
+        """ This function deterimes the size of a maze based on its matrix
+         data"""
+        if len(self._world_matrix) <= 7:
+            return "small"
+        elif (len(self._world_matrix) <= 15 and
+              len(self._world_matrix[0]) <= 20):
+            return "medium"
+        else:
+            return "large"

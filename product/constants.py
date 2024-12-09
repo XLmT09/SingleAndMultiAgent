@@ -1,16 +1,34 @@
+# Some global constants to be used
+PASS = 1
+FAIL = 0
+
+TILE_SIZE = 50
+ANIMATION_COOLDOWN = 120
+
 game_values = {
     "character_width": 32,
     "character_height": 32,
     "FPS": 60
 }
 
+# grid type
+FREE_GRID = 0
+DIAMOND_GRID = 2
+LADDER_GRID = 4
+
 # colours
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED_TRANSPARENT = (255, 0, 0, 150)
+BLUE_TRANSPARENT = (0, 0, 255, 150)
 
 colour_vals = {
     "black": BLACK,
-    "white": WHITE
+    "white": WHITE,
+    "red_transparent": RED_TRANSPARENT,
+    "blue_transparent": BLUE_TRANSPARENT
 }
 
 PLAYER_IDLE_FILE_PATH = (

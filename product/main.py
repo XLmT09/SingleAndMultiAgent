@@ -3,10 +3,12 @@ from world import World
 from computer import agent_types
 from constants import player_sprite_file_paths, game_values
 from text import Text
+from lock import visited_and_path_data_flag
 
 import pygame
 import pickle
 import argparse
+import time
 
 # Setup some inital pygame logic, which is needed
 # regardless of the options we choose.
@@ -39,6 +41,15 @@ def process_args() -> dict:
         help="Choose a algorithm: dfs, bfs, or ucs"
     )
 
+    # define the algo flag
+    parser.add_argument(
+        "--highlight",
+        action="store_true",
+        required=False,
+        help="Highlights the visited grids and final path before moving the"
+             " agent"
+    )
+
     # parse args from command line
     args = parser.parse_args()
 
@@ -63,7 +74,8 @@ def process_args() -> dict:
         "maze_path": maze,
         "screen_width": screen_width,
         "screen_height": screen_height,
-        "algo": args.algo
+        "algo": args.algo,
+        "enable_highlighter": args.highlight
     }
 
 
@@ -97,7 +109,6 @@ def setup_game(config) -> dict:
 
     # Generate the maze
     world = World(maze_array)
-    world.print_walkable_maze_matrix()
 
     # Initialize a specific computer class and pass arguments to constructor
     computer = agent_types[config["algo"]](player,
@@ -111,7 +122,24 @@ def setup_game(config) -> dict:
     }
 
 
-def start_game(screen_width, screen_height,
+def highlight_visited_and_final_path(enable_highlight, world, screen,
+                                     computer):
+    """ This function highlights the visited grids and final path, if
+    collision with diamond is detected AND the visited/path lists have been
+    genrated. Otherwise we check again on the next iteration. """
+    if enable_highlight and not visited_and_path_data_flag.is_set():
+        was_executed = world.highlight_grids_visited_by_algo(
+            screen,
+            *(computer.get_visited_grids_and_path_to_goal())
+        )
+        # Only set to false if the highlight animation ran, if it didnt it
+        # means the algorithm is still generating the final path.
+        if was_executed:
+            enable_highlight = False
+            visited_and_path_data_flag.set()
+
+
+def start_game(screen_width, screen_height, enable_highlighter,
                screen, player, world, computer) -> None:
     """ This is the main game function, the game loop resides in here. """
 
@@ -121,11 +149,16 @@ def start_game(screen_width, screen_height,
     diamond_positons = world.get_diamond_group()
     score_text = Text(24)
 
+    enable_highlight = True
+
+    # Measure run time of the applicatiob
+    start = time.time()
+
     # Background image for the game
     cave_bg = pygame.image.load(
         "assets/images/background/cave.png"
         ).convert_alpha()
-
+    world.get_walkable_locations()
     # Game loop logic
     while True:
         # We want to draw the background first, then
@@ -147,10 +180,14 @@ def start_game(screen_width, screen_height,
         # When the diamond is found we will call to regenerate
         # at a new position.
         if player.get_is_diamond_found():
-            world.update_diamond_position()
+            if world.update_diamond_position(are_locations_defined=True) == 2:
+                end = time()
+                print(f"Time ran is: {start - end}")
+                game_over = 1
+                computer.stop_path_find_algo_thread()
             player.set_is_diamond_found_to_false()
             diamond_positons = world.get_diamond_group()
-            world.print_walkable_maze_matrix()
+            enable_highlight = True
 
         # Draw the maze on the screen
         world.load_world(screen)
@@ -160,6 +197,10 @@ def start_game(screen_width, screen_height,
         # Move and draw the agent
         game_over = computer.move(screen, tile_data,
                                   diamond_positons, game_over)
+
+        if enable_highlighter:
+            highlight_visited_and_final_path(enable_highlight, world, screen,
+                                             computer)
 
         # score test seen on the top left of the screen
         score_text.draw(screen, f"Score {player.get_player_score()}", 20, 20)
@@ -179,4 +220,5 @@ if __name__ == "__main__":
     # Start the agent thread
     game_data["computer"].start_thread()
 
-    start_game(config["screen_width"], config["screen_height"], **game_data)
+    start_game(config["screen_width"], config["screen_height"],
+               config["enable_highlighter"], **game_data)
