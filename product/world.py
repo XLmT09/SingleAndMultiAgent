@@ -21,7 +21,7 @@ class Diamond(pygame.sprite.Sprite):
         _diamond_sprite_list (list): List which stores the sprite images.
         _current_sprite (int): The index we are currently on in
             _diamond_sprite_list.
-        image (pygame.image): The image we are currently displaying of the
+        image (Surface): The image we are currently displaying of the
             diamond.
         rect (Rect): The rectangle which represents the hitbox of the diamond,
             and is also used to know exaclty where to put the diamond in the
@@ -83,10 +83,10 @@ class World:
                 put in the maze that are non-collidable.
             _tile_list_images (list): The list which stores all the tile
                 images that can be used in the maze.
-            _diamond_group (pygame.sprite.Group): This holds all the diamonds
+            _diamond_group (Group): This holds all the diamonds
                 to be used in the game, and can be blit all at once with a
                 single method.
-            _ladder_img (pygame.image): Holds the image a ladder.
+            _ladder_img (Surface): Holds the image a ladder.
 
         Args:
             world_matrix (list of lists): The inital matrix to be used for the

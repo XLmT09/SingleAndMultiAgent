@@ -1,6 +1,8 @@
-# Use these values to return wheather a opertion was successful or not.
+# Some global constants to be used
 PASS = 1
 FAIL = 0
+
+TILE_SIZE = 50
 
 game_values = {
     "character_width": 32,
