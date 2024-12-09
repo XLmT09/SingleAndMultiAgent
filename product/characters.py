@@ -1,10 +1,6 @@
 import pygame
 import constants as CONST
 
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-ANIMATION_COOLDOWN = 120
-
 
 class Player:
     """
@@ -98,7 +94,7 @@ class Player:
             image = pygame.transform.flip(image, True, False)
 
         # This will make the background transparent
-        image.set_colorkey(BLACK)
+        image.set_colorkey(CONST.BLACK)
 
         return image
 
@@ -237,7 +233,7 @@ class CharacterAnimationManager:
     def draw_outline(self, screen):
         """ This function draws the outline of the player rect. """
         border_width = 2
-        pygame.draw.rect(screen, WHITE, self.hitbox_rect, border_width)
+        pygame.draw.rect(screen, CONST.WHITE, self.hitbox_rect, border_width)
 
     def human_player_movement(self) -> None:
         """ This function handles player movement by the user, by registering
@@ -347,7 +343,7 @@ class CharacterAnimationManager:
         # Update the aniamtion if the current one is past cooldown limit.
         # Animation cooldwon is used to make sure transisiton between the
         # different sprite images are smooth.
-        if current_time - self._last_update >= ANIMATION_COOLDOWN:
+        if current_time - self._last_update >= CONST.ANIMATION_COOLDOWN:
             self._last_update = current_time
             update_frame = True
 

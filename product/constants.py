@@ -3,6 +3,7 @@ PASS = 1
 FAIL = 0
 
 TILE_SIZE = 50
+ANIMATION_COOLDOWN = 120
 
 game_values = {
     "character_width": 32,
@@ -11,6 +12,8 @@ game_values = {
 }
 
 # colours
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED_TRANSPARENT = (255, 0, 0, 150)
