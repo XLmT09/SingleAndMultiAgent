@@ -75,24 +75,32 @@ python .\create_maze.py
 ### 2.2 Executing
 
 To run the application you can use the following command format:
-`main.py [-h] --size {small,medium,large} --algo {dfs,bfs,ucs} [--highlight]`
+```
+main.py [-h] --size {small,medium,large} --algo {dfs,bfs,ucs} [--highlight]`
+```
+
+An example command below where I would like to the application on a small maze using the dfs algorithm:
+```bash
+# Exmaple Command
+main.py --size small --algo dfs
+```
 
 ## 3 Testing
 
 To run every test you can do the following command:\
-`python -m unittest discover ./testing/`
+```bash
+python -m unittest discover ./testing/
+```
 
 To run specific test files, do the following:\
-`python -m unittest .\testing\<test_file>`
-
-This repository has been created to store your final year project.
-
-You may edit it as you like, but please do not remove the default topics or the project members list. These need to stay as currently defined in order for your supervisor to be able to find your project.
+```bash
+python -m unittest .\testing\<test_file>
+```
 
 ## 4 Checkstyle
 
 This project uses python **_flake8_** checkstyling. It has been integrated to the gitlab pipeline.
-If you would like to run the checkstyle yourself you can the following command:
+If you would like to run the checkstyle yourself you can use the following command:
 
 ```bash
 python -m flake8
