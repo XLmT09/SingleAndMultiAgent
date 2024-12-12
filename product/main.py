@@ -70,6 +70,11 @@ def process_args() -> dict:
         screen_height = 750
         maze = "maze/maze_3"
 
+    # If we are using the random algo then disable highlight because this algo
+    # dosent store any visited verticies and final path to a goal state.
+    if args.algo == "random":
+        args.highlight = False
+
     return {
         "maze_path": maze,
         "screen_width": screen_width,
