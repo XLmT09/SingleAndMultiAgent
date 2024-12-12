@@ -175,34 +175,46 @@ class RandomComputer(Computer):
         climbing = False
 
         while not self.stop_thread:
+            # player position
+            pos = self.character.get_player_grid_coordinates()
+
             # Once the player reaches the top of a ladder they can exit by
-            # holding the up and right key at the same time
-            if (self._walkable_maze_matrix[self.character.grid_y]
-                                          [self.character.grid_x] == 3 and
-                self._walkable_maze_matrix[self.character.grid_y]
-                                          [self.character.grid_x+1] == 1 and
-                self._walkable_maze_matrix[self.character.grid_y]
-                                          [self.character.grid_x-1] == 1 and
+            # holding the up and right key at the same time if right side free
+            if (self._walkable_maze_matrix[pos[0] - 1][pos[1]] == 0 and
+                self._walkable_maze_matrix[pos[0]][pos[1] + 1] == 1 and
                     climbing):
-                self.requested_movement = random.choice(
-                                            ["UP RIGHT", "UP LEFT"])
-                climbing = False
-            elif (self._walkable_maze_matrix[self.character.grid_y]
-                                            [self.character.grid_x] == 3 and
-                  self._walkable_maze_matrix[self.character.grid_y]
-                                            [self.character.grid_x+1] == 1 and
+                if (random.randint(0, 1) == 0):
+                    self.requested_movement = "UP RIGHT"
+                    climbing = False
+            # Once the player reaches the top of a ladder they can exit by
+            # holding the up and left key at the same time if left side free
+            elif (self._walkable_maze_matrix[pos[0] - 1][pos[1]] == 0 and
+                  self._walkable_maze_matrix[pos[0]][pos[0]] == 1 and
                     climbing):
-                self.requested_movement = "UP RIGHT"
-                climbing = False
-            elif (self._walkable_maze_matrix[self.character.grid_y]
-                                            [self.character.grid_x] == 3 and
-                  self._walkable_maze_matrix[self.character.grid_y]
-                                            [self.character.grid_x+1] == 1 and
+                if (random.randint(0, 1) == 0):
+                    self.requested_movement = "UP LEFT"
+                    climbing = False
+            # If the player is not at the top of the ladder but there is an
+            # exit on the right they can leave there.
+            elif (self._walkable_maze_matrix[pos[0] - 1][pos[1]] == 3 and
+                  self._walkable_maze_matrix[pos[0]][pos[1]] == 3 and
+                  self._walkable_maze_matrix[pos[0]][pos[0]] == 1 and
                     climbing):
+                if (random.randint(0, 1) == 0):
+                    self.requested_movement = "UP RIGHT"
+                    climbing = False
+            # If the player is not at the top of the ladder but there is an
+            # exit on the left they can leave there.
+            elif (self._walkable_maze_matrix[pos[0] - 1][pos[1]] == 3 and
+                  self._walkable_maze_matrix[pos[0]][pos[1]] == 3 and
+                  self._walkable_maze_matrix[pos[0]][pos[1] + 1] == 1 and
+                    climbing):
+                if (random.randint(0, 1) == 0):
+                    self.requested_movement = "UP RIGHT"
+                    climbing = False
                 self.requested_movement = "UP LEFT"
                 climbing = False
-            elif (self._walkable_maze_matrix[self.character.grid_y]
-                                            [self.character.grid_x] == 3):
+            elif (self._walkable_maze_matrix[pos[0]][pos[1]] == 3):
                 # Once the computer finds a ladder, it'll need to randomly
                 # decide to climb it or not
                 if (random.randint(0, 1) == 0):
@@ -210,11 +222,9 @@ class RandomComputer(Computer):
                     climbing = True
             # If the player is about to walk into a wall then
             # force it to move the other way
-            elif (self._walkable_maze_matrix[self.character.grid_y]
-                                            [self.character.grid_x - 1] == 0):
+            elif (self._walkable_maze_matrix[pos[0]][pos[1] - 1] == 0):
                 self.requested_movement = "RIGHT"
-            elif (self._walkable_maze_matrix[self.character.grid_y]
-                                            [self.character.grid_x + 1] == 0):
+            elif (self._walkable_maze_matrix[pos[0]][pos[1] + 1] == 0):
                 self.requested_movement = "LEFT"
             else:
                 self.requested_movement = random.choice(moves)

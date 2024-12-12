@@ -36,9 +36,9 @@ def process_args() -> dict:
     # define the algo flag
     parser.add_argument(
         "--algo",
-        choices=["dfs", "bfs", "ucs"],
+        choices=["random", "dfs", "bfs", "ucs"],
         required=True,
-        help="Choose a algorithm: dfs, bfs, or ucs"
+        help="Choose a algorithm: random, dfs, bfs, or ucs"
     )
 
     # define the algo flag
@@ -69,6 +69,11 @@ def process_args() -> dict:
         screen_width = 1400
         screen_height = 750
         maze = "maze/maze_3"
+
+    # If we are using the random algo then disable highlight because this algo
+    # dosent store any visited verticies and final path to a goal state.
+    if args.algo == "random":
+        args.highlight = False
 
     return {
         "maze_path": maze,

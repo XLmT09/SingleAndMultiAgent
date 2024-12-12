@@ -51,6 +51,15 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_1")
         self.assertEqual(result["algo"], "ucs")
 
+    @patch('sys.argv', ['main', '--algo', 'random', '--size', 'small'])
+    def test_cli_random_algo(self):
+        """ Test cli with random as algo value. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 850)
+        self.assertEqual(result["screen_height"], 350)
+        self.assertEqual(result["maze_path"], "maze/maze_1")
+        self.assertEqual(result["algo"], "random")
+
     @patch('sys.argv', ['main', '--size', 'bogus', '--algo', 'BFS'])
     def test_invalid_size_argument(self):
         """ Give the size flag an invalid value and check that
@@ -127,4 +136,13 @@ class TestCli(unittest.TestCase):
         """ Test checks that when highlight flag is not given it is registerd
         as False in the config dict by default."""
         result = process_args()
+        self.assertEqual(result["enable_highlighter"], False)
+
+    @patch('sys.argv', ['main', '--algo', 'random', '--size', 'small',
+                        '--highlight'])
+    def test_cli_highlight_flag_disabled_on_random(self):
+        """ Test that when we use the random algo, the highlighter will remain
+        disabled even when the user passes addss the flag."""
+        result = process_args()
+        self.assertEqual(result["algo"], "random")
         self.assertEqual(result["enable_highlighter"], False)
