@@ -59,7 +59,7 @@ deactivate
 To download dependices for this project run the following command:
 
 ```
-pip install -r requirements.txt
+pip install -r requirments.txt
 ```
 
 ## 2 Running the Application
@@ -87,12 +87,12 @@ main.py --size small --algo dfs
 
 ## 3 Testing
 
-To run every test you can do the following command:\
+To run every test you can do the following command:
 ```bash
 python -m unittest discover ./testing/
 ```
 
-To run specific test files, do the following:\
+To run specific test files, do the following:
 ```bash
 python -m unittest .\testing\<test_file>
 ```
