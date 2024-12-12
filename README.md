@@ -21,13 +21,13 @@ To setup a enviorment follow these steps:
 1a. If your on Windows then do:
 
 ```bash
-python -m venv project-env
+python -m venv .project-env
 ```
 
 1b. If your on Mac or Linux then do:
 
 ```bash
-python3 -m venv project-env
+python3 -m venv .project-env
 ```
 
 #### 1.1.2 Activate the Enviorment
@@ -35,13 +35,13 @@ python3 -m venv project-env
 2a. If your on Windows then do:
 
 ```bash
-.\project-env\Scripts\activate
+.\.project-env\Scripts\activate
 ```
 
 2b. If your on Mac or Linux then do:
 
 ```bash
-source project-env/bin/activate
+source .project-env/bin/activate
 ```
 
 **Now the enviorment is activated.**
@@ -76,7 +76,7 @@ python .\create_maze.py
 
 To run the application you can use the following command format:
 ```
-main.py [-h] --size {small,medium,large} --algo {dfs,bfs,ucs} [--highlight]`
+main.py [-h] --size {small,medium,large} --algo {random,dfs,bfs,ucs} [--highlight]
 ```
 
 An example command below where I would like to the application on a small maze using the dfs algorithm:
