@@ -137,3 +137,12 @@ class TestCli(unittest.TestCase):
         as False in the config dict by default."""
         result = process_args()
         self.assertEqual(result["enable_highlighter"], False)
+
+    @patch('sys.argv', ['main', '--algo', 'random', '--size', 'small',
+                        '--highlight'])
+    def test_cli_highlight_flag_disabled_on_random(self):
+        """ Test that when we use the random algo, the highlighter will remain
+        disabled even when the user passes addss the flag."""
+        result = process_args()
+        self.assertEqual(result["algo"], "random")
+        self.assertEqual(result["enable_highlighter"], False)
