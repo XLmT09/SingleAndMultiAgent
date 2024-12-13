@@ -101,8 +101,7 @@ Then you just have to enable analysis mode by doing the following:
 ```python
 # Initialize a specific computer class and pass arguments to constructor
 computer = agent_types[config["algo"]](player,
-                                        world.get_walkable_maze_matrix(),
-                                        True)
+                                        world.get_walkable_maze_matrix())
 ```
 
 This will print information of the algorithms onto the terminal.
