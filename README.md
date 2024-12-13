@@ -101,7 +101,8 @@ Then you just have to enable analysis mode by doing the following:
 ```python
 # Initialize a specific computer class and pass arguments to constructor
 computer = agent_types[config["algo"]](player,
-                                        world.get_walkable_maze_matrix())
+                                        world.get_walkable_maze_matrix(),
+                                        True)
 ```
 
 This will print information of the algorithms onto the terminal.
@@ -121,10 +122,16 @@ python -m unittest .\testing\<test_file>
 ## 5 Checkstyle
 
 This project uses python **_flake8_** checkstyling. It has been integrated to the gitlab pipeline.
-If you would like to run the checkstyle yourself you can use the following command:
+If you would like to run the checkstyle yourself you can use one of the following commands:
 
+**If your python enviorment is created within the product directory**
 ```bash
-python -m flake8
+python -m flake8 --exclude <env_folder>
+```
+
+**Else you can simply run the following**
+```bash
+python -m flake8 
 ```
 
 ## 6 Repository Structure
