@@ -75,14 +75,14 @@ python .\create_maze.py
 ### 2.2 Executing
 
 To run the application you can use the following command format:
-```
-main.py [-h] --size {small,medium,large} --algo {random,dfs,bfs,ucs} [--highlight]
+```bash
+python main.py [-h] --size {small,medium,large} --algo {random,dfs,bfs,ucs} [--highlight]
 ```
 
 An example command below where I would like to the application on a small maze using the dfs algorithm:
 ```bash
 # Exmaple Command
-main.py --size small --algo dfs
+python main.py --size small --algo dfs
 ```
 
 ## 3 Analysis Tools
