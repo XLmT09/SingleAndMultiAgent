@@ -85,7 +85,29 @@ An example command below where I would like to the application on a small maze u
 main.py --size small --algo dfs
 ```
 
-## 3 Testing
+## 3 Analysis Tools
+Currently the only way to use analysis tools is to, chnage the source code.
+
+Open the source code under `main.py`.
+
+Then locate this block of code:
+```python
+# Initialize a specific computer class and pass arguments to constructor
+computer = agent_types[config["algo"]](player,
+                                        world.get_walkable_maze_matrix())
+```
+
+Then you just have to enable analysis mode by doing the following:
+```python
+# Initialize a specific computer class and pass arguments to constructor
+computer = agent_types[config["algo"]](player,
+                                        world.get_walkable_maze_matrix(),
+                                        True)
+```
+
+This will print information of the algorithms onto the terminal.
+
+## 4 Testing
 
 To run every test you can do the following command:
 ```bash
@@ -97,7 +119,7 @@ To run specific test files, do the following:
 python -m unittest .\testing\<test_file>
 ```
 
-## 4 Checkstyle
+## 5 Checkstyle
 
 This project uses python **_flake8_** checkstyling. It has been integrated to the gitlab pipeline.
 If you would like to run the checkstyle yourself you can use the following command:
@@ -106,7 +128,7 @@ If you would like to run the checkstyle yourself you can use the following comma
 python -m flake8
 ```
 
-## 5 Repository Structure
+## 6 Repository Structure
 
 [GitLab Rules](https://moodle.royalholloway.ac.uk/pluginfile.php/1740965/mod_resource/content/3/gitlab_rules.html) explains the root structure.
 
@@ -122,7 +144,7 @@ But an explanation will be given for the `product` directory:
 - `requirments.txt` : This file contains the dependencies needed fot this application.
 - `maze\` : This directory gets generated after running `python .\create_maze.py`, and stores all the mazes to be used for the game.
 
-## 6 Links to Assets used in this Project
+## 7 Links to Assets used in this Project
 
 [Character Sprites](https://craftpix.net/freebies/free-tiny-pixel-hero-sprites-with-melee-attacks/)\
 [Background Cave Image](https://lil-cthulhu.itch.io/pixel-art-cave-background)\
