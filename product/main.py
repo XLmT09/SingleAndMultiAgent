@@ -117,7 +117,8 @@ def setup_game(config) -> dict:
 
     # Initialize a specific computer class and pass arguments to constructor
     computer = agent_types[config["algo"]](player,
-                                           world.get_walkable_maze_matrix())
+                                           world.get_walkable_maze_matrix(),
+                                           True)
 
     return {
         "screen": screen,
@@ -185,9 +186,11 @@ def start_game(screen_width, screen_height, enable_highlighter,
         # When the diamond is found we will call to regenerate
         # at a new position.
         if player.get_is_diamond_found():
+            if computer.perfrom_analysis:
+                end = time.time()
+                print(f"Time ran is: {abs(start - end)}")
+                start = end
             if world.update_diamond_position(are_locations_defined=True) == 2:
-                end = time()
-                print(f"Time ran is: {start - end}")
                 game_over = 1
                 computer.stop_path_find_algo_thread()
             player.set_is_diamond_found_to_false()
