@@ -1,4 +1,4 @@
-from computer import DFSComputer, BFSComputer, UCSComputer
+from computer import DFSComputer, BFSComputer, UCSComputer, AStarComputer
 from characters import CharacterAnimationManager
 from world import World
 from constants import player_sprite_file_paths
@@ -77,6 +77,16 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
 
     def test_ucs_can_find_path_in_small_maze(self):
         computer = UCSComputer(self.player,
+                               self.world.get_walkable_maze_matrix())
+        computer.stop_thread = True
+        path = computer.generate_path()
+        self.assertEqual(path,
+                         [(5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (4, 9),
+                          (3, 9), (3, 10), (3, 11), (3, 12), (3, 13), (3, 14)])
+        computer.stop_thread = True
+
+    def test_a_star_can_find_path_in_small_maze(self):
+        computer = AStarComputer(self.player,
                                self.world.get_walkable_maze_matrix())
         computer.stop_thread = True
         path = computer.generate_path()
