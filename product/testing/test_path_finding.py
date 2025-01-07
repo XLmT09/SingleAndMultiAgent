@@ -39,6 +39,9 @@ class TestComputer(unittest.TestCase):
 
         self.world = World(self.maze_map)
 
+        # some algos need to know the goal state in advance
+        self.diamond = self.world.get_diamond_group().sprites()[0]
+
     def tearDown(self):
         pygame.quit()
 
@@ -87,7 +90,8 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
 
     def test_a_star_can_find_path_in_small_maze(self):
         computer = AStarComputer(self.player,
-                               self.world.get_walkable_maze_matrix())
+                                 self.world.get_walkable_maze_matrix(),
+                                 self.diamond)
         computer.stop_thread = True
         path = computer.generate_path()
         self.assertEqual(path,
@@ -221,7 +225,7 @@ class TestExtraUCSPathFinding(TestComputer, unittest.TestCase):
 
 class TestComputerStartIsGoalState(TestComputer, unittest.TestCase):
     """ This class has tests to see that a path is still generated for
-    different algos when the start stae equals the end state."""
+    different algos when the start state equals the end state."""
 
     with open('maze/maze_3', 'rb') as file:
         maze_map = pickle.load(file)
@@ -256,7 +260,7 @@ class TestComputerStartIsGoalState(TestComputer, unittest.TestCase):
 
 
 class TestVisitedGrids(TestComputer, unittest.TestCase):
-    """ This class will test the get visited grids fucntion with the context
+    """ This class will test the get visited grids function with the context
     of a large maze on multiple algorithms."""
 
     with open('maze/maze_3', 'rb') as file:
@@ -267,7 +271,7 @@ class TestVisitedGrids(TestComputer, unittest.TestCase):
         super().setUp(pos_x=350, pos_y=300)
 
     def test_get_visited_grids_on_dfs(self):
-        """ This function will test the list of visted grids generated matches
+        """ This function will test the list of visited grids generated matches
         the data set we expect for dfs in a large maze.
         """
         computer = DFSComputer(self.player,
@@ -311,7 +315,7 @@ class TestVisitedGrids(TestComputer, unittest.TestCase):
         computer.stop_thread = True
 
     def test_get_visited_grids_on_bfs(self):
-        """ This function will test the list of visted grids generated matches
+        """ This function will test the list of visited grids generated matches
         the data set we expect for bfs in a large maze.
         """
         computer = BFSComputer(self.player,
@@ -343,7 +347,7 @@ class TestVisitedGrids(TestComputer, unittest.TestCase):
         computer.stop_thread = True
 
     def test_get_visited_grids_on_ucs(self):
-        """ This function will test the list of visted grids generated matches
+        """ This function will test the list of visited grids generated matches
         the data set we expect for ucs in a large maze.
         """
         computer = UCSComputer(self.player,
