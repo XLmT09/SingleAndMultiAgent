@@ -86,5 +86,14 @@ class TestAstarTools(unittest.TestCase):
         self.assertEqual(distance,
                          abs(self.player.grid_x - self.diamond.grid_x))
 
+    def test_manhattan_vertical_move(self):
+        """ Distance should be |player.grid_y - diamond_grid_y| because
+        difference in x values are 0.
+        """
+        self.player.grid_x = self.diamond.grid_x
+        distance = self.computer.get_manhattan_distance()
+        self.assertEqual(distance,
+                         abs(self.player.grid_y - self.diamond.grid_y))
+
     def tearDown(self):
         pygame.quit()
