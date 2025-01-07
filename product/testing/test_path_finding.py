@@ -144,6 +144,18 @@ class TestComputerMidMaze(TestComputer, unittest.TestCase):
                           (7, 16), (7, 17), (7, 18)])
         computer.stop_thread = True
 
+    def test_a_star_can_find_path_in_mid_maze(self):
+        computer = AStarComputer(self.player,
+                                 self.world.get_walkable_maze_matrix(),
+                                 self.diamond)
+        computer.stop_thread = True
+        path = computer.generate_path()
+        self.assertEqual(path,
+                         [(5, 6), (5, 7), (5, 8), (5, 9), (6, 9), (7, 9),
+                          (7, 10), (7, 11), (7, 12), (7, 13), (7, 14), (7, 15),
+                          (7, 16), (7, 17), (7, 18)])
+        computer.stop_thread = True
+
 
 class TestComputerLargeMaze(TestComputer, unittest.TestCase):
     """ Test path finding algorithms can work on a large maze. """
