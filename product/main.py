@@ -1,6 +1,6 @@
 from characters import CharacterAnimationManager
 from world import World
-from computer import agent_types
+from agent.computer import get_agent_types
 from constants import player_sprite_file_paths, game_values
 from text import Text
 from lock import visited_and_path_data_flag
@@ -116,9 +116,10 @@ def setup_game(config) -> dict:
     world = World(maze_array)
 
     # Initialize a specific computer class and pass arguments to constructor
-    computer = agent_types[config["algo"]](player,
-                                           world.get_walkable_maze_matrix(),
-                                           True)
+    computer = get_agent_types()[config["algo"]](
+                                        player,
+                                        world.get_walkable_maze_matrix(),
+                                        True)
 
     return {
         "screen": screen,

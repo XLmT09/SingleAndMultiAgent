@@ -1,11 +1,12 @@
-from computer import DFSComputer, BFSComputer, UCSComputer, AStarComputer
-from characters import CharacterAnimationManager
-from world import World
-from constants import player_sprite_file_paths
-
 import unittest
 import pygame
 import pickle
+
+from agent.uninformed_computer import DFSComputer, BFSComputer
+from agent.informed_computer import UCSComputer, AStarComputer
+from characters import CharacterAnimationManager
+from world import World
+from constants import player_sprite_file_paths
 
 CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32

@@ -1,11 +1,11 @@
-from computer import BFSComputer
-from characters import CharacterAnimationManager
-from world import World
-from constants import player_sprite_file_paths, game_values
-
 import unittest
 import pygame
 import pickle
+
+from agent.uninformed_computer import BFSComputer
+from characters import CharacterAnimationManager
+from world import World
+from constants import player_sprite_file_paths, game_values
 
 CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32
@@ -55,7 +55,7 @@ class TestGUIComputer(unittest.TestCase):
 
         self.game_over = 0
         self.tile_data = self.world.get_collidable_tile_list()
-        self.diamond_positons = self.world.get_diamond_group()
+        self.diamond_positions = self.world.get_diamond_group()
 
     def tearDown(self):
         pygame.quit()
@@ -78,12 +78,12 @@ class TestGUIComputer(unittest.TestCase):
             # Moving the player
             self.game_over = self.computer.move(self.screen,
                                                 self.tile_data,
-                                                self.diamond_positons,
+                                                self.diamond_positions,
                                                 self.game_over)
 
             # Can end the test once collision is detected
             if collision_detected:
-                self.assertTrue(collision_detected, "Test passed as collison "
+                self.assertTrue(collision_detected, "Test passed as collision "
                                 "was detected.")
                 break
 
