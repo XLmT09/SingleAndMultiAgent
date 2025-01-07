@@ -410,6 +410,22 @@ class UCSComputer(Computer):
         return sorted(neighbours, key=lambda x: x[0])
 
 
+class AStarComputer(Computer):
+    def __init__(self, character, walkable_maze, perform_analysis=False):
+        super().__init__(character, walkable_maze, perform_analysis)
+
+    def perform_path_find(self) -> None:
+        """ This functions keeps searching for a path until the stop_thread
+        flag is set. """
+        while not self.stop_thread:
+            self.move_based_on_path_instructions()
+        print("PERFORM_PATH_FIND THREAD HAS STOPPED")
+
+    def generate_path(self) -> list:
+        return [(5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (4, 9), (3, 9), 
+                (3, 10), (3, 11), (3, 12), (3, 13), (3, 14)]
+
+
 agent_types = {
     "random": RandomComputer,
     "bfs": BFSComputer,
