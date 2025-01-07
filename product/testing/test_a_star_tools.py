@@ -56,11 +56,11 @@ class TestAstarTools(unittest.TestCase):
 
         # We need to know the goal state for these tests so get the 
         # diamond object.
-        diamond = self.world.get_diamond_group().sprites()[0]
+        self.diamond = self.world.get_diamond_group().sprites()[0]
 
         self.computer = AStarComputer(self.player,
                                       self.world.get_walkable_maze_matrix(),
-                                      diamond)
+                                      self.diamond)
 
     def test_manhattan_function_in_small_maze(self):
         """
@@ -71,6 +71,12 @@ class TestAstarTools(unittest.TestCase):
         """
         distance = self.computer.get_manhattan_distance()
         self.assertEqual(distance, 10)
+
+    def test_manhattan_function_start_and_goal_at_same_pos(self):
+        self.player.grid_x = self.diamond.grid_x
+        self.player.grid_y = self.diamond.grid_y
+        distance = self.computer.get_manhattan_distance()
+        self.assertEqual(distance, 0)
 
     def tearDown(self):
         pygame.quit()
