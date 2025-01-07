@@ -28,26 +28,29 @@ class Diamond(pygame.sprite.Sprite):
     """
     DIAMOND_ANIMATION_SPEED = 0.2
 
-    def __init__(self, x, y) -> None:
+    def __init__(self, grid_x, grid_y) -> None:
         super().__init__()
         self._diamond_sprite_list = []
         self._current_sprite = 0
         # Load the images into list now to fill the remaining member variables
         self._load_diamond_images()
         self.image = self._diamond_sprite_list[self._current_sprite]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect = self.image.get_rect(x=grid_x * C.TILE_SIZE + 10,
+                                        y=grid_y * C.TILE_SIZE + 10)
+        self.grid_x = grid_x
+        self.grid_y = grid_y
 
     def _load_diamond_images(self) -> None:
         """ Load and store images of the diamond sprites """
         for sprite_image in C.diamond_sprite_images:
             self._diamond_sprite_list.append(pygame.image.load(sprite_image))
 
-    def update_position(self, x, y) -> None:
+    def update_position(self, grid_x, grid_y) -> None:
         """ Update the positon of the diamond """
-        self.rect.x = x * C.TILE_SIZE + 10
-        self.rect.y = y * C.TILE_SIZE + 10
+        self.rect.x = grid_x * C.TILE_SIZE + 10
+        self.rect.y = grid_y * C.TILE_SIZE + 10
+        self.grid_x = grid_x
+        self.grid_y = grid_y
 
     def update(self) -> None:
         """ This function moves to the next sprite image of the diamond
@@ -145,8 +148,7 @@ class World:
                     self._collidable_tile_list.append(tile)
                 # Check if this tile will contain a diamond
                 if tile == 2:
-                    diamond = Diamond(col_cnt * C.TILE_SIZE + 10,
-                                      row_cnt * C.TILE_SIZE + 10)
+                    diamond = Diamond(col_cnt, row_cnt)
                     self._diamond_group.add(diamond)
                 # Check if this tile should have a ladder
                 if tile == 3:
