@@ -398,7 +398,7 @@ class UCSComputer(Computer):
 
 
 class AStarComputer(Computer):
-    def __init__(self, character, walkable_maze, diamond, 
+    def __init__(self, character, walkable_maze, diamond,
                  perform_analysis=False):
         super().__init__(character, walkable_maze, perform_analysis)
         self.diamond_grid_x = diamond.grid_x

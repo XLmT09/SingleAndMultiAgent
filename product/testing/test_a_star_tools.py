@@ -54,7 +54,7 @@ class TestAstarTools(unittest.TestCase):
             self.maze_map if self.maze_map else self.default_maze_map
         )
 
-        # We need to know the goal state for these tests so get the 
+        # We need to know the goal state for these tests so get the
         # diamond object.
         self.diamond = self.world.get_diamond_group().sprites()[0]
 

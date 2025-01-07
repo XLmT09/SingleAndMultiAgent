@@ -11,25 +11,25 @@ class Player:
     A player can be in various states such as: move, walk, climb and idle.
 
     So we will have 4 different classes for a player to represent each state.
-    Then we will use the CharacterAnimationManager class to deterime which of
+    Then we will use the CharacterAnimationManager class to determine which of
     these states we should use at any given moment for the player.
 
     Attributes:
-        _sprite_sheet (Surface): This contians all the sprite images of the
+        _sprite_sheet (Surface): This contains all the sprite images of the
             player.
         width (int): The width (in pixels) of the player.
         height (int): The height (in pixels) of the player.
-        _steps (int): This number reprents the number of player images in the
+        _steps (int): This number represents the number of player images in the
             sprite sheet.
         _animation_list (list of Surface): A list of every image of the player
             looking rightwards.
         _animation_list_left (list of Surface): A list of every image of the
             player looking leftwards.
-        _frame_counter (int): This number represnts the sprite image we want
+        _frame_counter (int): This number represents the sprite image we want
             to output.
 
     Args:
-        sprite_sheet (str): Path to the sprite sheet aniamtion that needs
+        sprite_sheet (str): Path to the sprite sheet animation that needs
             to be unwrapped.
         width (int): The pixel width of each frame in the sprite height.
         height (int): The pixel height of each frame in the sprite sheet.
@@ -60,7 +60,7 @@ class Player:
                 extract from the sprite sheet.
             scale (int): This number tells us how much we want to enlarge
                 the image.
-            look_left (bool): This flag inidicates if we should flip the image
+            look_left (bool): This flag indicates if we should flip the image
                 to look leftwards.
 
         Returns:
@@ -78,13 +78,13 @@ class Player:
         # That means we can get a certain frame from the sprite sheet by
         # multiplying the player width by the position of a certain image in
         # the sheet. For example, if we want the second sprite image in the
-        # sprite sheet we would do 1 * self._wdith.
+        # sprite sheet we would do 1 * self._width.
         #
         # Once we are at correct position on the sprite sheet we put it on the
         # image surface object.
         image.blit(self._sprite_sheet, (0, 0),
                    ((frame * self.width), 0, self.width, self.height))
-        # Enlarge the image to fit with the game enviorment
+        # Enlarge the image to fit with the game environment
         image = pygame.transform.scale(image,
                                        (self.width * scale,
                                         self.height * scale))
@@ -104,7 +104,7 @@ class Player:
 
         Args:
             screen (Surface): The surface we will draw the player.
-            rect (Rect): The rectange of the player, used to understand where
+            rect (Rect): The rectangle of the player, used to understand where
                 the updated animation should be drawn.
             update_frame (bool): Flag which tells us we should update to the
                 next sprite image or not.
@@ -129,23 +129,23 @@ class CharacterAnimationManager:
     """ This class will handle the movement and collision logic
     of a character/player.
     It will also decide which player state/animation to use at any
-    given momenet.
+    given moment.
 
     Attributes:
         width (int): The width (in pixels) of the player.
         height (int): The height (in pixels) of the player.
-        rect (Rect): The rectangle of the player, not using private notoation
+        rect (Rect): The rectangle of the player, not using private notation
             here as external pygame files need access to this.
-        _pos_x (int): The x postion of the player.
+        _pos_x (int): The x position of the player.
         _pos_y (int): The y position of the player.
         rect (Rect): The rectangle surrounding the character, we use this
-            recatangle for the movement.
+            rectangle for the movement.
         hitbox_width (int): The width of the character hitbox, should be equal
             to or smaller than the normal width.
         hitbox_height (int): The height of the character hitbox, should be
             equal to or smaller than the normal height.
         hitbox_rect (Rect): We will use this rect attached to the player to
-            detect collisons.
+            detect collisions.
         _animation_actions (dict of Player): This will hold the different
             player animation states.
         _requested_animation (str): The animation sate we want the player
@@ -161,7 +161,7 @@ class CharacterAnimationManager:
         grid_y (int): Current y grid location of the player in the maze.
         _maze_data (list of int lists): This is the maze matrix character is
             currently within.
-        _is_diamond_found (bool): A flag to check is the dimaond was found or
+        _is_diamond_found (bool): A flag to check is the diamond was found or
             not.
         _score (int): The number of diamonds the character has collected.
     """
@@ -174,7 +174,7 @@ class CharacterAnimationManager:
         self.rect = pygame.Rect(x, y, width * scale, height * scale)
         self._pos_x, self._pos_y = x, y
 
-        # We have already defined the position when initing the rect, the
+        # We have already defined the position when initializing the rect, the
         # reason we are using center here is because its the only way pygame
         # will allow movements of float values.
         self.rect.center = (self._pos_x, self._pos_y)
@@ -214,19 +214,19 @@ class CharacterAnimationManager:
         self._is_diamond_found = False
         self._score = 0
 
-    def set_char_animation(self, animation_desciption, sprite_sheet,
+    def set_char_animation(self, animation_description, sprite_sheet,
                            animation_steps) -> None:
         """ This function appends the player animation states to the
         _animations_actions dict.
 
         Attributes:
-            animation_desciption (str): Describes the animation type, for
+            animation_description (str): Describes the animation type, for
                 example climb and idle.
-            sprite_sheet (str): Path to the sprite sheet aniamtion that needs
+            sprite_sheet (str): Path to the sprite sheet animation that needs
                 to be unwrapped.
             animation_steps (int): The number of frames the sprite sheet has.
         """
-        self._animation_actions[animation_desciption] = (
+        self._animation_actions[animation_description] = (
             Player(sprite_sheet, self.width, self.height, animation_steps)
         )
 
@@ -307,8 +307,8 @@ class CharacterAnimationManager:
 
     def draw_animation(self, screen, world_tile_data, world_assets,
                        game_over, direction=None) -> int:
-        """ This funtion handles the logic of drawing the player onto the
-        screen. It also updates the movement speed and detects collisons.
+        """ This function handles the logic of drawing the player onto the
+        screen. It also updates the movement speed and detects collisions.
 
         Args:
             screen (Surface): The surface we blit the player onto.
@@ -340,8 +340,8 @@ class CharacterAnimationManager:
             )
             return game_over
 
-        # Update the aniamtion if the current one is past cooldown limit.
-        # Animation cooldwon is used to make sure transisiton between the
+        # Update the animation if the current one is past cool down limit.
+        # Animation cool down is used to make sure transition between the
         # different sprite images are smooth.
         if current_time - self._last_update >= C.ANIMATION_COOLDOWN:
             self._last_update = current_time
@@ -357,14 +357,14 @@ class CharacterAnimationManager:
         else:
             self.human_player_movement()
 
-        # Handle velcoity movement while in air
+        # Handle velocity movement while in air
         self._vel_y += 1
         if self._vel_y > 10:
             self._vel_y = 10
         if self._requested_animation != "climb":
             self._dy += self._vel_y
 
-        # Check for maze collisons by looping through the collidable tiles in
+        # Check for maze collisions by looping through the collidable tiles in
         # the current maze.
         for tile in world_tile_data:
             # Check for collision in x direction
@@ -372,7 +372,7 @@ class CharacterAnimationManager:
                                    self.hitbox_rect.y, self.hitbox_width,
                                    self.hitbox_height):
                 self._dx = 0
-            # Check for y direction collisons
+            # Check for y direction collisions
             if tile[1].colliderect(self.hitbox_rect.x,
                                    self.hitbox_rect.y + self._dy,
                                    self.hitbox_width, self.hitbox_height):
@@ -395,13 +395,13 @@ class CharacterAnimationManager:
         self._pos_x += self._dx
         self._pos_y += self._dy
 
-        # Update the center values, therefore we can use decimal movemnt.
+        # Update the center values, therefore we can use decimal movement.
         # Directly updating the center values, does not
         # support decimal movement.
         self.rect.center = (self._pos_x, self._pos_y)
         self.hitbox_rect.center = (self._pos_x - 1, self._pos_y + 4)
 
-        # When an the player is facing left we still want to the right psotion
+        # When an the player is facing left we still want to the right position
         # of the rect so we add the width. This is because the left side if
         # the rect will be outside the grid when moving left.
         if self.look_left:
@@ -411,7 +411,7 @@ class CharacterAnimationManager:
         self.grid_y = (self.hitbox_rect.y) // C.TILE_SIZE
 
         # Now draw the animation using the Player class draw_animation
-        # function, as thats where the frames of the different aniamtions
+        # function, as thats where the frames of the different animations
         # are stored.
         self._animation_actions[self._requested_animation].draw_animation(
             screen, self.rect, update_frame, self.look_left
