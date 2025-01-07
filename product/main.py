@@ -36,7 +36,7 @@ def process_args() -> dict:
     # define the algo flag
     parser.add_argument(
         "--algo",
-        choices=["random", "dfs", "bfs", "ucs"],
+        choices=["random", "dfs", "bfs", "ucs", "astar"],
         required=True,
         help="Choose a algorithm: random, dfs, bfs, or ucs"
     )
