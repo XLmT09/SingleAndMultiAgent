@@ -4,3 +4,4 @@ product/testing/__pycache__/
 ..gitlab-ci.yml.un~
 product/maze/
 **/.project-env/
+**/.vscode/
