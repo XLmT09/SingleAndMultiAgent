@@ -63,8 +63,7 @@ class TestAstarTools(unittest.TestCase):
                                       self.diamond)
 
     def test_manhattan_function_in_small_maze(self):
-        """
-        Distance should be 10 because:
+        """ Distance should be 10 because:
         player_pos = (6, 5) and goal = (14, 3)
 
         distance = |6 - 14| + |5 - 3| = 10
@@ -77,6 +76,15 @@ class TestAstarTools(unittest.TestCase):
         self.player.grid_y = self.diamond.grid_y
         distance = self.computer.get_manhattan_distance()
         self.assertEqual(distance, 0)
+
+    def test_manhattan_horizontal_move(self):
+        """ Distance should be |player.grid_x - diamond_grid_x| because
+        difference in y values are 0.
+        """
+        self.player.grid_y = self.diamond.grid_y
+        distance = self.computer.get_manhattan_distance()
+        self.assertEqual(distance,
+                         abs(self.player.grid_x - self.diamond.grid_x))
 
     def tearDown(self):
         pygame.quit()
