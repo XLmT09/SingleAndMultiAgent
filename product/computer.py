@@ -65,6 +65,13 @@ class Computer:
                                              game_over,
                                              self.requested_movement)
 
+    def perform_path_find(self) -> None:
+        """ This functions keeps searching for a path until the stop_thread
+        flag is set. """
+        while not self.stop_thread:
+            self.move_based_on_path_instructions()
+        print("PERFORM_PATH_FIND THREAD HAS STOPPED")
+
     def reconstruct_path(self, search_path_history, end) -> None:
         """ Some algo's will store store contents of every path its
             looked into, in this function we will extract the
@@ -238,13 +245,6 @@ class BFSComputer(Computer):
     def __init__(self, character, walkable_maze, perform_analysis=False):
         super().__init__(character, walkable_maze, perform_analysis)
 
-    def perform_path_find(self) -> None:
-        """ This functions keeps searching for a path until the stop_thread
-        flag is set. """
-        while not self.stop_thread:
-            self.move_based_on_path_instructions()
-        print("PERFORM_PATH_FIND THREAD HAS STOPPED")
-
     def generate_path(self) -> list:
         """ This function uses bfs search to find the path to the diamond. """
 
@@ -285,13 +285,6 @@ class DFSComputer(Computer):
     def __init__(self, character, walkable_maze, perform_analysis=False):
         super().__init__(character, walkable_maze, perform_analysis)
 
-    def perform_path_find(self) -> None:
-        """ This functions keeps searching for a path until the stop_thread
-        flag is set. """
-        while not self.stop_thread:
-            self.move_based_on_path_instructions()
-        print("PERFORM_PATH_FIND THREAD HAS STOPPED")
-
     def generate_path(self) -> list:
         """ This function uses dfs search to find the path to the diamond. """
 
@@ -329,13 +322,6 @@ class DFSComputer(Computer):
 class UCSComputer(Computer):
     def __init__(self, character, walkable_maze, perform_analysis=False):
         super().__init__(character, walkable_maze, perform_analysis)
-
-    def perform_path_find(self) -> None:
-        """ This functions keeps searching for a path until the stop_thread
-        flag is set. """
-        while not self.stop_thread:
-            self.move_based_on_path_instructions()
-        print("PERFORM_PATH_FIND THREAD HAS STOPPED")
 
     def generate_path(self) -> list:
         """ This function uses ucs search to find the path to the diamond. """
@@ -417,13 +403,6 @@ class AStarComputer(Computer):
         super().__init__(character, walkable_maze, perform_analysis)
         self.diamond_grid_x = diamond.grid_x
         self.diamond_grid_y = diamond.grid_y
-
-    def perform_path_find(self) -> None:
-        """ This functions keeps searching for a path until the stop_thread
-        flag is set. """
-        while not self.stop_thread:
-            self.move_based_on_path_instructions()
-        print("PERFORM_PATH_FIND THREAD HAS STOPPED")
 
     def generate_path(self) -> list:
         return [(5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (4, 9), (3, 9),
