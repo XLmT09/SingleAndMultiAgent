@@ -54,8 +54,13 @@ class TestAstarTools(unittest.TestCase):
             self.maze_map if self.maze_map else self.default_maze_map
         )
 
+        # We need to know the goal state for these tests so get the 
+        # diamond object.
+        diamond = self.world.get_diamond_group().sprites()[0]
+
         self.computer = AStarComputer(self.player,
-                                      self.world.get_walkable_maze_matrix())
+                                      self.world.get_walkable_maze_matrix(),
+                                      diamond)
 
     def test_manhattan_function_in_small_maze(self):
         """

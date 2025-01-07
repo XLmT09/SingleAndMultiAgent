@@ -1,10 +1,11 @@
 import threading
 import time
 import random
-from collections import deque
-import numpy as np
-from queue import PriorityQueue
 import inspect
+import numpy as np
+
+from collections import deque
+from queue import PriorityQueue
 from lock import visited_and_path_data_flag
 
 moves = ["LEFT", "RIGHT"]
@@ -411,8 +412,11 @@ class UCSComputer(Computer):
 
 
 class AStarComputer(Computer):
-    def __init__(self, character, walkable_maze, perform_analysis=False):
+    def __init__(self, character, walkable_maze, diamond, 
+                 perform_analysis=False):
         super().__init__(character, walkable_maze, perform_analysis)
+        self.diamond_grid_x = diamond.grid_x
+        self.diamond_grid_y = diamond.grid_y
 
     def perform_path_find(self) -> None:
         """ This functions keeps searching for a path until the stop_thread
@@ -422,8 +426,14 @@ class AStarComputer(Computer):
         print("PERFORM_PATH_FIND THREAD HAS STOPPED")
 
     def generate_path(self) -> list:
-        return [(5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (4, 9), (3, 9), 
+        return [(5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (4, 9), (3, 9),
                 (3, 10), (3, 11), (3, 12), (3, 13), (3, 14)]
+
+    def get_manhattan_distance(self) -> int:
+        """ This function gets the manhattan distance between player
+        current pos and goal. """
+        return (abs(self.character.grid_x - self.diamond_grid_x) +
+                abs(self.character.grid_y - self.diamond_grid_y))
 
 
 agent_types = {
