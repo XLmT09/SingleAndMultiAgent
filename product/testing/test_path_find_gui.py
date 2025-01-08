@@ -18,7 +18,7 @@ with open('maze/maze_1', 'rb') as file:
 clock = pygame.time.Clock()
 
 
-class TestGUIComputer(unittest.TestCase):
+class TestGUIComputer():
     """ Setup class which the other tests classes in this
     file will inherit from.
 
@@ -59,20 +59,27 @@ class TestGUIComputer(unittest.TestCase):
         ).convert_alpha()
 
     def testPathFindGUI(self):
-        """ This function will run the path finding algorithm in the
-        initialized maze environment. """
+        """ This function will run a given path finding algorithm in the
+        given initialized maze environment. The test passes if it can collect
+        two diamonds without errors. """
+
         # Start the path finding algorithm
         self.computer.start_thread()
-        collision_detected = False
+
+        # We will stop once two diamonds have been found
+        score_count = 0
+        TARGET = 2
 
         # We will run a game loop until collision is detected
-        while not collision_detected:
+        while score_count != TARGET:
             self.screen.blit(self.bg, (0, 0))
 
             # We have found the diamond and can begin to stop the test
             if self.player.get_is_diamond_found():
-                self.computer.stop_thread = True
-                collision_detected = True
+                self.world.update_diamond_position()
+                self.player.set_is_diamond_found_to_false()
+                self.diamond_positions = self.world.get_diamond_group()
+                score_count += 1
 
             # Blitting the tiles
             self.world.load_world(self.screen)
@@ -82,9 +89,12 @@ class TestGUIComputer(unittest.TestCase):
                                                 self.diamond_positions,
                                                 self.game_over)
             # Can end the test once collision is detected
-            if collision_detected:
-                self.assertTrue(collision_detected, "Test passed as collision "
-                                "was detected.")
+            if score_count == TARGET:
+                print(f"score is {score_count}")
+                self.assertTrue(score_count,
+                                f"Test passed as collision {TARGET} diamonds "
+                                "were collected without errors.")
+                self.computer.stop_thread = True
                 break
 
             # Set the game refresh rate
@@ -98,7 +108,7 @@ class TestGUIComputer(unittest.TestCase):
         pygame.quit()
 
 
-class TestBFSGUIComputer(TestGUIComputer):
+class TestBFSGUIComputer(TestGUIComputer, unittest.TestCase):
     def setUp(self):
         super().setUp(pos_x=350, pos_y=300)
         self.computer = BFSComputer(
@@ -107,7 +117,7 @@ class TestBFSGUIComputer(TestGUIComputer):
         )
 
 
-class TestAstarGUIComputer(TestGUIComputer):
+class TestAstarGUIComputer(TestGUIComputer, unittest.TestCase):
     def setUp(self):
         super().setUp(pos_x=350, pos_y=300)
         self.computer = AStarComputer(
