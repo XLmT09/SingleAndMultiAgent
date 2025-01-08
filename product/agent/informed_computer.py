@@ -78,7 +78,7 @@ class InformedComputer(Computer):
                 new_cost = cost + 3
 
             if self.heuristic == "manhattan":
-                new_cost += self.get_manhattan_distance()
+                new_cost += self.get_manhattan_distance(neighbour) * 2
 
             neighbours.append((new_cost, neighbour))
 
@@ -100,7 +100,7 @@ class AStarComputer(InformedComputer):
     def __init__(self, character, walkable_maze, **kwargs):
         super().__init__(
             character,
-            walkable_maze, 
+            walkable_maze,
             kwargs.get("perform_analysis", False)
         )
         diamond = kwargs.get("diamond")
@@ -108,8 +108,8 @@ class AStarComputer(InformedComputer):
         self.diamond_grid_y = diamond.grid_y
         self.heuristic = "manhattan"
 
-    def get_manhattan_distance(self) -> int:
+    def get_manhattan_distance(self, neighbour) -> int:
         """ This function gets the manhattan distance between player
         current pos and goal. """
-        return (abs(self.character.grid_x - self.diamond_grid_x) +
-                abs(self.character.grid_y - self.diamond_grid_y))
+        return (abs(neighbour[1] - self.diamond_grid_x) +
+                abs(neighbour[0] - self.diamond_grid_y))
