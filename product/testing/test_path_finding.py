@@ -92,7 +92,7 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
     def test_a_star_can_find_path_in_small_maze(self):
         computer = AStarComputer(self.player,
                                  self.world.get_walkable_maze_matrix(),
-                                 self.diamond)
+                                 diamond=self.diamond)
         computer.stop_thread = True
         path = computer.generate_path()
         self.assertEqual(path,
@@ -148,7 +148,7 @@ class TestComputerMidMaze(TestComputer, unittest.TestCase):
     def test_a_star_can_find_path_in_mid_maze(self):
         computer = AStarComputer(self.player,
                                  self.world.get_walkable_maze_matrix(),
-                                 self.diamond)
+                                 diamond=self.diamond)
         computer.stop_thread = True
         path = computer.generate_path()
         self.assertEqual(path,
@@ -384,6 +384,36 @@ class TestVisitedGrids(TestComputer, unittest.TestCase):
                           (9, 5), (9, 13), (1, 10), (3, 8), (3, 16), (5, 14),
                           (7, 2), (7, 16), (9, 4), (9, 14), (1, 1), (1, 11),
                           (3, 17), (5, 15), (7, 1), (7, 17), (7, 18)])
+        computer.stop_thread = True
+
+    def test_get_visited_grids_on_a_star(self):
+        """ This function will check A star has the expected visited nodes.
+        Notice that it has visits less nodes than ucs as shown above, which
+        makes sense as a star is meant to find the optimal path by visiting
+        fewer nodes using its heuristic.
+        """
+        computer = AStarComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.diamond
+        )
+
+        computer.start_thread()
+
+        visited_grids_generated = (
+            computer.get_visited_grids_and_path_to_goal()[0]
+        )
+
+        computer.stop_thread = True
+
+        self.assertEqual(
+            visited_grids_generated,
+            [(5, 6), (5, 7), (5, 5), (5, 8), (5, 4), (5, 9), (5, 10), (6, 9),
+             (4, 4), (5, 3), (5, 11), (7, 9), (5, 12), (7, 10), (3, 4), (5, 2),
+             (7, 8), (8, 9), (7, 11), (5, 13), (4, 12), (7, 7), (9, 9),
+             (7, 12), (5, 14), (7, 13), (3, 12), (3, 5), (2, 4), (5, 1),
+             (5, 15), (3, 3), (7, 14), (9, 10), (5, 16), (7, 6), (9, 8),
+             (7, 15), (3, 13), (5, 17), (7, 16), (3, 11), (7, 17), (7, 18)])
         computer.stop_thread = True
 
 
