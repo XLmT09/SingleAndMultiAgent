@@ -7,8 +7,12 @@ from collections import deque
 
 class RandomComputer(Computer):
     """ This class will randomly move the character around the map. """
-    def __init__(self, character, walkable_maze, perform_analysis=False):
-        super().__init__(character, walkable_maze, perform_analysis)
+    def __init__(self, character, walkable_maze, **kwargs):
+        super().__init__(
+            character,
+            walkable_maze,
+            kwargs.get("perform_analysis", False)
+        )
         self.moves = ["LEFT", "RIGHT"]
 
     def perform_path_find(self) -> None:
@@ -80,8 +84,12 @@ class RandomComputer(Computer):
 
 class BFSComputer(Computer):
     """ This class will control the character and do BFS path find. """
-    def __init__(self, character, walkable_maze, perform_analysis=False):
-        super().__init__(character, walkable_maze, perform_analysis)
+    def __init__(self, character, walkable_maze, **kwargs):
+        super().__init__(
+            character,
+            walkable_maze,
+            kwargs.get("perform_analysis", False)
+        )
 
     def generate_path(self) -> list:
         """ This function uses bfs search to find the path to the diamond. """
@@ -120,8 +128,12 @@ class BFSComputer(Computer):
 
 
 class DFSComputer(Computer):
-    def __init__(self, character, walkable_maze, perform_analysis=False):
-        super().__init__(character, walkable_maze, perform_analysis)
+    def __init__(self, character, walkable_maze, **kwargs):
+        super().__init__(
+            character,
+            walkable_maze,
+            kwargs.get("perform_analysis", False)
+        )
 
     def generate_path(self) -> list:
         """ This function uses dfs search to find the path to the diamond. """

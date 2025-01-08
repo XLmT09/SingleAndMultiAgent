@@ -87,15 +87,23 @@ class InformedComputer(Computer):
 
 
 class UCSComputer(InformedComputer):
-    def __init__(self, character, walkable_maze, perform_analysis=False):
-        super().__init__(character, walkable_maze, perform_analysis)
+    def __init__(self, character, walkable_maze, **kwargs):
+        super().__init__(
+            character,
+            walkable_maze,
+            kwargs.get("perform_analysis", False)
+        )
         self.heuristic = None
 
 
 class AStarComputer(InformedComputer):
-    def __init__(self, character, walkable_maze, diamond,
-                 perform_analysis=False):
-        super().__init__(character, walkable_maze, perform_analysis)
+    def __init__(self, character, walkable_maze, **kwargs):
+        super().__init__(
+            character,
+            walkable_maze, 
+            kwargs.get("perform_analysis", False)
+        )
+        diamond = kwargs.get("diamond")
         self.diamond_grid_x = diamond.grid_x
         self.diamond_grid_y = diamond.grid_y
         self.heuristic = "manhattan"

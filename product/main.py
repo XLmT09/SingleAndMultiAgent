@@ -1,14 +1,14 @@
+import pygame
+import pickle
+import argparse
+import time
+
 from characters import CharacterAnimationManager
 from world import World
 from agent.computer import get_agent_types
 from constants import player_sprite_file_paths, game_values
 from text import Text
 from lock import visited_and_path_data_flag
-
-import pygame
-import pickle
-import argparse
-import time
 
 # Setup some initial pygame logic, which is needed
 # regardless of the options we choose.
@@ -88,8 +88,9 @@ def setup_game(config) -> dict:
     """ Initialize key variables needed for this application. """
 
     # This is the screen the game will be displayed
-    screen = pygame.display.set_mode((config["screen_width"],
-                                      config["screen_height"]))
+    screen = pygame.display.set_mode(
+        (config["screen_width"], config["screen_height"])
+    )
 
     # Get the maze array under the maze directory
     maze_array = None
@@ -97,11 +98,14 @@ def setup_game(config) -> dict:
         maze_array = pickle.load(file)
 
     # Initialize the player we or the agent will control
-    player = CharacterAnimationManager(game_values["character_width"],
-                                       game_values["character_height"],
-                                       maze_array,
-                                       is_controlled_by_computer=True,
-                                       x=350, y=300)
+    player = CharacterAnimationManager(
+        game_values["character_width"],
+        game_values["character_height"],
+        maze_array,
+        is_controlled_by_computer=True,
+        x=350, y=300
+    )
+    
     # Setup the sprite animations for the player
     player.set_char_animation("idle", player_sprite_file_paths["idle"],
                               animation_steps=4)
@@ -117,9 +121,10 @@ def setup_game(config) -> dict:
 
     # Initialize a specific computer class and pass arguments to constructor
     computer = get_agent_types()[config["algo"]](
-                                        player,
-                                        world.get_walkable_maze_matrix(),
-                                        True)
+        player,
+        world.get_walkable_maze_matrix(),
+        diamond=world.get_diamond_group().sprites()[0]
+    )
 
     return {
         "screen": screen,
