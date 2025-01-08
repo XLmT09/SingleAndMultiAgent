@@ -3,6 +3,7 @@ import pygame
 import pickle
 
 from agent.uninformed_computer import BFSComputer
+from agent.informed_computer import AStarComputer
 from characters import CharacterAnimationManager
 from world import World
 from constants import player_sprite_file_paths, game_values
@@ -21,21 +22,24 @@ class TestGUIComputer(unittest.TestCase):
     """ Setup class which the other tests classes in this
     file will inherit from.
 
-    Format is similar to main.py, anything not commented here would must
+    Format is similar to main.py, anything not commented here would
     likely be commented over there.
     """
-    def setUp(self):
+    def setUp(self, pos_x, pos_y):
         """
         Args:
             pos_x (int): x position of the agent.
             pos_y (int): y position of the agent.
         """
-        pygame.init()
+
+        # To avoid frozen screen between tests we will init the display
+        # instead of the whole pygame module.
+        pygame.display.init()
         self.screen = pygame.display.set_mode((850, 350))
         self.player = CharacterAnimationManager(CHARACTER_WIDTH,
                                                 CHARACTER_HEIGHT,
                                                 maze_map, True,
-                                                350, 300)
+                                                pos_x, pos_y)
         self.player.set_char_animation("idle",
                                        player_sprite_file_paths["idle"], 4)
         self.player.set_char_animation("jump",
@@ -46,27 +50,25 @@ class TestGUIComputer(unittest.TestCase):
                                        player_sprite_file_paths["climb"], 4)
 
         self.world = World(maze_map)
-        self.computer = BFSComputer(self.player,
-                                    self.world.get_walkable_maze_matrix(),
-                                    True)
-
-        # Start the path finding algorithm
-        self.computer.start_thread()
-
         self.game_over = 0
         self.tile_data = self.world.get_collidable_tile_list()
         self.diamond_positions = self.world.get_diamond_group()
 
-    def tearDown(self):
-        pygame.quit()
+        self.bg = pygame.image.load(
+            "assets/images/background/cave.png"
+        ).convert_alpha()
 
-    def testGUICollision(self):
-        """ This function will test if collision detection between the diamond
-        and agent."""
+    def testPathFindGUI(self):
+        """ This function will run the path finding algorithm in the
+        initialized maze environment. """
+        # Start the path finding algorithm
+        self.computer.start_thread()
         collision_detected = False
 
         # We will run a game loop until collision is detected
         while not collision_detected:
+            self.screen.blit(self.bg, (0, 0))
+
             # We have found the diamond and can begin to stop the test
             if self.player.get_is_diamond_found():
                 self.computer.stop_thread = True
@@ -74,13 +76,11 @@ class TestGUIComputer(unittest.TestCase):
 
             # Blitting the tiles
             self.world.load_world(self.screen)
-
             # Moving the player
             self.game_over = self.computer.move(self.screen,
                                                 self.tile_data,
                                                 self.diamond_positions,
                                                 self.game_over)
-
             # Can end the test once collision is detected
             if collision_detected:
                 self.assertTrue(collision_detected, "Test passed as collision "
@@ -93,3 +93,25 @@ class TestGUIComputer(unittest.TestCase):
             # Now render all changes we made in this loop
             # iteration onto the game screen.
             pygame.display.update()
+
+    def tearDown(self):
+        pygame.quit()
+
+
+class TestBFSGUIComputer(TestGUIComputer):
+    def setUp(self):
+        super().setUp(pos_x=350, pos_y=300)
+        self.computer = BFSComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix()
+        )
+
+
+class TestAstarGUIComputer(TestGUIComputer):
+    def setUp(self):
+        super().setUp(pos_x=350, pos_y=300)
+        self.computer = AStarComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            self.world.get_diamond_group().sprites()[0]
+        )
