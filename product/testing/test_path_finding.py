@@ -430,11 +430,41 @@ class TestVisitedGrids(TestComputer, unittest.TestCase):
             visited_grids_generated,
             [(5, 6), (5, 7), (5, 5), (5, 8), (5, 4), (5, 9), (5, 10), (6, 9),
              (4, 4), (5, 3), (5, 11), (7, 9), (5, 12), (7, 10), (3, 4), (5, 2),
+             (7, 8), (8, 9), (7, 11), (4, 12), (5, 13), (7, 7), (9, 9),
+             (7, 12), (5, 14), (2, 4), (3, 5), (3, 12), (5, 1), (7, 13),
+             (3, 3), (5, 15), (9, 10), (7, 14), (7, 6), (9, 8), (5, 16),
+             (7, 15), (3, 13), (3, 11), (7, 16), (5, 17), (7, 17), (7, 18)]
+        )
+
+    def test_get_visited_grids_on_weighted_a_star(self):
+        """ This function will test visited grids are expected when using the
+        weighted manhattan function.
+        This has less visited grids than its non weighted counter part.
+        """
+        computer = AStarComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.diamond,
+            is_weighted=True
+        )
+
+        computer.start_thread()
+
+        visited_grids_generated = (
+            computer.get_visited_grids_and_path_to_goal()[0]
+        )
+
+        computer.stop_thread = True
+
+        self.assertEqual(
+            visited_grids_generated,
+            [(5, 6), (5, 7), (5, 5), (5, 8), (5, 4), (5, 9), (5, 10), (6, 9),
+             (4, 4), (5, 3), (5, 11), (7, 9), (5, 12), (7, 10), (3, 4), (5, 2),
              (7, 8), (8, 9), (7, 11), (5, 13), (4, 12), (7, 7), (9, 9),
              (7, 12), (5, 14), (7, 13), (3, 12), (3, 5), (2, 4), (5, 1),
              (5, 15), (3, 3), (7, 14), (9, 10), (5, 16), (7, 6), (9, 8),
-             (7, 15), (3, 13), (5, 17), (7, 16), (3, 11), (7, 17), (7, 18)])
-        computer.stop_thread = True
+             (7, 15), (3, 13), (5, 17), (7, 16), (3, 11), (7, 17), (7, 18)]
+        )
 
 
 if __name__ == '__main__':
