@@ -69,6 +69,16 @@ slow_fast_path_maze = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
+filled_small_maze = [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 1],
+    [1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1],
+    [1, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 3, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 3, 1],
+    [1, 2, 2, 2, 2, 2, 0, 2, 2, 3, 2, 2, 2, 2, 2, 3, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+]
+
 # create a maze dir
 os.makedirs('maze', exist_ok=True)
 
@@ -83,3 +93,6 @@ with open('maze/maze_3', 'wb') as file:
 
 with open('maze/maze_4', 'wb') as file:
     pickle.dump(slow_fast_path_maze, file)
+
+with open('maze/maze_5', 'wb') as file:
+    pickle.dump(filled_small_maze, file)
