@@ -36,18 +36,36 @@ class TestGUIComputer():
         # instead of the whole pygame module.
         pygame.display.init()
         self.screen = pygame.display.set_mode((850, 350))
-        self.player = CharacterAnimationManager(CHARACTER_WIDTH,
-                                                CHARACTER_HEIGHT,
-                                                maze_map, True,
-                                                pos_x, pos_y)
-        self.player.set_char_animation("idle",
-                                       player_sprite_file_paths["idle"], 4)
-        self.player.set_char_animation("jump",
-                                       player_sprite_file_paths["jump"], 8)
-        self.player.set_char_animation("walk",
-                                       player_sprite_file_paths["walk"], 6)
-        self.player.set_char_animation("climb",
-                                       player_sprite_file_paths["climb"], 4)
+
+        self.player = CharacterAnimationManager(
+            CHARACTER_WIDTH,
+            CHARACTER_HEIGHT,
+            maze_map,
+            True,
+            pos_x,
+            pos_y,
+        )
+
+        self.player.set_char_animation(
+            "idle",
+            player_sprite_file_paths["idle"],
+            animation_steps=4
+        )
+        self.player.set_char_animation(
+            "jump",
+            player_sprite_file_paths["jump"],
+            animation_steps=8
+        )
+        self.player.set_char_animation(
+            "walk",
+            player_sprite_file_paths["walk"],
+            animation_steps=6
+        )
+        self.player.set_char_animation(
+            "climb",
+            player_sprite_file_paths["climb"],
+            animation_steps=4
+        )
 
         self.world = World(maze_map)
         self.game_over = 0
@@ -83,14 +101,17 @@ class TestGUIComputer():
 
             # Blitting the tiles
             self.world.load_world(self.screen)
+
             # Moving the player
-            self.game_over = self.computer.move(self.screen,
-                                                self.tile_data,
-                                                self.diamond_positions,
-                                                self.game_over)
+            self.game_over = self.computer.move(
+                self.screen,
+                self.tile_data,
+                self.diamond_positions,
+                self.game_over
+            )
+
             # Can end the test once collision is detected
             if score_count == TARGET:
-                print(f"score is {score_count}")
                 self.assertTrue(score_count,
                                 f"Test passed as collision {TARGET} diamonds "
                                 "were collected without errors.")
@@ -123,5 +144,5 @@ class TestAstarGUIComputer(TestGUIComputer, unittest.TestCase):
         self.computer = AStarComputer(
             self.player,
             self.world.get_walkable_maze_matrix(),
-            self.world.get_diamond_group().sprites()[0]
+            diamond=self.world.get_diamond_group().sprites()[0]
         )

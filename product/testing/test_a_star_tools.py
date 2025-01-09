@@ -41,14 +41,27 @@ class TestAstarTools(unittest.TestCase):
             True, player_pos_x,
             player_pos_y
         )
-        self.player.set_char_animation("idle",
-                                       player_sprite_file_paths["idle"], 4)
-        self.player.set_char_animation("jump",
-                                       player_sprite_file_paths["jump"], 8)
-        self.player.set_char_animation("walk",
-                                       player_sprite_file_paths["walk"], 6)
-        self.player.set_char_animation("climb",
-                                       player_sprite_file_paths["climb"], 4)
+
+        self.player.set_char_animation(
+            "idle",
+            player_sprite_file_paths["idle"],
+            animation_steps=4
+        )
+        self.player.set_char_animation(
+            "jump",
+            player_sprite_file_paths["jump"],
+            animation_steps=8
+        )
+        self.player.set_char_animation(
+            "walk",
+            player_sprite_file_paths["walk"],
+            animation_steps=6
+        )
+        self.player.set_char_animation(
+            "climb",
+            player_sprite_file_paths["climb"],
+            animation_steps=4
+        )
 
         self.world = World(
             self.maze_map if self.maze_map else self.default_maze_map
@@ -58,9 +71,11 @@ class TestAstarTools(unittest.TestCase):
         # diamond object.
         self.diamond = self.world.get_diamond_group().sprites()[0]
 
-        self.computer = AStarComputer(self.player,
-                                      self.world.get_walkable_maze_matrix(),
-                                      self.diamond)
+        self.computer = AStarComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.diamond
+        )
 
     def test_manhattan_function_in_small_maze(self):
         """ Distance should be 10 because:
@@ -68,13 +83,20 @@ class TestAstarTools(unittest.TestCase):
 
         distance = |6 - 14| + |5 - 3| = 10
         """
-        distance = self.computer.get_manhattan_distance()
+        distance = self.computer.get_manhattan_distance(
+            [self.player.grid_y, self.player.grid_x]
+        )
+
         self.assertEqual(distance, 10)
 
     def test_manhattan_function_start_and_goal_at_same_pos(self):
         self.player.grid_x = self.diamond.grid_x
         self.player.grid_y = self.diamond.grid_y
-        distance = self.computer.get_manhattan_distance()
+
+        distance = self.computer.get_manhattan_distance(
+            [self.player.grid_y, self.player.grid_x]
+        )
+
         self.assertEqual(distance, 0)
 
     def test_manhattan_horizontal_move(self):
@@ -82,18 +104,30 @@ class TestAstarTools(unittest.TestCase):
         difference in y values are 0.
         """
         self.player.grid_y = self.diamond.grid_y
-        distance = self.computer.get_manhattan_distance()
-        self.assertEqual(distance,
-                         abs(self.player.grid_x - self.diamond.grid_x))
+
+        distance = self.computer.get_manhattan_distance(
+            [self.player.grid_y, self.player.grid_x]
+        )
+
+        self.assertEqual(
+            distance,
+            abs(self.player.grid_x - self.diamond.grid_x)
+        )
 
     def test_manhattan_vertical_move(self):
         """ Distance should be |player.grid_y - diamond_grid_y| because
         difference in x values are 0.
         """
         self.player.grid_x = self.diamond.grid_x
-        distance = self.computer.get_manhattan_distance()
-        self.assertEqual(distance,
-                         abs(self.player.grid_y - self.diamond.grid_y))
+
+        distance = self.computer.get_manhattan_distance(
+            [self.player.grid_y, self.player.grid_x]
+        )
+
+        self.assertEqual(
+            distance,
+            abs(self.player.grid_y - self.diamond.grid_y)
+        )
 
     def tearDown(self):
         pygame.quit()
