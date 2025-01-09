@@ -79,6 +79,8 @@ class InformedComputer(Computer):
 
             if self.heuristic == "manhattan":
                 new_cost += self.get_manhattan_distance(neighbour)
+            elif self.heuristic == "weighted_manhattan":
+                new_cost += self.get_weighted_manhattan_distance(neighbour)
 
             neighbours.append((new_cost, neighbour))
 
@@ -103,11 +105,16 @@ class AStarComputer(InformedComputer):
             walkable_maze,
             kwargs.get("perform_analysis", False)
         )
+
         diamond = kwargs.get("diamond")
         self.diamond_grid_x = diamond.grid_x
         self.diamond_grid_y = diamond.grid_y
-        self.heuristic = "manhattan"
         self.MANHATTAN_WEIGHT = 2
+
+        if kwargs.get("is_weighted", False):
+            self.heuristic = "weighted_manhattan"
+        else:
+            self.heuristic = "manhattan"
 
     def get_manhattan_distance(self, neighbour) -> int:
         """ This function gets the manhattan distance between player
