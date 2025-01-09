@@ -12,7 +12,7 @@ class TestCli(unittest.TestCase):
     @patch('sys.argv', ['main', '--size', 'small', '--algo', 'bfs'])
     def test_small_size_and_bfs(self):
         """ This tests to see the correct width and height are produced
-        for a small maze. It also tests id bfs is recorded as a valuse
+        for a small maze. It also tests id bfs is recorded as a values
         in the algo key. """
         result = process_args()
         self.assertEqual(result["screen_width"], 850)
@@ -23,7 +23,7 @@ class TestCli(unittest.TestCase):
     @patch('sys.argv', ['main', '--size', 'medium', '--algo', 'dfs'])
     def test_small_size_and_dfs(self):
         """ his tests to see the correct width and height are produced
-        for a medium maze. It also tests id dfs is recorded as a valuse
+        for a medium maze. It also tests id dfs is recorded as a values
         in the algo key. """
         result = process_args()
         self.assertEqual(result["screen_width"], 1000)
@@ -32,15 +32,56 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["algo"], "dfs")
 
     @patch('sys.argv', ['main', '--size', 'large', '--algo', 'ucs'])
-    def test_large_size_and_dfs(self):
+    def test_large_size_and_ucs(self):
         """ This tests to see the correct width and height are produced
-        for a large maze. It also tests id  is recorded as a valuse
+        for a large maze. It also tests id  is recorded as a values
         in the algo key. """
         result = process_args()
         self.assertEqual(result["screen_width"], 1400)
         self.assertEqual(result["screen_height"], 750)
         self.assertEqual(result["maze_path"], "maze/maze_3")
         self.assertEqual(result["algo"], "ucs")
+
+    @patch('sys.argv', ['main', '--size', 'large', '--algo', 'astar'])
+    def test_large_size_and_a_star(self):
+        """ Test A star algo is registered. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 1400)
+        self.assertEqual(result["screen_height"], 750)
+        self.assertEqual(result["maze_path"], "maze/maze_3")
+        self.assertEqual(result["algo"], "astar")
+
+    @patch('sys.argv',
+           ['main', '--size', 'large', '--algo', 'astar', '--weighted'])
+    def test_weighted_a_star(self):
+        """ Test A star algo is works with weighted flag. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 1400)
+        self.assertEqual(result["screen_height"], 750)
+        self.assertEqual(result["maze_path"], "maze/maze_3")
+        self.assertEqual(result["algo"], "astar")
+        self.assertEqual(result["weighted"], True)
+
+    def test_cli_fails_when_weighted_set_on_non_a_star_algo(self):
+        """ Test the cli will fail when the user inputs a non astar algorithm
+        with the weighted flag. """
+        algos = ["bfs", "dfs", "ucs", "random"]
+
+        for algo in algos:
+            with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
+                with patch(
+                    'sys.argv',
+                    ['main', '--size', 'small', '--algo', algo, '--weighted']
+                ):
+                    with self.assertRaises(SystemExit):
+                        process_args()
+
+                # Capture the error message printed to stderr
+                error_output = fake_stderr.getvalue()
+
+                # Check if the error message is the expected one
+                self.assertIn("error: --weighted is only applicable when "
+                              "using the A* algorithm.", error_output)
 
     @patch('sys.argv', ['main', '--algo', 'ucs', '--size', 'small'])
     def test_algo_then_size_flag_given(self):
@@ -66,7 +107,7 @@ class TestCli(unittest.TestCase):
         it throws a error. """
         # Redirect stderr to prevent error message from printing
         with patch('sys.stderr', new=io.StringIO()):
-            # argparse calls sys.exit() on a invlaid input
+            # argparse calls sys.exit() on a invalid input
             with self.assertRaises(SystemExit):
                 process_args()
 
@@ -76,7 +117,7 @@ class TestCli(unittest.TestCase):
         it throws a error. """
         # Redirect stderr to prevent error message from printing
         with patch('sys.stderr', new=io.StringIO()):
-            # argparse calls sys.exit() on a invlaid input
+            # argparse calls sys.exit() on a invalid input
             with self.assertRaises(SystemExit):
                 process_args()
 
@@ -86,7 +127,7 @@ class TestCli(unittest.TestCase):
         it throws a error. """
         # Redirect stderr to prevent error message from printing
         with patch('sys.stderr', new=io.StringIO()):
-            # argparse calls sys.exit() on a invlaid input
+            # argparse calls sys.exit() on a invalid input
             with self.assertRaises(SystemExit):
                 process_args()
 
@@ -97,7 +138,7 @@ class TestCli(unittest.TestCase):
         what type of maze to generate."""
         # Redirect stderr to prevent error message from printing
         with patch('sys.stderr', new=io.StringIO()):
-            # argparse calls sys.exit() on a invlaid input
+            # argparse calls sys.exit() on a invalid input
             with self.assertRaises(SystemExit):
                 process_args()
 
@@ -108,7 +149,7 @@ class TestCli(unittest.TestCase):
         what type of agent to use."""
         # Redirect stderr to prevent error message from printing
         with patch('sys.stderr', new=io.StringIO()):
-            # argparse calls sys.exit() on a invlaid input
+            # argparse calls sys.exit() on a invalid input
             with self.assertRaises(SystemExit):
                 process_args()
 
@@ -116,24 +157,24 @@ class TestCli(unittest.TestCase):
     def test_no_size_and_algo_flag(self):
         """ Dont pass a algo adn size flag and we expect to see an error
         as the application will not know the type of maze and agent to use."""
-        # argparse calls sys.exit() on a invlaid input
+        # argparse calls sys.exit() on a invalid input
         # Redirect stderr to prevent error message from printing
         with patch('sys.stderr', new=io.StringIO()):
-            # argparse calls sys.exit() on a invlaid input
+            # argparse calls sys.exit() on a invalid input
             with self.assertRaises(SystemExit):
                 process_args()
 
     @patch('sys.argv', ['main', '--algo', 'ucs', '--size', 'small',
                         '--highlight'])
     def test_cli_highlight_flag_input(self):
-        """ Test checks that when highlight flag is given it is registerd as
+        """ Test checks that when highlight flag is given it is registered as
         True in the config dict. """
         result = process_args()
         self.assertEqual(result["enable_highlighter"], True)
 
     @patch('sys.argv', ['main', '--algo', 'ucs', '--size', 'small'])
     def test_cli_highlight_flag_no_given(self):
-        """ Test checks that when highlight flag is not given it is registerd
+        """ Test checks that when highlight flag is not given it is registered
         as False in the config dict by default."""
         result = process_args()
         self.assertEqual(result["enable_highlighter"], False)
@@ -142,7 +183,7 @@ class TestCli(unittest.TestCase):
                         '--highlight'])
     def test_cli_highlight_flag_disabled_on_random(self):
         """ Test that when we use the random algo, the highlighter will remain
-        disabled even when the user passes addss the flag."""
+        disabled even when the user passes adds the flag."""
         result = process_args()
         self.assertEqual(result["algo"], "random")
         self.assertEqual(result["enable_highlighter"], False)

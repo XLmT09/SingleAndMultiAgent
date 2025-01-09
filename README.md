@@ -8,15 +8,15 @@ To use all functionality of this project, from running the application, to runni
 
 ## 1 Setup
 
-This project was developed using two different Windows machines. One using `Python 3.10.7` and the other using `Python 3.12.8`. I belive any python 3 version should work with this project.
+This project was developed using two different Windows machines. One using `Python 3.10.7` and the other using `Python 3.12.8`. I believe any python 3 version should work with this project.
 
-### 1.1 Setup Enviorment
+### 1.1 Setup Environment
 
 **_NOTE:_** Setting up an environment is optional but recommended because it helps isolate project dependencies.
 
-To setup a enviorment follow these steps:
+To setup a environment follow these steps:
 
-#### 1.1.1 Create the Python Virtual Enviorment.
+#### 1.1.1 Create the Python Virtual Environment.
 
 1a. If your on Windows then do:
 
@@ -30,7 +30,7 @@ python -m venv .project-env
 python3 -m venv .project-env
 ```
 
-#### 1.1.2 Activate the Enviorment
+#### 1.1.2 Activate the Environment
 
 2a. If your on Windows then do:
 
@@ -44,11 +44,11 @@ python3 -m venv .project-env
 source .project-env/bin/activate
 ```
 
-**Now the enviorment is activated.**
+**Now the environment is activated.**
 
-#### 1.1.3 Deactivate the Enviorment
+#### 1.1.3 Deactivate the Environment
 
-To deactivate the enviorment enter the following command:
+To deactivate the environment enter the following command:
 
 ```bash
 deactivate
@@ -56,10 +56,10 @@ deactivate
 
 ### 1.2 Download Dependencies
 
-To download dependices for this project run the following command:
+To download dependencies for this project run the following command:
 
 ```
-pip install -r requirments.txt
+pip install -r requirements.txt
 ```
 
 ## 2 Running the Application
@@ -81,12 +81,12 @@ python main.py [-h] --size {small,medium,large} --algo {random,dfs,bfs,ucs} [--h
 
 An example command below where I would like to the application on a small maze using the dfs algorithm:
 ```bash
-# Exmaple Command
+# Example Command
 python main.py --size small --algo dfs
 ```
 
 ## 3 Analysis Tools
-Currently the only way to use analysis tools is to, chnage the source code.
+Currently the only way to use analysis tools is to, change the source code.
 
 Open the source code under `main.py`.
 
@@ -121,10 +121,10 @@ python -m unittest .\testing\<test_file>
 
 ## 5 Checkstyle
 
-This project uses python **_flake8_** checkstyling. It has been integrated to the gitlab pipeline.
+This project uses python **_flake8_** checkstyle. It has been integrated to the gitlab pipeline.
 If you would like to run the checkstyle yourself you can use one of the following commands:
 
-**If your python enviorment is created within the product directory**
+**If your python environment is created within the product directory**
 ```bash
 python -m flake8 --exclude <env_folder>
 ```
@@ -141,13 +141,13 @@ python -m flake8
 But an explanation will be given for the `product` directory:
 
 - `assets\images` : This contains all the images and sprites used within the game.
-- `testing` : This contians all the python test files.
+- `testing` : This contains all the python test files.
 - `*.py` : All the python files used in the for the application are directly under product. Here are some points on the key files:
   - `main.py` : This is the file that starts the application, hence why we when running in steps **_2.2_** we use this file.
   - `computer.py` : All the different path finding algorithms are stored under here.
   - `world.py` : This file contains the data for the maze object and is primarily responsible for rendering the maze onto the Pygame screen.
   - `character.py` : This file manages player animations, movement, collisions, and related functionalities.
-- `requirments.txt` : This file contains the dependencies needed fot this application.
+- `requirements.txt` : This file contains the dependencies needed fot this application.
 - `maze\` : This directory gets generated after running `python .\create_maze.py`, and stores all the mazes to be used for the game.
 
 ## 7 Links to Assets used in this Project

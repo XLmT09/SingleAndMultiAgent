@@ -1,11 +1,12 @@
-from computer import DFSComputer, BFSComputer, UCSComputer
-from characters import CharacterAnimationManager
-from world import World
-from constants import player_sprite_file_paths
-
 import unittest
 import pygame
 import pickle
+
+from agent.uninformed_computer import DFSComputer, BFSComputer
+from agent.informed_computer import UCSComputer, AStarComputer
+from characters import CharacterAnimationManager
+from world import World
+from constants import player_sprite_file_paths
 
 CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32
@@ -38,6 +39,9 @@ class TestComputer(unittest.TestCase):
                                        player_sprite_file_paths["climb"], 4)
 
         self.world = World(self.maze_map)
+
+        # some algos need to know the goal state in advance
+        self.diamond = self.world.get_diamond_group().sprites()[0]
 
     def tearDown(self):
         pygame.quit()
@@ -85,6 +89,17 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
                           (3, 9), (3, 10), (3, 11), (3, 12), (3, 13), (3, 14)])
         computer.stop_thread = True
 
+    def test_a_star_can_find_path_in_small_maze(self):
+        computer = AStarComputer(self.player,
+                                 self.world.get_walkable_maze_matrix(),
+                                 diamond=self.diamond)
+        computer.stop_thread = True
+        path = computer.generate_path()
+        self.assertEqual(path,
+                         [(5, 5), (5, 6), (5, 7), (5, 8), (5, 9), (4, 9),
+                          (3, 9), (3, 10), (3, 11), (3, 12), (3, 13), (3, 14)])
+        computer.stop_thread = True
+
 
 class TestComputerMidMaze(TestComputer, unittest.TestCase):
     """ Test path finding algorithms can work on a mid size maze. """
@@ -122,6 +137,18 @@ class TestComputerMidMaze(TestComputer, unittest.TestCase):
     def test_ucs_can_find_path_in_mid_maze(self):
         computer = UCSComputer(self.player,
                                self.world.get_walkable_maze_matrix())
+        computer.stop_thread = True
+        path = computer.generate_path()
+        self.assertEqual(path,
+                         [(5, 6), (5, 7), (5, 8), (5, 9), (6, 9), (7, 9),
+                          (7, 10), (7, 11), (7, 12), (7, 13), (7, 14), (7, 15),
+                          (7, 16), (7, 17), (7, 18)])
+        computer.stop_thread = True
+
+    def test_a_star_can_find_path_in_mid_maze(self):
+        computer = AStarComputer(self.player,
+                                 self.world.get_walkable_maze_matrix(),
+                                 diamond=self.diamond)
         computer.stop_thread = True
         path = computer.generate_path()
         self.assertEqual(path,
@@ -182,6 +209,26 @@ class TestComputerLargeMaze(TestComputer, unittest.TestCase):
                           (7, 18)])
         computer.stop_thread = True
 
+    def test_a_star_can_find_path_in_large_maze(self):
+        computer = AStarComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.diamond
+        )
+
+        computer.stop_thread = True
+        path = computer.generate_path()
+
+        self.assertEqual(
+            path,
+            [(11, 9), (11, 10), (11, 11), (11, 12), (11, 13), (11, 14),
+             (11, 15), (10, 15), (9, 15), (9, 14), (9, 13), (9, 12), (9, 11),
+             (9, 10), (9, 9), (8, 9), (7, 9), (7, 10), (7, 11), (7, 12),
+             (7, 13), (7, 14), (7, 15), (7, 16), (7, 17), (7, 18)]
+        )
+
+        computer.stop_thread = True
+
 
 class TestExtraUCSPathFinding(TestComputer, unittest.TestCase):
     """ Test to see if the UCS algorithm will actually choose the most
@@ -211,7 +258,7 @@ class TestExtraUCSPathFinding(TestComputer, unittest.TestCase):
 
 class TestComputerStartIsGoalState(TestComputer, unittest.TestCase):
     """ This class has tests to see that a path is still generated for
-    different algos when the start stae equals the end state."""
+    different algos when the start state equals the end state."""
 
     with open('maze/maze_3', 'rb') as file:
         maze_map = pickle.load(file)
@@ -246,7 +293,7 @@ class TestComputerStartIsGoalState(TestComputer, unittest.TestCase):
 
 
 class TestVisitedGrids(TestComputer, unittest.TestCase):
-    """ This class will test the get visited grids fucntion with the context
+    """ This class will test the get visited grids function with the context
     of a large maze on multiple algorithms."""
 
     with open('maze/maze_3', 'rb') as file:
@@ -257,7 +304,7 @@ class TestVisitedGrids(TestComputer, unittest.TestCase):
         super().setUp(pos_x=350, pos_y=300)
 
     def test_get_visited_grids_on_dfs(self):
-        """ This function will test the list of visted grids generated matches
+        """ This function will test the list of visited grids generated matches
         the data set we expect for dfs in a large maze.
         """
         computer = DFSComputer(self.player,
@@ -301,7 +348,7 @@ class TestVisitedGrids(TestComputer, unittest.TestCase):
         computer.stop_thread = True
 
     def test_get_visited_grids_on_bfs(self):
-        """ This function will test the list of visted grids generated matches
+        """ This function will test the list of visited grids generated matches
         the data set we expect for bfs in a large maze.
         """
         computer = BFSComputer(self.player,
@@ -333,7 +380,7 @@ class TestVisitedGrids(TestComputer, unittest.TestCase):
         computer.stop_thread = True
 
     def test_get_visited_grids_on_ucs(self):
-        """ This function will test the list of visted grids generated matches
+        """ This function will test the list of visited grids generated matches
         the data set we expect for ucs in a large maze.
         """
         computer = UCSComputer(self.player,
@@ -358,6 +405,66 @@ class TestVisitedGrids(TestComputer, unittest.TestCase):
                           (7, 2), (7, 16), (9, 4), (9, 14), (1, 1), (1, 11),
                           (3, 17), (5, 15), (7, 1), (7, 17), (7, 18)])
         computer.stop_thread = True
+
+    def test_get_visited_grids_on_a_star(self):
+        """ This function will check A star has the expected visited nodes.
+        Notice that it has visits less nodes than ucs as shown above, which
+        makes sense as a star is meant to find the optimal path by visiting
+        fewer nodes using its heuristic.
+        """
+        computer = AStarComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.diamond
+        )
+
+        computer.start_thread()
+
+        visited_grids_generated = (
+            computer.get_visited_grids_and_path_to_goal()[0]
+        )
+
+        computer.stop_thread = True
+
+        self.assertEqual(
+            visited_grids_generated,
+            [(5, 6), (5, 7), (5, 5), (5, 8), (5, 4), (5, 9), (5, 10), (6, 9),
+             (4, 4), (5, 3), (5, 11), (7, 9), (5, 12), (7, 10), (3, 4), (5, 2),
+             (7, 8), (8, 9), (7, 11), (4, 12), (5, 13), (7, 7), (9, 9),
+             (7, 12), (5, 14), (2, 4), (3, 5), (3, 12), (5, 1), (7, 13),
+             (3, 3), (5, 15), (9, 10), (7, 14), (7, 6), (9, 8), (5, 16),
+             (7, 15), (3, 13), (3, 11), (7, 16), (5, 17), (7, 17), (7, 18)]
+        )
+
+    def test_get_visited_grids_on_weighted_a_star(self):
+        """ This function will test visited grids are expected when using the
+        weighted manhattan function.
+        This has less visited grids than its non weighted counter part.
+        """
+        computer = AStarComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.diamond,
+            is_weighted=True
+        )
+
+        computer.start_thread()
+
+        visited_grids_generated = (
+            computer.get_visited_grids_and_path_to_goal()[0]
+        )
+
+        computer.stop_thread = True
+
+        self.assertEqual(
+            visited_grids_generated,
+            [(5, 6), (5, 7), (5, 5), (5, 8), (5, 4), (5, 9), (5, 10), (6, 9),
+             (4, 4), (5, 3), (5, 11), (7, 9), (5, 12), (7, 10), (3, 4), (5, 2),
+             (7, 8), (8, 9), (7, 11), (5, 13), (4, 12), (7, 7), (9, 9),
+             (7, 12), (5, 14), (7, 13), (3, 12), (3, 5), (2, 4), (5, 1),
+             (5, 15), (3, 3), (7, 14), (9, 10), (5, 16), (7, 6), (9, 8),
+             (7, 15), (3, 13), (5, 17), (7, 16), (3, 11), (7, 17), (7, 18)]
+        )
 
 
 if __name__ == '__main__':
