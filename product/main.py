@@ -82,6 +82,10 @@ def process_args() -> dict:
     if args.algo == "random":
         args.highlight = False
 
+    if args.weighted and args.algo != "astar":
+        parser.error("--weighted is only applicable when using the "
+                     "A* algorithm.")
+
     return {
         "maze_path": maze,
         "screen_width": screen_width,
