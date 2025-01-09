@@ -2,8 +2,8 @@ import unittest
 import pygame
 import pickle
 
-from agent.uninformed_computer import BFSComputer
-from agent.informed_computer import AStarComputer
+from agent.uninformed_computer import BFSComputer, DFSComputer
+from agent.informed_computer import AStarComputer, UCSComputer
 from characters import CharacterAnimationManager
 from world import World
 from constants import player_sprite_file_paths, game_values
@@ -127,6 +127,15 @@ class TestGUIComputer():
 
     def tearDown(self):
         pygame.quit()
+
+
+class TestDFSGUIComputer(TestGUIComputer, unittest.TestCase):
+    def setUp(self):
+        super().setUp(pos_x=350, pos_y=300)
+        self.computer = DFSComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix()
+        )
 
 
 class TestBFSGUIComputer(TestGUIComputer, unittest.TestCase):
