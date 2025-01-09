@@ -209,6 +209,26 @@ class TestComputerLargeMaze(TestComputer, unittest.TestCase):
                           (7, 18)])
         computer.stop_thread = True
 
+    def test_a_star_can_find_path_in_large_maze(self):
+        computer = AStarComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.diamond
+        )
+
+        computer.stop_thread = True
+        path = computer.generate_path()
+
+        self.assertEqual(
+            path,
+            [(11, 9), (11, 10), (11, 11), (11, 12), (11, 13), (11, 14),
+             (11, 15), (10, 15), (9, 15), (9, 14), (9, 13), (9, 12), (9, 11),
+             (9, 10), (9, 9), (8, 9), (7, 9), (7, 10), (7, 11), (7, 12),
+             (7, 13), (7, 14), (7, 15), (7, 16), (7, 17), (7, 18)]
+        )
+
+        computer.stop_thread = True
+
 
 class TestExtraUCSPathFinding(TestComputer, unittest.TestCase):
     """ Test to see if the UCS algorithm will actually choose the most
