@@ -51,6 +51,17 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_3")
         self.assertEqual(result["algo"], "astar")
 
+    @patch('sys.argv',
+           ['main', '--size', 'large', '--algo', 'astar', '--weighted'])
+    def test_weighted_a_star(self):
+        """ Test A star algo is works with weighted flag. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 1400)
+        self.assertEqual(result["screen_height"], 750)
+        self.assertEqual(result["maze_path"], "maze/maze_3")
+        self.assertEqual(result["algo"], "astar")
+        self.assertEqual(result["weighted"], True)
+
     @patch('sys.argv', ['main', '--algo', 'ucs', '--size', 'small'])
     def test_algo_then_size_flag_given(self):
         """ Test cli will still work when we switch the flag order. """
