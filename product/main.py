@@ -41,6 +41,13 @@ def process_args() -> dict:
         help="Choose a algorithm: random, dfs, bfs, or ucs"
     )
 
+    parser.add_argument(
+        "--weighted",
+        action="store_true",
+        help="Use a weighted manhattan (x2) to influence the "
+             "pathfinding (only applicable to A*)."
+    )
+
     # define the algo flag
     parser.add_argument(
         "--highlight",
@@ -80,7 +87,8 @@ def process_args() -> dict:
         "screen_width": screen_width,
         "screen_height": screen_height,
         "algo": args.algo,
-        "enable_highlighter": args.highlight
+        "enable_highlighter": args.highlight,
+        "weighted": args.weighted
     }
 
 
@@ -105,7 +113,7 @@ def setup_game(config) -> dict:
         is_controlled_by_computer=True,
         x=350, y=300
     )
-    
+
     # Setup the sprite animations for the player
     player.set_char_animation("idle", player_sprite_file_paths["idle"],
                               animation_steps=4)
@@ -123,6 +131,7 @@ def setup_game(config) -> dict:
     computer = get_agent_types()[config["algo"]](
         player,
         world.get_walkable_maze_matrix(),
+        perform_analysis=True,
         diamond=world.get_diamond_group().sprites()[0]
     )
 
