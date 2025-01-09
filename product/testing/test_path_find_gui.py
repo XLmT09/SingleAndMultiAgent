@@ -147,6 +147,15 @@ class TestBFSGUIComputer(TestGUIComputer, unittest.TestCase):
         )
 
 
+class TestUCSGUIComputer(TestGUIComputer, unittest.TestCase):
+    def setUp(self):
+        super().setUp(pos_x=350, pos_y=300)
+        self.computer = UCSComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix()
+        )
+
+
 class TestAstarGUIComputer(TestGUIComputer, unittest.TestCase):
     def setUp(self):
         super().setUp(pos_x=350, pos_y=300)
