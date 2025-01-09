@@ -387,7 +387,7 @@ class CharacterAnimationManager:
 
         # Check for collision with diamond
         if pygame.sprite.spritecollide(self, world_assets, False,
-                                       pygame.sprite.collide_rect_ratio(0.5)):
+                                       pygame.sprite.collide_rect_ratio(0.7)):
             self._is_diamond_found = True
             self._score += 1
 
