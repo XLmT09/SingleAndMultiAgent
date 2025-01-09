@@ -129,5 +129,18 @@ class TestAstarTools(unittest.TestCase):
             abs(self.player.grid_y - self.diamond.grid_y)
         )
 
+    def test_weighted_manhattan_in_small_maze(self):
+        """ Distance should be 10 because:
+        player_pos = (6, 5) and goal = (14, 3)
+
+        weight = 2
+        distance = (|6 - 14| + |5 - 3|) * weight = 20
+        """
+        distance = self.computer.get_weighted_manhattan_distance(
+            [self.player.grid_y, self.player.grid_x]
+        )
+
+        self.assertEqual(distance, 20)
+
     def tearDown(self):
         pygame.quit()
