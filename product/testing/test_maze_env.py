@@ -67,7 +67,7 @@ class TestSmallMazeEnvironment(TestMazeEnvironment, unittest.TestCase):
     with open('maze/maze_1', 'rb') as file:
         maze_map = pickle.load(file)
 
-    def setUp(self):
+    def setUp(self): 
         super().setUp(player_pos_x=300, player_pos_y=300)
 
     def test_small_get_maze_size(self):
@@ -203,6 +203,30 @@ class TestEveryMazeEnvironmentSize(TestMazeEnvironment, unittest.TestCase):
                             break
 
                 self.assertEqual(True, diamond_found)
+
+
+class TestSmallFilledMazeEnvironment(TestMazeEnvironment, unittest.TestCase):
+    """ This class will test a small maze where all diamonds are
+    in a free space. """
+
+    # Load up the small filled maze
+    with open('maze/maze_5', 'rb') as file:
+        maze_map = pickle.load(file)
+
+    def setUp(self):
+        super().setUp(player_pos_x=300, player_pos_y=300)
+
+    def test_filled_small_get_maze_size(self):
+        """ When we call get_maze_size() on a small filled maze it should
+        output the  'small' string."""
+
+        self.assertEqual("small", self.world.get_maze_size())
+
+    def test_small_get_walkable_locations(self):
+        """ Check get_walkable_locations() outputs the correct list of
+        vertices for a small maze. The start pos should be the only walkable
+        coord as there is no diamond initialized here."""
+        self.assertEqual([(5, 6)], self.world.get_walkable_locations())
 
 
 if __name__ == '__main__':
