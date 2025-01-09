@@ -62,6 +62,27 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["algo"], "astar")
         self.assertEqual(result["weighted"], True)
 
+    def test_cli_fails_when_weighted_set_on_non_a_star_algo(self):
+        """ Test the cli will fail when the user inputs a non astar algorithm
+        with the weighted flag. """
+        algos = ["bfs", "dfs", "ucs", "random"]
+
+        for algo in algos:
+            with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
+                with patch(
+                    'sys.argv',
+                    ['main', '--size', 'small', '--algo', algo, '--weighted']
+                ):
+                    with self.assertRaises(SystemExit):
+                        process_args()
+
+                # Capture the error message printed to stderr
+                error_output = fake_stderr.getvalue()
+
+                # Check if the error message is the expected one
+                self.assertIn("error: --weighted is only applicable when "
+                              "using the A* algorithm.", error_output)
+
     @patch('sys.argv', ['main', '--algo', 'ucs', '--size', 'small'])
     def test_algo_then_size_flag_given(self):
         """ Test cli will still work when we switch the flag order. """
