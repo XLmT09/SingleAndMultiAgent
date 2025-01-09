@@ -119,14 +119,26 @@ def setup_game(config) -> dict:
     )
 
     # Setup the sprite animations for the player
-    player.set_char_animation("idle", player_sprite_file_paths["idle"],
-                              animation_steps=4)
-    player.set_char_animation("jump", player_sprite_file_paths["jump"],
-                              animation_steps=8)
-    player.set_char_animation("walk", player_sprite_file_paths["walk"],
-                              animation_steps=6)
-    player.set_char_animation("climb", player_sprite_file_paths["climb"],
-                              animation_steps=4)
+    player.set_char_animation(
+        "idle",
+        player_sprite_file_paths["idle"],
+        animation_steps=4
+    )
+    player.set_char_animation(
+        "jump",
+        player_sprite_file_paths["jump"],
+        animation_steps=8
+    )
+    player.set_char_animation(
+        "walk",
+        player_sprite_file_paths["walk"],
+        animation_steps=6
+    )
+    player.set_char_animation(
+        "climb",
+        player_sprite_file_paths["climb"],
+        animation_steps=4
+    )
 
     # Generate the maze
     world = World(maze_array)
@@ -136,7 +148,8 @@ def setup_game(config) -> dict:
         player,
         world.get_walkable_maze_matrix(),
         perform_analysis=True,
-        diamond=world.get_diamond_group().sprites()[0]
+        diamond=world.get_diamond_group().sprites()[0],
+        is_weighted=config["weighted"]
     )
 
     return {
@@ -153,10 +166,12 @@ def highlight_visited_and_final_path(enable_highlight, world, screen,
     collision with diamond is detected AND the visited/path lists have been
     generated. Otherwise we check again on the next iteration. """
     if enable_highlight and not visited_and_path_data_flag.is_set():
+
         was_executed = world.highlight_grids_visited_by_algo(
             screen,
             *(computer.get_visited_grids_and_path_to_goal())
         )
+
         # Only set to false if the highlight animation ran, if it didn't it
         # means the algorithm is still generating the final path.
         if was_executed:
@@ -183,7 +198,9 @@ def start_game(screen_width, screen_height, enable_highlighter,
     cave_bg = pygame.image.load(
         "assets/images/background/cave.png"
         ).convert_alpha()
+
     world.get_walkable_locations()
+
     # Game loop logic
     while True:
         # We want to draw the background first, then
@@ -222,12 +239,20 @@ def start_game(screen_width, screen_height, enable_highlighter,
         world.draw_grid(screen, screen_height, screen_width)
 
         # Move and draw the agent
-        game_over = computer.move(screen, tile_data,
-                                  diamond_positions, game_over)
+        game_over = computer.move(
+            screen,
+            tile_data,
+            diamond_positions,
+            game_over
+        )
 
         if enable_highlighter:
-            highlight_visited_and_final_path(enable_highlight, world, screen,
-                                             computer)
+            highlight_visited_and_final_path(
+                enable_highlight,
+                world,
+                screen,
+                computer
+            )
 
         # score test seen on the top left of the screen
         score_text.draw(screen, f"Score {player.get_player_score()}", 20, 20)
@@ -247,5 +272,9 @@ if __name__ == "__main__":
     # Start the agent thread
     game_data["computer"].start_thread()
 
-    start_game(config["screen_width"], config["screen_height"],
-               config["enable_highlighter"], **game_data)
+    start_game(
+        config["screen_width"],
+        config["screen_height"],
+        config["enable_highlighter"],
+        **game_data
+    )
