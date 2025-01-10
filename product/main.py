@@ -60,7 +60,7 @@ def process_args() -> dict:
     # parse args from command line
     args = parser.parse_args()
 
-    screen_width, screen_height, maze = None, None, None
+    screen_width, screen_height, maze, filled = None, None, None, False
 
     # setup the window width and height, depending on
     # the size the user specified.
@@ -70,6 +70,7 @@ def process_args() -> dict:
         # retrieve the small maze filled with diamonds
         if "filled" in args.size:
             maze = "maze/maze_5"
+            filled = True
         else:
             maze = "maze/maze_1"
     elif args.size == "medium":
@@ -98,7 +99,8 @@ def process_args() -> dict:
         "screen_height": screen_height,
         "algo": args.algo,
         "enable_highlighter": args.highlight,
-        "weighted": args.weighted
+        "weighted": args.weighted,
+        "filled": filled
     }
 
 
@@ -124,7 +126,8 @@ def setup_game(config) -> dict:
         game_values["character_height"],
         maze_array,
         is_controlled_by_computer=True if config["algo"] else False,
-        x=350, y=300
+        x=350, y=300,
+        in_filled_maze=config["filled"]
     )
 
     # Setup the sprite animations for the player
