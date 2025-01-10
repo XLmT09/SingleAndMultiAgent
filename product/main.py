@@ -37,7 +37,7 @@ def process_args() -> dict:
     parser.add_argument(
         "--algo",
         choices=["random", "dfs", "bfs", "ucs", "astar"],
-        required=True,
+        required=False,
         help="Choose a algorithm: random, dfs, bfs, or ucs"
     )
 
@@ -85,6 +85,12 @@ def process_args() -> dict:
     if args.weighted and args.algo != "astar":
         parser.error("--weighted is only applicable when using the "
                      "A* algorithm.")
+
+    if not args.algo and args.highlight:
+        parser.error(
+            "--highlight is only applicable when using any algorithm but "
+            "random."
+        )
 
     return {
         "maze_path": maze,
