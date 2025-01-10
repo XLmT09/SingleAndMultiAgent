@@ -77,16 +77,12 @@ def process_args() -> dict:
         screen_height = 750
         maze = "maze/maze_3"
 
-    # If we are using the random algo then disable highlight because this algo
-    # doesn't store any visited vertices and final path to a goal state.
-    if args.algo == "random":
-        args.highlight = False
-
     if args.weighted and args.algo != "astar":
         parser.error("--weighted is only applicable when using the "
                      "A* algorithm.")
 
-    if not args.algo and args.highlight:
+    if ((not args.algo and args.highlight) or
+       (args.algo == "random" and args.highlight)):
         parser.error(
             "--highlight is only applicable when using any algorithm but "
             "random."
