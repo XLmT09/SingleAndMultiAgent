@@ -168,18 +168,28 @@ class TestCli(unittest.TestCase):
         result = process_args()
         self.assertEqual(result["enable_highlighter"], False)
 
-    @patch('sys.argv', ['main', '--algo', 'random', '--size', 'small',
-                        '--highlight'])
-    def test_cli_highlight_flag_disabled_on_random(self):
-        """ Test that when we use the random algo, the highlighter will remain
-        disabled even when the user passes adds the flag."""
-        result = process_args()
-        self.assertEqual(result["algo"], "random")
-        self.assertEqual(result["enable_highlighter"], False)
-
     @patch('sys.argv', ['main', '--size', 'small', '--highlight'])
     def test_cli_fails_when_highlight_and_no_algo_given(self):
-        """ Test the cli will fail when no algo or random is given and
+        """ Test the cli will fail when no algo is given and
+        highlight flag is enabled. """
+
+        # Redirect stderr to prevent error message from printing
+        with patch('sys.stderr', new=io.StringIO()) as fake_stderr:
+            # argparse calls sys.exit() on a invalid input
+            with self.assertRaises(SystemExit):
+                process_args()
+
+            error_output = fake_stderr.getvalue()
+
+            self.assertIn("--highlight is only applicable when using any "
+                          "algorithm but random.", error_output)
+
+    @patch(
+        'sys.argv',
+        ['main', '--size', 'small', '--algo', 'random', '--highlight']
+    )
+    def test_cli_fails_when_highlight_and_random_algo_given(self):
+        """ Test the cli will fail when random algo is given and
         highlight flag is enabled. """
 
         # Redirect stderr to prevent error message from printing
