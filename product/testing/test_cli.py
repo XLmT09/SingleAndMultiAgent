@@ -1,8 +1,8 @@
+import io
+
 import unittest
 from unittest.mock import patch
 from main import process_args
-
-import io
 
 
 class TestCli(unittest.TestCase):
@@ -142,17 +142,6 @@ class TestCli(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 process_args()
 
-    @patch('sys.argv', ['main', '--size', 'small'])
-    def test_no_algo_flag(self):
-        """ Dont pass a algo flag and we expect to see an error
-        as this flag is needed for the application to decided
-        what type of agent to use."""
-        # Redirect stderr to prevent error message from printing
-        with patch('sys.stderr', new=io.StringIO()):
-            # argparse calls sys.exit() on a invalid input
-            with self.assertRaises(SystemExit):
-                process_args()
-
     @patch('sys.argv', ['main'])
     def test_no_size_and_algo_flag(self):
         """ Dont pass a algo adn size flag and we expect to see an error
@@ -187,3 +176,19 @@ class TestCli(unittest.TestCase):
         result = process_args()
         self.assertEqual(result["algo"], "random")
         self.assertEqual(result["enable_highlighter"], False)
+
+    @patch('sys.argv', ['main', '--size', 'small', '--highlight'])
+    def test_cli_fails_when_highlight_and_no_algo_given(self):
+        """ Test the cli will fail when no algo or random is given and
+        highlight flag is enabled. """
+
+        # Redirect stderr to prevent error message from printing
+        with patch('sys.stderr', new=io.StringIO()) as fake_stderr:
+            # argparse calls sys.exit() on a invalid input
+            with self.assertRaises(SystemExit):
+                process_args()
+
+            error_output = fake_stderr.getvalue()
+
+            self.assertIn("--highlight is only applicable when using any "
+                          "algorithm but random.", error_output)
