@@ -26,7 +26,7 @@ class TestMazeEnvironment(unittest.TestCase):
         default_maze_map = pickle.load(file)
     maze_map = None
 
-    def setUp(self, player_pos_x, player_pos_y):
+    def setUp(self, player_pos_x, player_pos_y, in_filled_maze=False):
         """
         Args:
             pos_x (int): x position of the agent.
@@ -40,7 +40,8 @@ class TestMazeEnvironment(unittest.TestCase):
             CHARACTER_HEIGHT,
             self.maze_map if self.maze_map else self.default_maze_map,
             True, player_pos_x,
-            player_pos_y
+            player_pos_y,
+            in_filled_maze=in_filled_maze
         )
         self.player.set_char_animation("idle",
                                        player_sprite_file_paths["idle"], 4)
@@ -67,7 +68,7 @@ class TestSmallMazeEnvironment(TestMazeEnvironment, unittest.TestCase):
     with open('maze/maze_1', 'rb') as file:
         maze_map = pickle.load(file)
 
-    def setUp(self): 
+    def setUp(self):
         super().setUp(player_pos_x=300, player_pos_y=300)
 
     def test_small_get_maze_size(self):
@@ -214,7 +215,7 @@ class TestSmallFilledMazeEnvironment(TestMazeEnvironment, unittest.TestCase):
         maze_map = pickle.load(file)
 
     def setUp(self):
-        super().setUp(player_pos_x=300, player_pos_y=300)
+        super().setUp(player_pos_x=300, player_pos_y=300, in_filled_maze=True)
 
     def test_filled_small_get_maze_size(self):
         """ When we call get_maze_size() on a small filled maze it should
@@ -222,11 +223,23 @@ class TestSmallFilledMazeEnvironment(TestMazeEnvironment, unittest.TestCase):
 
         self.assertEqual("small", self.world.get_maze_size())
 
-    def test_small_get_walkable_locations(self):
+    def test_filled_small_get_walkable_locations(self):
         """ Check get_walkable_locations() outputs the correct list of
         vertices for a small maze. The start pos should be the only walkable
         coord as there is no diamond initialized here."""
         self.assertEqual([(5, 6)], self.world.get_walkable_locations())
+
+    def test_small_filled_maze_diamond_regeneration(self):
+        """ This test will remove all the diamonds in the maze and then we
+        will check if the regeneration function will fill all the cells with
+        diamonds again.
+        """
+
+        self.world._diamond_group.empty()
+        # When the diamonds are cleared, regenerate them in every cell
+        self.world.fill_maze_with_diamonds()
+        # No walkable grids now that the diamonds are in every grid
+        self.assertEqual([], self.world.get_walkable_locations())
 
 
 if __name__ == '__main__':
