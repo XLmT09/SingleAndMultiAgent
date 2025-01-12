@@ -103,7 +103,7 @@ class TestGUIComputer():
             self.world.load_world(self.screen)
 
             # Moving the player
-            self.game_over = self.computer.move(
+            self.game_over, remove_diamond_pos = self.computer.move(
                 self.screen,
                 self.tile_data,
                 self.diamond_positions,

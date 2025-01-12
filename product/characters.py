@@ -166,7 +166,7 @@ class CharacterAnimationManager:
         _score (int): The number of diamonds the character has collected.
     """
     def __init__(self, width, height, maze_data,
-                 is_controlled_by_computer, x=0, y=0):
+                 is_controlled_by_computer, x=0, y=0, **kwargs):
         # ================= PLAYER RECT =====================
         self.width = width
         self.height = height
@@ -213,6 +213,10 @@ class CharacterAnimationManager:
         self._maze_data = maze_data
         self._is_diamond_found = False
         self._score = 0
+        self.diamond_removal_pos = None
+        self.in_filled_maze = None
+        if "in_filled_maze" in kwargs:
+            self.in_filled_maze = kwargs["in_filled_maze"]
 
     def set_char_animation(self, animation_description, sprite_sheet,
                            animation_steps) -> None:
@@ -305,6 +309,34 @@ class CharacterAnimationManager:
             self._dx, self._dy = 0, 0
             self._requested_animation = "idle"
 
+    def diamond_collision_in_non_filled_maze(self, world_assets):
+        """ Check for diamond collision in a non filled maze.
+
+        If there is a collision then update the score and set found to True so
+        that we can regenerate it to a new location. """
+        if pygame.sprite.spritecollide(
+            self, world_assets, False,
+            pygame.sprite.collide_rect_ratio(0.7)
+        ):
+            self._is_diamond_found = True
+            self._score += 1
+
+    def diamond_collision_in_filled_maze(self, world_assets):
+        """ Check for diamond collision in a filled maze. """
+        diamond_removal_coord = []
+
+        if diamond := pygame.sprite.spritecollideany(
+                        self,
+                        world_assets,
+                        pygame.sprite.collide_rect_ratio(0.7)
+                    ):
+            world_assets.remove(diamond)
+            self._is_diamond_found = True
+            self._score += 1
+            diamond_removal_coord = [diamond.grid_x, diamond.grid_y]
+
+        return diamond_removal_coord
+
     def draw_animation(self, screen, world_tile_data, world_assets,
                        game_over, direction=None) -> int:
         """ This function handles the logic of drawing the player onto the
@@ -332,6 +364,7 @@ class CharacterAnimationManager:
         current_time = pygame.time.get_ticks()
         self._dx = 0
         self._dy = 0
+        remove_diamond_pos = None
 
         # If game_over flag is set, then we will halt character movement
         if game_over != 0:
@@ -385,11 +418,13 @@ class CharacterAnimationManager:
                     self._dy = tile[1].top - self.hitbox_rect.bottom
                     self._vel_y = 0
 
-        # Check for collision with diamond
-        if pygame.sprite.spritecollide(self, world_assets, False,
-                                       pygame.sprite.collide_rect_ratio(0.7)):
-            self._is_diamond_found = True
-            self._score += 1
+        # Do diamond collision logic based on whether the maze is filled or not
+        if self.in_filled_maze:
+            remove_diamond_pos = (
+                self.diamond_collision_in_filled_maze(world_assets)
+            )
+        else:
+            self.diamond_collision_in_non_filled_maze(world_assets)
 
         # Update the character x and y positions using the delta values
         self._pos_x += self._dx
@@ -417,7 +452,7 @@ class CharacterAnimationManager:
             screen, self.rect, update_frame, self.look_left
         )
 
-        return game_over
+        return game_over, remove_diamond_pos
 
     def _on_a_slow_block(self) -> bool:
         """ Check the player is moving over a slow block """

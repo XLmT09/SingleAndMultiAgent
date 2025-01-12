@@ -215,6 +215,11 @@ def start_game_agent(
 
     enable_highlight = True
 
+    # Wait until final path is found so we can highlight it, if the
+    # highlighter flag was set.
+    while not computer._path_generated:
+        print("waiting")
+
     # Measure run time of the application
     start = time.time()
 
@@ -258,7 +263,7 @@ def start_game_agent(
         world.draw_grid(screen, screen_height, screen_width)
 
         # Move and draw the agent
-        game_over = computer.move(
+        game_over, remove_diamond_pos = computer.move(
             screen,
             tile_data,
             diamond_positions,
@@ -291,6 +296,7 @@ def start_game_player(screen_width, screen_height, screen, player, world,
 
     tile_data = world.get_collidable_tile_list()
     diamond_positions = world.get_diamond_group()
+    remove_diamond_pos = None
 
     # Game loop logic
     while True:
@@ -304,26 +310,31 @@ def start_game_player(screen_width, screen_height, screen, player, world,
                 pygame.quit()
                 quit()
 
-        # When the diamond is found we will call to regenerate
-        # at a new position.
-        if player.get_is_diamond_found():
-            if world.update_diamond_position(are_locations_defined=True) == 2:
-                game_over = 1
-            player.set_is_diamond_found_to_false()
-            diamond_positions = world.get_diamond_group()
-
         # Draw the maze on the screen
         world.load_world(screen)
 
         world.draw_grid(screen, screen_height, screen_width)
 
         # Move and draw the agent
-        game_over = player.draw_animation(
+        game_over, remove_diamond_pos = player.draw_animation(
             screen,
             tile_data,
             diamond_positions,
             game_over
         )
+
+        # When the diamond is found we will call to regenerate
+        # at a new position.
+        if player.get_is_diamond_found():
+            if not player.in_filled_maze:
+                if world.update_diamond_position(
+                   are_locations_defined=True) == 2:
+                    game_over = 1
+            else:
+                world.clear_diamond(remove_diamond_pos[0],
+                                    remove_diamond_pos[1])
+            player.set_is_diamond_found_to_false()
+            diamond_positions = world.get_diamond_group()
 
         # score test seen on the top left of the screen
         score_text.draw(screen, f"Score {player.get_player_score()}", 20, 20)

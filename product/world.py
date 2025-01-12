@@ -241,6 +241,44 @@ class World:
 
         return location_of_ones_in_matrix
 
+    def clear_diamond(self, grid_x, grid_y):
+        """ This function will clear the current diamond position, using the
+        given x and y coords."""
+
+        self._world_matrix[grid_y][grid_x] = 0
+        self._walkable_maze_matrix[grid_y][grid_x] = 0
+
+        if len(self._diamond_group) == 0:
+            self.fill_maze_with_diamonds()
+
+    def fill_maze_with_diamonds(self):
+        """ This function will find update the coords of a diamond by removing
+        the current diamond and placing a new diamond at a different location.
+
+        Args:
+            are_locations_defined (list of tuples): A flag which when set will
+                place diamonds at specific locations and not randomly.
+        """
+        # Before starting we should update the walkable areas in the maze,
+        # as the diamond has moved positions.
+        self._find_walkable_areas_in_the_maze()
+
+        row_cnt = 0
+        for row in self._world_matrix:
+            col_cnt = 0
+            for tile in row:
+                if tile == 0:
+                    diamond = Diamond(col_cnt, row_cnt)
+                    self._diamond_group.add(diamond)
+                    self._world_matrix[row_cnt][col_cnt] = C.DIAMOND_GRID
+                    self._walkable_maze_matrix[row_cnt][col_cnt] = (
+                        C.DIAMOND_GRID
+                    )
+                col_cnt += 1
+            row_cnt += 1
+
+        return C.PASS
+
     def update_diamond_position(self, are_locations_defined=False):
         """ This function will find update the coords of a diamond by removing
         the current diamond and placing a new diamond at a different location.
@@ -377,6 +415,7 @@ class World:
 
         # Now that we have highlighted the visited grids, we will end it off
         # by highlighting the final path found.
+        print(path_to_goal)
         for top_right_grid_position in path_to_goal:
             time.sleep(0.04)
             screen.blit(
