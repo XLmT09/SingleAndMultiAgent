@@ -28,7 +28,10 @@ def process_args() -> dict:
     # define the size flag
     parser.add_argument(
         "--size",
-        choices=["small", "medium", "large", "small-filled", "medium-filled"],
+        choices=[
+            "small", "medium", "large",
+            "small-filled", "medium-filled", "large-filled"
+        ],
         required=True,
         help="Choose a size: small, medium, or large"
     )
@@ -81,10 +84,14 @@ def process_args() -> dict:
             filled = True
         else:
             maze = "maze/maze_2"
-    elif args.size == "large":
+    elif "large" in args.size:
         screen_width = 1400
         screen_height = 750
-        maze = "maze/maze_3"
+        if "filled" in args.size:
+            maze = "maze/maze_7"
+            filled = True
+        else:
+            maze = "maze/maze_3"
 
     if args.weighted and args.algo != "astar":
         parser.error("--weighted is only applicable when using the "
