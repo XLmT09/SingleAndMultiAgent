@@ -278,5 +278,41 @@ class TestMidFilledMazeEnvironment(TestMazeEnvironment, unittest.TestCase):
         self.assertEqual([], self.world.get_walkable_locations())
 
 
+class TestLargeFilledMazeEnvironment(TestMazeEnvironment, unittest.TestCase):
+    """ This class will test a large maze where all diamonds are
+    in a free space. """
+
+    # Load up the large filled maze
+    with open('maze/maze_7', 'rb') as file:
+        maze_map = pickle.load(file)
+
+    def setUp(self):
+        super().setUp(player_pos_x=300, player_pos_y=300, in_filled_maze=True)
+
+    def test_filled_large_get_maze_size(self):
+        """ When we call get_maze_size() on a large filled maze it should
+        output the 'large' string."""
+
+        self.assertEqual("large", self.world.get_maze_size())
+
+    def test_filled_large_get_walkable_locations(self):
+        """ Check get_walkable_locations() outputs the correct list of
+        vertices for a large maze. The start pos should be the only walkable
+        coord as there is no diamond initialized here."""
+        self.assertEqual([(5, 6)], self.world.get_walkable_locations())
+
+    def test_large_filled_maze_diamond_regeneration(self):
+        """ This test will remove all the diamonds in the maze and then we
+        will check if the regeneration function will fill all the cells with
+        diamonds again.
+        """
+
+        self.world._diamond_group.empty()
+        # When the diamonds are cleared, regenerate them in every cell
+        self.world.fill_maze_with_diamonds()
+        # No walkable grids now that the diamonds are in every grid
+        self.assertEqual([], self.world.get_walkable_locations())
+
+
 if __name__ == '__main__':
     unittest.main()
