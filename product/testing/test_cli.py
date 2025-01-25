@@ -39,6 +39,15 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_2")
         self.assertEqual(result["algo"], "dfs")
 
+    @patch('sys.argv', ['main', '--size', 'medium-filled'])
+    def test_mid_filled_maze(self):
+        """ This tests to see correct medium filled maze and attributes
+        are generated. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 1000)
+        self.assertEqual(result["screen_height"], 750)
+        self.assertEqual(result["maze_path"], "maze/maze_6")
+
     @patch('sys.argv', ['main', '--size', 'large', '--algo', 'ucs'])
     def test_large_size_and_ucs(self):
         """ This tests to see the correct width and height are produced
