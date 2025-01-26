@@ -39,7 +39,7 @@ def process_args() -> dict:
     # define the algo flag
     parser.add_argument(
         "--algo",
-        choices=["random", "dfs", "bfs", "ucs", "astar"],
+        choices=["random", "dfs", "bfs", "ucs", "astar", "greedy"],
         required=False,
         help="Choose a algorithm: random, dfs, bfs, or ucs"
     )
@@ -175,6 +175,7 @@ def setup_game(config) -> dict:
             world.get_walkable_maze_matrix(),
             perform_analysis=True,
             diamond=world.get_diamond_group().sprites()[0],
+            diamond_list=world.get_diamond_group(),
             is_weighted=config["weighted"]
         )
 
@@ -280,6 +281,7 @@ def start_game_agent(
             else:
                 world.clear_diamond(remove_diamond_pos[0],
                                     remove_diamond_pos[1])
+                computer.update_diamond_list(diamond_positions)
 
             player.set_is_diamond_found_to_false()
             diamond_positions = world.get_diamond_group()
