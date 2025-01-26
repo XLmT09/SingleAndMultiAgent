@@ -104,6 +104,13 @@ def process_args() -> dict:
             "random."
         )
 
+    filled_compatible_algos = ["greedy", "random", "astar"]
+    if (args.algo and filled and not (args.algo in filled_compatible_algos)):
+        parser.error(
+            "Filled maze only works when user controlled or when using "
+            "greedy algorithm."
+        )
+
     return {
         "maze_path": maze,
         "screen_width": screen_width,
