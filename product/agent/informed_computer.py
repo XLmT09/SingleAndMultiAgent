@@ -142,6 +142,43 @@ class GreedyComputer(InformedComputer):
         self.heuristic = None
         self.diamond_list = kwargs.get("diamond_list")
 
+    def generate_path(self) -> list:
+        """ This function uses the manhattan distance to get the closet
+        diamond, then it will use bfs to get the path to that diamond."""
+
+        start = self.character.get_player_grid_coordinates()
+        goal = self.get_manhattan_distance_of_all_diamonds()
+        queue = deque([start])
+        visited = []
+        # This will contain the all the potential paths, bfs has looked into
+        search_path_history = {start: None}
+
+        while queue:
+            current = queue.popleft()
+            visited.append(current)
+
+            if current == goal:
+                self._visited_grids = visited
+
+                if self.perform_analysis:
+                    print(f"The number of visited nodes is: {len(visited)}")
+
+                return self.reconstruct_path(search_path_history, current)
+
+            # Loop through all 4 directions the computer can take
+            for direction in self._directions:
+                next_grid = (current[0] + direction[0],
+                             current[1] + direction[1])
+
+                # Check if the next grid we are looking at is
+                # walkable and not visited.
+                if (self._walkable_maze_matrix[next_grid[0]][next_grid[1]]
+                        != 0 and next_grid not in visited):
+                    queue.append(next_grid)
+                    search_path_history[next_grid] = current
+
+        return None
+
     def get_manhattan_distance_of_all_diamonds(self) -> tuple:
         """ This function returns the coordinates of the diamond with the
         shortest manhattan distance in a filled maze."""
