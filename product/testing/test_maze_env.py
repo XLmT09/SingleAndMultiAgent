@@ -17,8 +17,8 @@ maze_map = None
 maze_dir = "maze"
 
 
-class TestMazeEnviorment(unittest.TestCase):
-    """ Test if the maze enviorment and attributes functions as expected. """
+class TestMazeEnvironment(unittest.TestCase):
+    """ Test if the maze environment and attributes functions as expected. """
 
     # Load up a default map for use if child class does not load a maze
     default_maze_map = None
@@ -26,7 +26,7 @@ class TestMazeEnviorment(unittest.TestCase):
         default_maze_map = pickle.load(file)
     maze_map = None
 
-    def setUp(self, player_pos_x, player_pos_y):
+    def setUp(self, player_pos_x, player_pos_y, in_filled_maze=False):
         """
         Args:
             pos_x (int): x position of the agent.
@@ -40,7 +40,8 @@ class TestMazeEnviorment(unittest.TestCase):
             CHARACTER_HEIGHT,
             self.maze_map if self.maze_map else self.default_maze_map,
             True, player_pos_x,
-            player_pos_y
+            player_pos_y,
+            in_filled_maze=in_filled_maze
         )
         self.player.set_char_animation("idle",
                                        player_sprite_file_paths["idle"], 4)
@@ -59,9 +60,9 @@ class TestMazeEnviorment(unittest.TestCase):
         pygame.quit()
 
 
-class TestSmallMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
+class TestSmallMazeEnvironment(TestMazeEnvironment, unittest.TestCase):
     """ This class will test functions and attributes for the small maze
-    enviorment. """
+    environment. """
 
     # Load up the small maze
     with open('maze/maze_1', 'rb') as file:
@@ -78,7 +79,7 @@ class TestSmallMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
 
     def test_small_get_walkable_locations(self):
         """ Check get_walkable_locations() outputs the correct list of
-        verticies for a small maze."""
+        vertices for a small maze."""
         self.assertEqual([(1, 1), (1, 2), (1, 3), (1, 5), (1, 6), (1, 7),
                           (1, 8), (1, 9), (1, 10), (1, 11), (1, 12), (1, 13),
                           (1, 14), (3, 1), (3, 2), (3, 3), (3, 5), (3, 6),
@@ -88,9 +89,9 @@ class TestSmallMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
                           (5, 14)], self.world.get_walkable_locations())
 
 
-class TestMidMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
+class TestMidMazeEnvironment(TestMazeEnvironment, unittest.TestCase):
     """ This class will test functions and attributes for the medium maze
-    enviorment. """
+    environment. """
 
     # Load up the medium maze
     with open('maze/maze_2', 'rb') as file:
@@ -107,7 +108,7 @@ class TestMidMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
 
     def test_mid_get_walkable_locations(self):
         """ Check get_walkable_locations() outputs the correct list of
-        verticies for a mid maze."""
+        vertices for a mid maze."""
         self.assertEqual(
             [(1, 3), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9),
              (1, 10), (1, 11), (1, 15), (1, 16), (1, 17), (1, 18),
@@ -129,9 +130,9 @@ class TestMidMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
         )
 
 
-class TestLargeMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
+class TestLargeMazeEnvironment(TestMazeEnvironment, unittest.TestCase):
     """ This class will test functions and attributes for the large maze
-    enviorment. """
+    environment. """
 
     # Load up the large maze
     with open('maze/maze_3', 'rb') as file:
@@ -148,7 +149,7 @@ class TestLargeMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
 
     def test_large_get_walkable_locations(self):
         """ Check get_walkable_locations() outputs the correct list of
-        verticies for a large maze."""
+        vertices for a large maze."""
         self.assertEqual(
             [(1, 3), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10), (1, 11),
              (1, 15), (1, 16), (1, 17), (1, 18), (1, 19), (1, 20), (1, 23),
@@ -174,7 +175,7 @@ class TestLargeMazeEnviorment(TestMazeEnviorment, unittest.TestCase):
         )
 
 
-class TestEveryMazeEnviormentSize(TestMazeEnviorment, unittest.TestCase):
+class TestEveryMazeEnvironmentSize(TestMazeEnvironment, unittest.TestCase):
     """ This class in every test case will loop through every maze size and
     test if common values and functions work as expected."""
     def setUp(self):
@@ -203,6 +204,114 @@ class TestEveryMazeEnviormentSize(TestMazeEnviorment, unittest.TestCase):
                             break
 
                 self.assertEqual(True, diamond_found)
+
+
+class TestSmallFilledMazeEnvironment(TestMazeEnvironment, unittest.TestCase):
+    """ This class will test a small maze where all diamonds are
+    in a free space. """
+
+    # Load up the small filled maze
+    with open('maze/maze_5', 'rb') as file:
+        maze_map = pickle.load(file)
+
+    def setUp(self):
+        super().setUp(player_pos_x=300, player_pos_y=300, in_filled_maze=True)
+
+    def test_filled_small_get_maze_size(self):
+        """ When we call get_maze_size() on a small filled maze it should
+        output the  'small' string."""
+
+        self.assertEqual("small", self.world.get_maze_size())
+
+    def test_filled_small_get_walkable_locations(self):
+        """ Check get_walkable_locations() outputs the correct list of
+        vertices for a small maze. The start pos should be the only walkable
+        coord as there is no diamond initialized here."""
+        self.assertEqual([(5, 6)], self.world.get_walkable_locations())
+
+    def test_small_filled_maze_diamond_regeneration(self):
+        """ This test will remove all the diamonds in the maze and then we
+        will check if the regeneration function will fill all the cells with
+        diamonds again.
+        """
+
+        self.world._diamond_group.empty()
+        # When the diamonds are cleared, regenerate them in every cell
+        self.world.fill_maze_with_diamonds()
+        # No walkable grids now that the diamonds are in every grid
+        self.assertEqual([], self.world.get_walkable_locations())
+
+
+class TestMidFilledMazeEnvironment(TestMazeEnvironment, unittest.TestCase):
+    """ This class will test a medium maze where all diamonds are
+    in a free space. """
+
+    # Load up the medium filled maze
+    with open('maze/maze_6', 'rb') as file:
+        maze_map = pickle.load(file)
+
+    def setUp(self):
+        super().setUp(player_pos_x=300, player_pos_y=300, in_filled_maze=True)
+
+    def test_filled_mid_get_maze_size(self):
+        """ When we call get_maze_size() on a medium filled maze it should
+        output the  'medium' string."""
+
+        self.assertEqual("medium", self.world.get_maze_size())
+
+    def test_filled_medium_get_walkable_locations(self):
+        """ Check get_walkable_locations() outputs the correct list of
+        vertices for a medium maze. The start pos should be the only walkable
+        coord as there is no diamond initialized here."""
+        self.assertEqual([(5, 6)], self.world.get_walkable_locations())
+
+    def test_medium_filled_maze_diamond_regeneration(self):
+        """ This test will remove all the diamonds in the maze and then we
+        will check if the regeneration function will fill all the cells with
+        diamonds again.
+        """
+
+        self.world._diamond_group.empty()
+        # When the diamonds are cleared, regenerate them in every cell
+        self.world.fill_maze_with_diamonds()
+        # No walkable grids now that the diamonds are in every grid
+        self.assertEqual([], self.world.get_walkable_locations())
+
+
+class TestLargeFilledMazeEnvironment(TestMazeEnvironment, unittest.TestCase):
+    """ This class will test a large maze where all diamonds are
+    in a free space. """
+
+    # Load up the large filled maze
+    with open('maze/maze_7', 'rb') as file:
+        maze_map = pickle.load(file)
+
+    def setUp(self):
+        super().setUp(player_pos_x=300, player_pos_y=300, in_filled_maze=True)
+
+    def test_filled_large_get_maze_size(self):
+        """ When we call get_maze_size() on a large filled maze it should
+        output the 'large' string."""
+
+        self.assertEqual("large", self.world.get_maze_size())
+
+    def test_filled_large_get_walkable_locations(self):
+        """ Check get_walkable_locations() outputs the correct list of
+        vertices for a large maze. The start pos should be the only walkable
+        coord as there is no diamond initialized here."""
+        self.assertEqual([(5, 6)], self.world.get_walkable_locations())
+
+    def test_large_filled_maze_diamond_regeneration(self):
+        """ This test will remove all the diamonds in the maze and then we
+        will check if the regeneration function will fill all the cells with
+        diamonds again.
+        """
+
+        self.world._diamond_group.empty()
+        # When the diamonds are cleared, regenerate them in every cell
+        self.world.fill_maze_with_diamonds()
+        # No walkable grids now that the diamonds are in every grid
+        self.assertEqual([], self.world.get_walkable_locations())
 
 
 if __name__ == '__main__':

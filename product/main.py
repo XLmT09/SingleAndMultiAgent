@@ -28,7 +28,10 @@ def process_args() -> dict:
     # define the size flag
     parser.add_argument(
         "--size",
-        choices=["small", "medium", "large"],
+        choices=[
+            "small", "medium", "large",
+            "small-filled", "medium-filled", "large-filled"
+        ],
         required=True,
         help="Choose a size: small, medium, or large"
     )
@@ -36,8 +39,8 @@ def process_args() -> dict:
     # define the algo flag
     parser.add_argument(
         "--algo",
-        choices=["random", "dfs", "bfs", "ucs", "astar"],
-        required=True,
+        choices=["random", "dfs", "bfs", "ucs", "astar", "greedy"],
+        required=False,
         help="Choose a algorithm: random, dfs, bfs, or ucs"
     )
 
@@ -60,31 +63,53 @@ def process_args() -> dict:
     # parse args from command line
     args = parser.parse_args()
 
-    screen_width, screen_height, maze = None, None, None
+    screen_width, screen_height, maze, filled = None, None, None, False
 
     # setup the window width and height, depending on
     # the size the user specified.
-    if args.size == "small":
+    if "small" in args.size:
         screen_width = 850
         screen_height = 350
-        maze = "maze/maze_1"
-    elif args.size == "medium":
+        # retrieve the small maze filled with diamonds
+        if "filled" in args.size:
+            maze = "maze/maze_5"
+            filled = True
+        else:
+            maze = "maze/maze_1"
+    elif "medium" in args.size:
         screen_width = 1000
         screen_height = 750
-        maze = "maze/maze_2"
-    elif args.size == "large":
+        if "filled" in args.size:
+            maze = "maze/maze_6"
+            filled = True
+        else:
+            maze = "maze/maze_2"
+    elif "large" in args.size:
         screen_width = 1400
         screen_height = 750
-        maze = "maze/maze_3"
-
-    # If we are using the random algo then disable highlight because this algo
-    # doesn't store any visited vertices and final path to a goal state.
-    if args.algo == "random":
-        args.highlight = False
+        if "filled" in args.size:
+            maze = "maze/maze_7"
+            filled = True
+        else:
+            maze = "maze/maze_3"
 
     if args.weighted and args.algo != "astar":
         parser.error("--weighted is only applicable when using the "
                      "A* algorithm.")
+
+    if ((not args.algo and args.highlight) or
+       (args.algo == "random" and args.highlight)):
+        parser.error(
+            "--highlight is only applicable when using any algorithm but "
+            "random."
+        )
+
+    filled_compatible_algos = ["greedy", "random", "astar"]
+    if (args.algo and filled and not (args.algo in filled_compatible_algos)):
+        parser.error(
+            "Filled maze only works when user controlled or when using "
+            "greedy algorithm."
+        )
 
     return {
         "maze_path": maze,
@@ -92,12 +117,16 @@ def process_args() -> dict:
         "screen_height": screen_height,
         "algo": args.algo,
         "enable_highlighter": args.highlight,
-        "weighted": args.weighted
+        "weighted": args.weighted,
+        "filled": filled
     }
 
 
 def setup_game(config) -> dict:
     """ Initialize key variables needed for this application. """
+
+    # This variable represents the agent
+    computer = None
 
     # This is the screen the game will be displayed
     screen = pygame.display.set_mode(
@@ -114,8 +143,9 @@ def setup_game(config) -> dict:
         game_values["character_width"],
         game_values["character_height"],
         maze_array,
-        is_controlled_by_computer=True,
-        x=350, y=300
+        is_controlled_by_computer=True if config["algo"] else False,
+        x=350, y=300,
+        in_filled_maze=config["filled"]
     )
 
     # Setup the sprite animations for the player
@@ -143,20 +173,32 @@ def setup_game(config) -> dict:
     # Generate the maze
     world = World(maze_array)
 
-    # Initialize a specific computer class and pass arguments to constructor
-    computer = get_agent_types()[config["algo"]](
-        player,
-        world.get_walkable_maze_matrix(),
-        perform_analysis=True,
-        diamond=world.get_diamond_group().sprites()[0],
-        is_weighted=config["weighted"]
-    )
+    # If algo was specified, initialize a specific computer class and pass
+    # arguments to constructor. Else, dont initialize and the user will
+    # control the player.
+    if config["algo"]:
+        computer = get_agent_types()[config["algo"]](
+            player,
+            world.get_walkable_maze_matrix(),
+            perform_analysis=True,
+            diamond=world.get_diamond_group().sprites()[0],
+            diamond_list=world.get_diamond_group(),
+            is_weighted=config["weighted"]
+        )
 
     return {
         "screen": screen,
         "player": player,
         "world": world,
-        "computer": computer
+        "computer": computer,
+        # flag is indicate when to freeze the game
+        "game_over": 0,
+        # This object displays score on screen
+        "score_text": Text(24),
+        # Background image for the game
+        "cave_bg": pygame.image.load(
+            "assets/images/background/cave.png"
+        ).convert_alpha()
     }
 
 
@@ -179,27 +221,26 @@ def highlight_visited_and_final_path(enable_highlight, world, screen,
             visited_and_path_data_flag.set()
 
 
-def start_game(screen_width, screen_height, enable_highlighter,
-               screen, player, world, computer) -> None:
-    """ This is the main game function, the game loop resides in here. """
+def start_game_agent(
+        screen_width, screen_height, enable_highlighter,
+        screen, player, world, computer, game_over, score_text,
+        cave_bg) -> None:
+    """ This is the main game function when the computer controls the player,
+    the game loop resides in here. """
 
-    # Freeze game when game over flag is set
-    game_over = 0
     tile_data = world.get_collidable_tile_list()
     diamond_positions = world.get_diamond_group()
-    score_text = Text(24)
 
     enable_highlight = True
 
+    # Wait until final path is found so we can highlight it, if the
+    # highlighter flag was set.
+    if enable_highlighter:
+        while not computer._path_generated:
+            print("waiting")
+
     # Measure run time of the application
     start = time.time()
-
-    # Background image for the game
-    cave_bg = pygame.image.load(
-        "assets/images/background/cave.png"
-        ).convert_alpha()
-
-    world.get_walkable_locations()
 
     # Game loop logic
     while True:
@@ -219,6 +260,19 @@ def start_game(screen_width, screen_height, enable_highlighter,
         if key[pygame.K_c]:
             computer.stop_path_find_algo_thread()
 
+        # Draw the maze on the screen
+        world.load_world(screen)
+
+        world.draw_grid(screen, screen_height, screen_width)
+
+        # Move and draw the agent
+        game_over, remove_diamond_pos = computer.move(
+            screen,
+            tile_data,
+            diamond_positions,
+            game_over
+        )
+
         # When the diamond is found we will call to regenerate
         # at a new position.
         if player.get_is_diamond_found():
@@ -226,25 +280,20 @@ def start_game(screen_width, screen_height, enable_highlighter,
                 end = time.time()
                 print(f"Time ran is: {abs(start - end)}")
                 start = end
-            if world.update_diamond_position(are_locations_defined=True) == 2:
-                game_over = 1
-                computer.stop_path_find_algo_thread()
+
+            if not player.in_filled_maze:
+                if world.update_diamond_position(
+                   are_locations_defined=True) == 2:
+                    game_over = 1
+                    computer.stop_path_find_algo_thread()
+            else:
+                world.clear_diamond(remove_diamond_pos[0],
+                                    remove_diamond_pos[1])
+                computer.update_diamond_list(diamond_positions)
+
             player.set_is_diamond_found_to_false()
             diamond_positions = world.get_diamond_group()
             enable_highlight = True
-
-        # Draw the maze on the screen
-        world.load_world(screen)
-
-        world.draw_grid(screen, screen_height, screen_width)
-
-        # Move and draw the agent
-        game_over = computer.move(
-            screen,
-            tile_data,
-            diamond_positions,
-            game_over
-        )
 
         if enable_highlighter:
             highlight_visited_and_final_path(
@@ -265,16 +314,81 @@ def start_game(screen_width, screen_height, enable_highlighter,
         pygame.display.update()
 
 
+def start_game_player(screen_width, screen_height, screen, player, world,
+                      computer, game_over, score_text, cave_bg) -> None:
+    """ This is the main game function when the user controls the player, the
+    game loop resides in here. """
+
+    tile_data = world.get_collidable_tile_list()
+    diamond_positions = world.get_diamond_group()
+    remove_diamond_pos = None
+
+    # Game loop logic
+    while True:
+        # We want to draw the background first, then
+        # draw everything on top of it.
+        screen.blit(cave_bg, (0, 0))
+
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+        # Draw the maze on the screen
+        world.load_world(screen)
+
+        world.draw_grid(screen, screen_height, screen_width)
+
+        # Move and draw the agent
+        game_over, remove_diamond_pos = player.draw_animation(
+            screen,
+            tile_data,
+            diamond_positions,
+            game_over
+        )
+
+        # When the diamond is found we will call to regenerate
+        # at a new position.
+        if player.get_is_diamond_found():
+            if not player.in_filled_maze:
+                if world.update_diamond_position(
+                   are_locations_defined=True) == 2:
+                    game_over = 1
+            else:
+                world.clear_diamond(remove_diamond_pos[0],
+                                    remove_diamond_pos[1])
+            player.set_is_diamond_found_to_false()
+            diamond_positions = world.get_diamond_group()
+
+        # score test seen on the top left of the screen
+        score_text.draw(screen, f"Score {player.get_player_score()}", 20, 20)
+
+        # Set the game refresh rate
+        clock.tick(game_values["FPS"])
+
+        # Now render all changes we made in this loop
+        # iteration onto the game screen.
+        pygame.display.update()
+
+
 if __name__ == "__main__":
     config = process_args()
     game_data = setup_game(config)
 
-    # Start the agent thread
-    game_data["computer"].start_thread()
+    if config["algo"]:
+        # Start the agent thread
+        game_data["computer"].start_thread()
 
-    start_game(
-        config["screen_width"],
-        config["screen_height"],
-        config["enable_highlighter"],
-        **game_data
-    )
+        start_game_agent(
+            config["screen_width"],
+            config["screen_height"],
+            config["enable_highlighter"],
+            **game_data
+        )
+    else:
+        start_game_player(
+            config["screen_width"],
+            config["screen_height"],
+            **game_data
+        )

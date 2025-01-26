@@ -1,9 +1,9 @@
 import unittest
 import pygame
 import pickle
+import time
 
-from agent.uninformed_computer import BFSComputer, DFSComputer
-from agent.informed_computer import AStarComputer, UCSComputer
+from agent.informed_computer import GreedyComputer
 from characters import CharacterAnimationManager
 from world import World
 from constants import player_sprite_file_paths, game_values
@@ -13,12 +13,12 @@ CHARACTER_HEIGHT = 32
 
 # Maze map the functions will use
 maze_map = None
-with open('maze/maze_1', 'rb') as file:
+with open('maze/maze_5', 'rb') as file:
     maze_map = pickle.load(file)
 clock = pygame.time.Clock()
 
 
-class TestGUIComputer():
+class TestFilledGUIComputer():
     """ Setup class which the other tests classes in this
     file will inherit from.
 
@@ -44,6 +44,7 @@ class TestGUIComputer():
             True,
             pos_x,
             pos_y,
+            in_filled_maze=True
         )
 
         self.player.set_char_animation(
@@ -81,23 +82,23 @@ class TestGUIComputer():
         given initialized maze environment. The test passes if it can collect
         two diamonds without errors. """
 
+        # Max time this test will be allocated (in seconds)
+        max_time = 250
+        start_time = time.time()
+
         # Start the path finding algorithm
         self.computer.start_thread()
 
-        # We will stop once two diamonds have been found
+        # if time limit exceeds this is set to false
+        running = True
+
+        # We will stop once all diamonds have been found
         score_count = 0
-        TARGET = 2
+        TARGET = 37
 
         # We will run a game loop until collision is detected
-        while score_count != TARGET:
+        while running:
             self.screen.blit(self.bg, (0, 0))
-
-            # We have found the diamond and can begin to stop the test
-            if self.player.get_is_diamond_found():
-                self.world.update_diamond_position()
-                self.player.set_is_diamond_found_to_false()
-                self.diamond_positions = self.world.get_diamond_group()
-                score_count += 1
 
             # Blitting the tiles
             self.world.load_world(self.screen)
@@ -110,13 +111,24 @@ class TestGUIComputer():
                 self.game_over
             )
 
+            # We have found the diamond and can begin to stop the test
+            if self.player.get_is_diamond_found():
+                self.world.clear_diamond(remove_diamond_pos[0],
+                                         remove_diamond_pos[1])
+                self.player.set_is_diamond_found_to_false()
+                self.diamond_positions = self.world.get_diamond_group()
+                self.computer.update_diamond_list(self.diamond_positions)
+                score_count += 1
+
             # Can end the test once collision is detected
             if score_count == TARGET:
-                self.assertTrue(score_count,
-                                f"Test passed as collision {TARGET} diamonds "
-                                "were collected without errors.")
+                self.assertTrue("Test passed as all diamonds are collected.")
                 self.computer.stop_thread = True
                 break
+
+            if time.time() - start_time > max_time:
+                running = False
+                self.assertFalse(f"Time limit of {max_time} seconds exceeded.")
 
             # Set the game refresh rate
             clock.tick(game_values["FPS"])
@@ -129,38 +141,12 @@ class TestGUIComputer():
         pygame.quit()
 
 
-class TestDFSGUIComputer(TestGUIComputer, unittest.TestCase):
+class TestGreedyGUIComputer(TestFilledGUIComputer, unittest.TestCase):
+    """ This tests the greedy search algo in a filled maze environment. """
     def setUp(self):
         super().setUp(pos_x=350, pos_y=300)
-        self.computer = DFSComputer(
-            self.player,
-            self.world.get_walkable_maze_matrix()
-        )
-
-
-class TestBFSGUIComputer(TestGUIComputer, unittest.TestCase):
-    def setUp(self):
-        super().setUp(pos_x=350, pos_y=300)
-        self.computer = BFSComputer(
-            self.player,
-            self.world.get_walkable_maze_matrix()
-        )
-
-
-class TestUCSGUIComputer(TestGUIComputer, unittest.TestCase):
-    def setUp(self):
-        super().setUp(pos_x=350, pos_y=300)
-        self.computer = UCSComputer(
-            self.player,
-            self.world.get_walkable_maze_matrix()
-        )
-
-
-class TestAstarGUIComputer(TestGUIComputer, unittest.TestCase):
-    def setUp(self):
-        super().setUp(pos_x=350, pos_y=300)
-        self.computer = AStarComputer(
+        self.computer = GreedyComputer(
             self.player,
             self.world.get_walkable_maze_matrix(),
-            diamond=self.world.get_diamond_group().sprites()[0]
+            diamond_list=self.world.get_diamond_group()
         )

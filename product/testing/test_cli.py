@@ -1,8 +1,8 @@
+import io
+
 import unittest
 from unittest.mock import patch
 from main import process_args
-
-import io
 
 
 class TestCli(unittest.TestCase):
@@ -20,9 +20,17 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_1")
         self.assertEqual(result["algo"], "bfs")
 
+    @patch('sys.argv', ['main', '--size', 'small-filled'])
+    def test_small_filled_maze(self):
+        """ This tests to see correct small filled maze is generated """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 850)
+        self.assertEqual(result["screen_height"], 350)
+        self.assertEqual(result["maze_path"], "maze/maze_5")
+
     @patch('sys.argv', ['main', '--size', 'medium', '--algo', 'dfs'])
     def test_small_size_and_dfs(self):
-        """ his tests to see the correct width and height are produced
+        """ This tests to see the correct width and height are produced
         for a medium maze. It also tests id dfs is recorded as a values
         in the algo key. """
         result = process_args()
@@ -30,6 +38,15 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["screen_height"], 750)
         self.assertEqual(result["maze_path"], "maze/maze_2")
         self.assertEqual(result["algo"], "dfs")
+
+    @patch('sys.argv', ['main', '--size', 'medium-filled'])
+    def test_mid_filled_maze(self):
+        """ This tests to see correct medium filled maze and attributes
+        are generated. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 1000)
+        self.assertEqual(result["screen_height"], 750)
+        self.assertEqual(result["maze_path"], "maze/maze_6")
 
     @patch('sys.argv', ['main', '--size', 'large', '--algo', 'ucs'])
     def test_large_size_and_ucs(self):
@@ -42,6 +59,15 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_3")
         self.assertEqual(result["algo"], "ucs")
 
+    @patch('sys.argv', ['main', '--size', 'large-filled'])
+    def test_large_filled_maze(self):
+        """ This tests to see correct large filled maze and attributes
+        are generated. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 1400)
+        self.assertEqual(result["screen_height"], 750)
+        self.assertEqual(result["maze_path"], "maze/maze_7")
+
     @patch('sys.argv', ['main', '--size', 'large', '--algo', 'astar'])
     def test_large_size_and_a_star(self):
         """ Test A star algo is registered. """
@@ -50,6 +76,15 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["screen_height"], 750)
         self.assertEqual(result["maze_path"], "maze/maze_3")
         self.assertEqual(result["algo"], "astar")
+
+    @patch('sys.argv', ['main', '--size', 'large-filled', '--algo', 'greedy'])
+    def test_large_size_and_greedy_algo(self):
+        """ Test greedy algo is registered. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 1400)
+        self.assertEqual(result["screen_height"], 750)
+        self.assertEqual(result["maze_path"], "maze/maze_7")
+        self.assertEqual(result["algo"], "greedy")
 
     @patch('sys.argv',
            ['main', '--size', 'large', '--algo', 'astar', '--weighted'])
@@ -142,17 +177,6 @@ class TestCli(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 process_args()
 
-    @patch('sys.argv', ['main', '--size', 'small'])
-    def test_no_algo_flag(self):
-        """ Dont pass a algo flag and we expect to see an error
-        as this flag is needed for the application to decided
-        what type of agent to use."""
-        # Redirect stderr to prevent error message from printing
-        with patch('sys.stderr', new=io.StringIO()):
-            # argparse calls sys.exit() on a invalid input
-            with self.assertRaises(SystemExit):
-                process_args()
-
     @patch('sys.argv', ['main'])
     def test_no_size_and_algo_flag(self):
         """ Dont pass a algo adn size flag and we expect to see an error
@@ -179,11 +203,62 @@ class TestCli(unittest.TestCase):
         result = process_args()
         self.assertEqual(result["enable_highlighter"], False)
 
-    @patch('sys.argv', ['main', '--algo', 'random', '--size', 'small',
-                        '--highlight'])
-    def test_cli_highlight_flag_disabled_on_random(self):
-        """ Test that when we use the random algo, the highlighter will remain
-        disabled even when the user passes adds the flag."""
-        result = process_args()
-        self.assertEqual(result["algo"], "random")
-        self.assertEqual(result["enable_highlighter"], False)
+    @patch('sys.argv', ['main', '--size', 'small', '--highlight'])
+    def test_cli_fails_when_highlight_and_no_algo_given(self):
+        """ Test the cli will fail when no algo is given and
+        highlight flag is enabled. """
+
+        # Redirect stderr to prevent error message from printing
+        with patch('sys.stderr', new=io.StringIO()) as fake_stderr:
+            # argparse calls sys.exit() on a invalid input
+            with self.assertRaises(SystemExit):
+                process_args()
+
+            error_output = fake_stderr.getvalue()
+
+            self.assertIn("--highlight is only applicable when using any "
+                          "algorithm but random.", error_output)
+
+    @patch(
+        'sys.argv',
+        ['main', '--size', 'small', '--algo', 'random', '--highlight']
+    )
+    def test_cli_fails_when_highlight_and_random_algo_given(self):
+        """ Test the cli will fail when random algo is given and
+        highlight flag is enabled. """
+
+        # Redirect stderr to prevent error message from printing
+        with patch('sys.stderr', new=io.StringIO()) as fake_stderr:
+            # argparse calls sys.exit() on a invalid input
+            with self.assertRaises(SystemExit):
+                process_args()
+
+            error_output = fake_stderr.getvalue()
+
+            self.assertIn("--highlight is only applicable when using any "
+                          "algorithm but random.", error_output)
+
+    def test_cli_fails_when_filled_maze_and_not_using_filled_algo(self):
+        """ Test the cli will fail when we are in a filled maze but using an
+        algorithm not compatible with filled mazes. """
+
+        incompatible_algos = ["bfs", "dfs", "ucs"]
+
+        for algo in incompatible_algos:
+            with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
+                with patch(
+                    'sys.argv',
+                    ['main', '--size', 'small-filled', '--algo', algo]
+                ):
+                    with self.assertRaises(SystemExit):
+                        process_args()
+
+                # Capture the error message printed to stderr
+                error_output = fake_stderr.getvalue()
+
+                # Check if the error message is the expected one
+                self.assertIn(
+                    "error: Filled maze only works when user controlled or "
+                    "when using greedy algorithm.",
+                    error_output
+                )

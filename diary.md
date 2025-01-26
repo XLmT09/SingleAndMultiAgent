@@ -1,3 +1,36 @@
+### Week 13
+
+<ins>**Updates on Algorithms**</ins>
+
+- I have implemented the greedy search algorithm, this is the first algorithm compatible with a filled maze environment.
+- This algorithm only uses the Manhattan distance to find the next diamond to visit, so no `g_cost`is considered here.
+
+<ins>**Updates to Game**</ins>
+
+- I have added medium and large filled mazes to the game.
+- The cli will also deny any algorithms that do not work for a filled maze.
+- Although the diamonds were filled it didn't regenerate once they were all collected, so I made sure there was regeneration when this condition was met.
+
+
+### Christmas Break
+
+<ins>**Updates on Algorithms**</ins>
+
+- Implemented the A star algorithm
+- For the heuristics I used the existing Manhattan function, but also a weighted one too. The weighted Manhattan function has more of a influence about the path decision making.
+
+<ins>**Updates on Game**</ins>
+
+- A new game mode has been implemented. In this game mode the user has the option to be in a maze environment where every cell is filled with diamonds. Currently this only works for small mazes.
+- The cli now also takes a_star as an option, and also a weighted flag for heuristic option.
+
+<ins>**Refactoring**</ins>
+
+- I split the computer class into three files. 
+  - `Computer.py` which contains the parent computer class.
+  - `UninformedComputer.py` which contains the `UniformedComputer` class where the uniformed computers inherit from
+  - `InformedComputer.py` which contains the `InformedComputer` class where the informed computers inherit from.
+
 ### Week 12
 
 <ins>**Interim Report**</ins>
@@ -10,17 +43,17 @@
 
 - I have added a highlighter function which will highlight the explored nodes from the currently in use algorithm colored in red and then the final path generated coloured in blue.
 - I have also added CLI logic to my application where it take different flags like: size, algo and highlight.
-- I have devloped some analysis "tools", which will output the time it took for a certian algo to run, the nodes visited and final node disatnce from the start to the goal state.
+- I have developed some analysis "tools", which will output the time it took for a certain algo to run, the nodes visited and final node distance from the start to the goal state.
 
 <ins>**Problems and Fixes**<ins>
 
 - The small and medium mazes had a lot of empty space surrounding them. When I tried to reduce the matrix size (i.e. get rid of all the unnecessary 1's causing the unwanted space), it would throw an out of index error.
-- The reason for this error is because of the I set the pygame screen's width and height to be compatiable with the large maze. To fix this problem I added some conditinal statements to adjust the screen size based on the maze size.
+- The reason for this error is because of the I set the pygame screen's width and height to be compatible with the large maze. To fix this problem I added some conditional statements to adjust the screen size based on the maze size.
 
 <ins>Testing</ins>
 
 - I have added tests for the CLI, a new test file was needed for this called <code>test_cli.py</code>.
-- I was also able to understand how GUI testing works a new test file was also created for this called <code>test_find_path_gui.py</code>. However, there isnt much time now for this term to do more gui testing, I will either how to continue during christams break or second term with this.
+- I was also able to understand how GUI testing works a new test file was also created for this called <code>test_find_path_gui.py</code>. However, there isn't much time now for this term to do more gui testing, I will either how to continue during christmas break or second term with this.
 
 ### Week 10
 
@@ -34,7 +67,7 @@
 
 <ins>**Problems and Fixes**</ins>
 
-- The algos were crashing after it reaches the diamond, so it wasent automatically finding a path for the new generated diamond. This is because when refactoring my code to follow the flake8 style, i removed a line on accident. You can see more on this [commit](d09757cfdb4e5c57ff652103cdb8817c6e1d04c6).
+- The algos were crashing after it reaches the diamond, so it wasn't automatically finding a path for the new generated diamond. This is because when refactoring my code to follow the flake8 style, i removed a line on accident. You can see more on this [commit](d09757cfdb4e5c57ff652103cdb8817c6e1d04c6).
 
 <ins>**Testing**</ins>
 
@@ -44,9 +77,9 @@
 
 <ins>**Interim Report**</ins>
 
-- I have written the poject spec and overview.
+- I have written the project spec and overview.
 - I have written aims and objectives.
-- I have written background knowladge for dfs.
+- I have written background knowledge for dfs.
 
 <ins>**GitLab Pipeline**</ins>
 
@@ -119,30 +152,30 @@
 - I have written two test cases, one which checks if there is a diamond in the maze.
 - The other test checks if the BFS algo generates the expected path to the target.
 
-<ins>**Problems/ Potenial Issues**</ins>
+<ins>**Problems/ Potential Issues**</ins>
 
 - Right now the BFS algorithm **first** finds a path, once a path is found the character is able to move. I'm not sure if this going to cause problems or not, but for now this is how I have implemented it.
-- When <code>BFSComputer</code> is running, the game is lagging. I'm pretty sure this is an issue related with the thread that had been generated to do the path finding. Also, when <code>RandomComputer</code> is running there is no noticable lag.
+- When <code>BFSComputer</code> is running, the game is lagging. I'm pretty sure this is an issue related with the thread that had been generated to do the path finding. Also, when <code>RandomComputer</code> is running there is no noticeable lag.
 
 ### Week 4
 
 - Added logic so that diamonds are able to respawn when the player collides with them, on top of this I have also added a score counter which increments every time the player collides with a diamond.
 - The first algorithm for the agent has been implemented where it will randomly move around the map.
-- To implement the random path finding algorithm I have created a seperate thread whose purpose is to randomly calculate the movement of the player and then send it to the player object that is on the main thread.
-- I want to keep it so that the player can only move in 4 directions (up, down, left, right), this is because future algorithms I have planned will be easier to implement. I found that if I allow the player to jump then they can peform movements outside of the 4 directions I had intended. So my plan is to remove the jump functionality and replace it with a climb movement instead.
+- To implement the random path finding algorithm I have created a separate thread whose purpose is to randomly calculate the movement of the player and then send it to the player object that is on the main thread.
+- I want to keep it so that the player can only move in 4 directions (up, down, left, right), this is because future algorithms I have planned will be easier to implement. I found that if I allow the player to jump then they can perform movements outside of the 4 directions I had intended. So my plan is to remove the jump functionality and replace it with a climb movement instead.
 - I have put ladders into the game, where players can climb up and down the ladder. This meant that I also added some climbing sprite animations for the player.
-- I created a text class, where I can pass in some text and then in the main function I just call a function defined in the text class to ouput it to the screen. The text class
-- I have also begun to docuement the code, the code which has so far been documented is under world.py and text.py.
+- I created a text class, where I can pass in some text and then in the main function I just call a function defined in the text class to output it to the screen. The text class
+- I have also begun to document the code, the code which has so far been documented is under world.py and text.py.
 
 ### Week 3
 
-- Add collison detection with the chaaracter and the maze.
+- Add collision detection with the character and the maze.
 - Add diamond into the game, when the character collides with the diamond the game will pause.
 
 ### Week 2
 
 - I have created the maze for the game, adding different tile types.
-- Added charcter animations and movement, the animations I have added are: idle, walk and jump.
+- Added character animations and movement, the animations I have added are: idle, walk and jump.
 
 ### Week 1
 
