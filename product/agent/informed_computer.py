@@ -95,7 +95,6 @@ class UCSComputer(InformedComputer):
             character,
             walkable_maze,
             kwargs.get("perform_analysis", False),
-            kwargs.get("diamond_list", None)
         )
         self.heuristic = None
 
