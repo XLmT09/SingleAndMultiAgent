@@ -1,3 +1,17 @@
+### Week 13
+
+<ins>**Updates on Algorithms**</ins>
+
+- I have implemented the greedy search algorithm, this is the first algorithm compatible with a filled maze environment.
+- This algorithm only uses the Manhattan distance to find the next diamond to visit, so no `g_cost`is considered here.
+
+<ins>**Updates to Game**</ins>
+
+- I have added medium and large filled mazes to the game.
+- The cli will also deny any algorithms that do not work for a filled maze.
+- Although the diamonds were filled it didn't regenerate once they were all collected, so I made sure there was regeneration when this condition was met.
+
+
 ### Christmas Break
 
 <ins>**Updates on Algorithms**</ins>
