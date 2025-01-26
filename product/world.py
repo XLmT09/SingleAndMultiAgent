@@ -246,7 +246,7 @@ class World:
         given x and y coords."""
 
         self._world_matrix[grid_y][grid_x] = 0
-        self._walkable_maze_matrix[grid_y][grid_x] = 0
+        self._walkable_maze_matrix[grid_y][grid_x] = 1
 
         if len(self._diamond_group) == 0:
             self.fill_maze_with_diamonds()

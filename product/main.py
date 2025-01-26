@@ -191,7 +191,6 @@ def setup_game(config) -> dict:
         "cave_bg": pygame.image.load(
             "assets/images/background/cave.png"
         ).convert_alpha()
-
     }
 
 
@@ -234,8 +233,6 @@ def start_game_agent(
     # Measure run time of the application
     start = time.time()
 
-    world.get_walkable_locations()
-
     # Game loop logic
     while True:
         # We want to draw the background first, then
@@ -254,20 +251,6 @@ def start_game_agent(
         if key[pygame.K_c]:
             computer.stop_path_find_algo_thread()
 
-        # When the diamond is found we will call to regenerate
-        # at a new position.
-        if player.get_is_diamond_found():
-            if computer.perform_analysis:
-                end = time.time()
-                print(f"Time ran is: {abs(start - end)}")
-                start = end
-            if world.update_diamond_position(are_locations_defined=True) == 2:
-                game_over = 1
-                computer.stop_path_find_algo_thread()
-            player.set_is_diamond_found_to_false()
-            diamond_positions = world.get_diamond_group()
-            enable_highlight = True
-
         # Draw the maze on the screen
         world.load_world(screen)
 
@@ -280,6 +263,27 @@ def start_game_agent(
             diamond_positions,
             game_over
         )
+
+        # When the diamond is found we will call to regenerate
+        # at a new position.
+        if player.get_is_diamond_found():
+            if computer.perform_analysis:
+                end = time.time()
+                print(f"Time ran is: {abs(start - end)}")
+                start = end
+
+            if not player.in_filled_maze:
+                if world.update_diamond_position(
+                   are_locations_defined=True) == 2:
+                    game_over = 1
+                    computer.stop_path_find_algo_thread()
+            else:
+                world.clear_diamond(remove_diamond_pos[0],
+                                    remove_diamond_pos[1])
+
+            player.set_is_diamond_found_to_false()
+            diamond_positions = world.get_diamond_group()
+            enable_highlight = True
 
         if enable_highlighter:
             highlight_visited_and_final_path(
