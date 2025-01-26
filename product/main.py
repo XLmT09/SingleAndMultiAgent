@@ -235,8 +235,9 @@ def start_game_agent(
 
     # Wait until final path is found so we can highlight it, if the
     # highlighter flag was set.
-    while not computer._path_generated:
-        print("waiting")
+    if enable_highlighter:
+        while not computer._path_generated:
+            print("waiting")
 
     # Measure run time of the application
     start = time.time()

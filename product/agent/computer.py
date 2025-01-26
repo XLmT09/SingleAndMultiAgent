@@ -163,6 +163,11 @@ class Computer:
         """ Set the walkable maze matrix with a new one. """
         self._walkable_maze_matrix = walkable_maze
 
+    def update_diamond_list(self, new_diamond_list):
+        """ This function is used in a filled maze environment. We update the
+        diamond list so that, the found diamond is not in the list anymore."""
+        self.diamond_list = new_diamond_list
+
 
 def get_agent_types():
     from agent.informed_computer import (

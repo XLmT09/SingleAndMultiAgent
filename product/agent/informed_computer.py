@@ -195,6 +195,3 @@ class GreedyComputer(InformedComputer):
                 current_target = (diamond.grid_y, diamond.grid_x)
 
         return current_target
-
-    def update_diamond_list(self, new_diamond_list):
-        self.diamond_list = new_diamond_list
