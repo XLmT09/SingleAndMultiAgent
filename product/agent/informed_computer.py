@@ -1,5 +1,6 @@
 from agent.computer import Computer
 from queue import PriorityQueue
+from collections import deque
 
 
 class InformedComputer(Computer):
@@ -93,7 +94,8 @@ class UCSComputer(InformedComputer):
         super().__init__(
             character,
             walkable_maze,
-            kwargs.get("perform_analysis", False)
+            kwargs.get("perform_analysis", False),
+            kwargs.get("diamond_list", None)
         )
         self.heuristic = None
 
@@ -128,3 +130,34 @@ class AStarComputer(InformedComputer):
         return ((abs(neighbour[1] - self.diamond_grid_x) +
                 abs(neighbour[0] - self.diamond_grid_y)) *
                 self.MANHATTAN_WEIGHT)
+
+
+class GreedyComputer(InformedComputer):
+    def __init__(self, character, walkable_maze, **kwargs):
+        super().__init__(
+            character,
+            walkable_maze,
+            kwargs.get("perform_analysis", False),
+        )
+        self.heuristic = None
+        self.diamond_list = kwargs.get("diamond_list")
+
+    def get_manhattan_distance_of_all_diamonds(self) -> tuple:
+        """ This function returns the coordinates of the diamond with the
+        shortest manhattan distance in a filled maze."""
+
+        current_target = (-1, -1)
+        distance = shortest_distance = 1000000
+
+        for diamond in self.diamond_list:
+            distance = (abs(self.character.grid_x - diamond.grid_x) +
+                        abs(self.character.grid_y - diamond.grid_y))
+
+            if distance < shortest_distance:
+                shortest_distance = distance
+                current_target = (diamond.grid_y, diamond.grid_x)
+
+        return current_target
+
+    def update_diamond_list(self, new_diamond_list):
+        self.diamond_list = new_diamond_list
