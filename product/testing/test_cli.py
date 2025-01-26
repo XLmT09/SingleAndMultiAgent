@@ -237,3 +237,28 @@ class TestCli(unittest.TestCase):
 
             self.assertIn("--highlight is only applicable when using any "
                           "algorithm but random.", error_output)
+
+    def test_cli_fails_when_filled_maze_and_not_using_filled_algo(self):
+        """ Test the cli will fail when we are in a filled maze but using an
+        algorithm not compatible with filled mazes. """
+
+        incompatible_algos = ["bfs", "dfs", "ucs"]
+
+        for algo in incompatible_algos:
+            with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
+                with patch(
+                    'sys.argv',
+                    ['main', '--size', 'small-filled', '--algo', algo]
+                ):
+                    with self.assertRaises(SystemExit):
+                        process_args()
+
+                # Capture the error message printed to stderr
+                error_output = fake_stderr.getvalue()
+
+                # Check if the error message is the expected one
+                self.assertIn(
+                    "error: Filled maze only works when user controlled or "
+                    "when using greedy algorithm.",
+                    error_output
+                )
