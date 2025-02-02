@@ -15,7 +15,7 @@ SCREEN_HEIGHT = 800
 maze_map = None
 
 
-class TestAstarTools(unittest.TestCase):
+class TestGreedyTools(unittest.TestCase):
     """ Test tools (functions) in the A star computer class is
     working properly. """
 

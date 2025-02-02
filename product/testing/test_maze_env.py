@@ -1,5 +1,6 @@
 from characters import CharacterAnimationManager
 from world import World
+from agent.informed_computer import AStarComputer
 from constants import player_sprite_file_paths
 
 import pygame
@@ -312,6 +313,43 @@ class TestLargeFilledMazeEnvironment(TestMazeEnvironment, unittest.TestCase):
         self.world.fill_maze_with_diamonds()
         # No walkable grids now that the diamonds are in every grid
         self.assertEqual([], self.world.get_walkable_locations())
+
+
+class TestSmallFilledMazeEnvironmentAStar(TestMazeEnvironment, 
+                                          unittest.TestCase):
+    """ This class will test the min span tree function output for a small
+    filled maze. """
+
+    # Load up the large filled maze
+    with open('maze/maze_5', 'rb') as file:
+        maze_map = pickle.load(file)
+
+    def setUp(self):
+        super().setUp(player_pos_x=350, player_pos_y=300, in_filled_maze=True)
+        self.diamond = self.world.get_diamond_group().sprites()[0]
+        self.computer = AStarComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.diamond,
+            diamond_list=self.world.get_diamond_group()
+        )
+
+    def test_min_span_tree_on_small_maze(self):
+        self.assertEqual([
+            ((5, 6), (5, 5)), ((5, 5), (5, 4)), ((5, 4), (5, 3)),
+            ((5, 3), (5, 2)), ((5, 2), (5, 1)), ((5, 1), (5, 7)),
+            ((5, 7), (5, 8)), ((5, 8), (5, 10)), ((5, 10), (5, 11)),
+            ((5, 11), (5, 12)), ((5, 12), (5, 13)), ((5, 13), (5, 14)),
+            ((5, 14), (3, 14)), ((3, 14), (3, 13)), ((3, 13), (3, 12)),
+            ((3, 12), (3, 11)), ((3, 11), (3, 10)), ((3, 10), (3, 8)),
+            ((3, 8), (3, 7)), ((3, 7), (3, 6)), ((3, 6), (3, 5)),
+            ((3, 5), (3, 3)), ((3, 3), (3, 2)), ((3, 2), (3, 1)),
+            ((3, 1), (1, 1)), ((1, 1), (1, 2)), ((1, 2), (1, 3)),
+            ((1, 3), (1, 5)), ((1, 5), (1, 6)), ((1, 6), (1, 7)),
+            ((1, 7), (1, 8)), ((1, 8), (1, 9)), ((1, 9), (1, 10)),
+            ((1, 10), (1, 11)), ((1, 11), (1, 12)), ((1, 12), (1, 13)),
+            ((1, 13), (1, 14))], self.computer.generate_mst()
+        )
 
 
 if __name__ == '__main__':
