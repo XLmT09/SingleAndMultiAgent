@@ -142,5 +142,44 @@ class TestAstarTools(unittest.TestCase):
 
         self.assertEqual(distance, 20)
 
+    def test_get_manhattan_distance_filled_same_level(self):
+        """ Distance should be 1, as its on the same level it should do the
+        normal manhattan calculation.
+
+        distance = |10 - 10| + |5 - 4| = 1
+        """
+
+        distance = self.computer.get_manhattan_distance_filled(
+            [10, 5], [10, 4]
+        )
+
+        self.assertEqual(distance, 1)
+
+    def test_get_manhattan_distance_filled_small_difference_level(self):
+        """ Now that the positions are on different levels we need to include
+        the offset calculation.
+
+        distance = |8 - 10| + |5 - 4| + (|8 - 10| * 5) = 2 + 1 + 10 = 13
+        """
+
+        distance = self.computer.get_manhattan_distance_filled(
+            [8, 5], [10, 4]
+        )
+
+        self.assertEqual(distance, 13)
+
+    def test_get_manhattan_distance_filled_large_difference_level(self):
+        """ Now that the positions are on different levels we need to include
+        the offset calculation.
+
+        distance = |0 - 10| + |5 - 4| + (|0 - 10| * 5) = 10 + 1 + 50 = 61
+        """
+
+        distance = self.computer.get_manhattan_distance_filled(
+            [0, 5], [10, 4]
+        )
+
+        self.assertEqual(distance, 61)
+
     def tearDown(self):
         pygame.quit()
