@@ -111,6 +111,11 @@ def process_args() -> dict:
             "greedy algorithm."
         )
 
+    # If we are in a filled maze and using astar then update astar to work in
+    # a filled maze context.
+    if filled and args.algo == "astar":
+        args.algo = "astarFilled"
+
     return {
         "maze_path": maze,
         "screen_width": screen_width,
@@ -180,7 +185,7 @@ def setup_game(config) -> dict:
         computer = get_agent_types()[config["algo"]](
             player,
             world.get_walkable_maze_matrix(),
-            perform_analysis=True,
+            perform_analysis=False,
             diamond=world.get_diamond_group().sprites()[0],
             diamond_list=world.get_diamond_group(),
             is_weighted=config["weighted"]
