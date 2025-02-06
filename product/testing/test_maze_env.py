@@ -1,6 +1,6 @@
 from characters import CharacterAnimationManager
 from world import World
-from agent.informed_computer import AStarComputer
+from agent.informed_computer import AStarFilledComputer
 from constants import player_sprite_file_paths
 
 import pygame
@@ -327,7 +327,7 @@ class TestSmallFilledMazeEnvironmentAStar(TestMazeEnvironment,
     def setUp(self):
         super().setUp(player_pos_x=350, player_pos_y=300, in_filled_maze=True)
         self.diamond = self.world.get_diamond_group().sprites()[0]
-        self.computer = AStarComputer(
+        self.computer = AStarFilledComputer(
             self.player,
             self.world.get_walkable_maze_matrix(),
             diamond=self.diamond,
@@ -364,7 +364,7 @@ class TestMidFilledMazeEnvironmentAStar(TestMazeEnvironment,
     def setUp(self):
         super().setUp(player_pos_x=350, player_pos_y=300, in_filled_maze=True)
         self.diamond = self.world.get_diamond_group().sprites()[0]
-        self.computer = AStarComputer(
+        self.computer = AStarFilledComputer(
             self.player,
             self.world.get_walkable_maze_matrix(),
             diamond=self.diamond,
@@ -425,7 +425,7 @@ class TestLargeFilledMazeEnvironmentAStar(TestMazeEnvironment,
     def setUp(self):
         super().setUp(player_pos_x=350, player_pos_y=300, in_filled_maze=True)
         self.diamond = self.world.get_diamond_group().sprites()[0]
-        self.computer = AStarComputer(
+        self.computer = AStarFilledComputer(
             self.player,
             self.world.get_walkable_maze_matrix(),
             diamond=self.diamond,

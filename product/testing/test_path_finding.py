@@ -80,8 +80,11 @@ class TestComputerSmallMaze(TestComputer, unittest.TestCase):
         computer.stop_thread = True
 
     def test_ucs_can_find_path_in_small_maze(self):
-        computer = UCSComputer(self.player,
-                               self.world.get_walkable_maze_matrix())
+        computer = UCSComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.world.get_diamond_group().sprites()[0]
+        )
         computer.stop_thread = True
         path = computer.generate_path()
         self.assertEqual(path,
@@ -135,8 +138,11 @@ class TestComputerMidMaze(TestComputer, unittest.TestCase):
         computer.stop_thread = True
 
     def test_ucs_can_find_path_in_mid_maze(self):
-        computer = UCSComputer(self.player,
-                               self.world.get_walkable_maze_matrix())
+        computer = UCSComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.world.get_diamond_group().sprites()[0]
+        )
         computer.stop_thread = True
         path = computer.generate_path()
         self.assertEqual(path,
@@ -197,8 +203,11 @@ class TestComputerLargeMaze(TestComputer, unittest.TestCase):
         computer.stop_thread = True
 
     def test_ucs_can_find_path_in_large_maze(self):
-        computer = UCSComputer(self.player,
-                               self.world.get_walkable_maze_matrix())
+        computer = UCSComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.world.get_diamond_group().sprites()[0]
+        )
         computer.stop_thread = True
         path = computer.generate_path()
         self.assertEqual(path,
@@ -245,8 +254,11 @@ class TestExtraUCSPathFinding(TestComputer, unittest.TestCase):
         shorter but with slow tiles and the other path is longer but with
         normal tiles. The UCS algo is expected to take the later path.
         """
-        computer = UCSComputer(self.player,
-                               self.world.get_walkable_maze_matrix())
+        computer = UCSComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.world.get_diamond_group().sprites()[0]
+        )
         computer.stop_thread = True
         path = computer.generate_path()
         self.assertEqual(
@@ -284,8 +296,11 @@ class TestComputerStartIsGoalState(TestComputer, unittest.TestCase):
         computer.stop_thread = True
 
     def test_ucs_algo_when_start_is_goal(self):
-        computer = UCSComputer(self.player,
-                               self.world.get_walkable_maze_matrix())
+        computer = UCSComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.world.get_diamond_group().sprites()[0]
+        )
         path = computer.generate_path()
         computer.stop_thread = True
         self.assertEqual(path, [(7, 18)])
@@ -383,8 +398,11 @@ class TestVisitedGrids(TestComputer, unittest.TestCase):
         """ This function will test the list of visited grids generated matches
         the data set we expect for ucs in a large maze.
         """
-        computer = UCSComputer(self.player,
-                               self.world.get_walkable_maze_matrix())
+        computer = UCSComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.world.get_diamond_group().sprites()[0]
+        )
         computer.start_thread()
         visited_grids_generated = (
             computer.get_visited_grids_and_path_to_goal()[0]
