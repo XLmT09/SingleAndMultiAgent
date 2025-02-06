@@ -86,6 +86,15 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_7")
         self.assertEqual(result["algo"], "greedy")
 
+    @patch('sys.argv', ['main', '--size', 'large-filled', '--algo', 'astar'])
+    def test_large_size_and_a_star_filled_algo(self):
+        """ Test a star filled algo is registered. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 1400)
+        self.assertEqual(result["screen_height"], 750)
+        self.assertEqual(result["maze_path"], "maze/maze_7")
+        self.assertEqual(result["algo"], "astarFilled")
+
     @patch('sys.argv',
            ['main', '--size', 'large', '--algo', 'astar', '--weighted'])
     def test_weighted_a_star(self):
