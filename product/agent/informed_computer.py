@@ -12,6 +12,20 @@ class InformedComputer(Computer):
     def __init__(self, character, walkable_maze, perform_analysis):
         super().__init__(character, walkable_maze, perform_analysis)
 
+    def move(self, screen, world_data, asset_groups, game_over):
+        """ Move the character based on the requested movement. """
+
+        # This logic can be improved:
+        # I need to optimize this by updating the diamond coords outside
+        # the move function.
+        if hasattr(self, "diamond_list"):
+            self.diamond_list = asset_groups
+        else:
+            self.diamond_grid_x = asset_groups.sprites()[0].grid_x
+            self.diamond_grid_y = asset_groups.sprites()[0].grid_y
+
+        return super().move(screen, world_data, asset_groups, game_over)
+
     def generate_path(self) -> list:
         """ This function uses ucs search to find the path to the diamond. """
 
@@ -36,7 +50,7 @@ class InformedComputer(Computer):
             visited.append(current)
 
             # When we found the diamond we can stop the algorithm
-            if self._walkable_maze_matrix[current[0]][current[1]] == 2:
+            if current == (self.diamond_grid_y, self.diamond_grid_x):
                 self._visited_grids = visited
                 if self.perform_analysis:
                     print(f"The number of visited nodes is: {len(came_from)}")
@@ -48,6 +62,11 @@ class InformedComputer(Computer):
             # has been recorded then see if it can grant as a lower path cost.
             for neighbour in self.get_neighbour(current, cost):
                 new_cost, neighbour_pos = neighbour
+
+                if (neighbour_pos in came_from and
+                   came_from[current] == neighbour_pos):
+                    continue
+
                 if ((neighbour_pos not in costs) or
                         (new_cost < costs[neighbour_pos])):
                     costs[neighbour_pos] = new_cost
@@ -76,7 +95,7 @@ class InformedComputer(Computer):
             # Check if the neighbour is a empty space or a ladder
             if (neighbour_grid_value == 1 or neighbour_grid_value == 3):
                 new_cost = cost + 1
-            # Check of the neighbour is a slow tile
+            # Check if the neighbour is a slow tile
             elif (neighbour_grid_value == 4):
                 new_cost = cost + 3
 
@@ -89,37 +108,6 @@ class InformedComputer(Computer):
 
         # sort neighbour from low to high using the cost value
         return sorted(neighbours, key=lambda x: x[0])
-
-
-class UCSComputer(InformedComputer):
-    def __init__(self, character, walkable_maze, **kwargs):
-        super().__init__(
-            character,
-            walkable_maze,
-            kwargs.get("perform_analysis", False),
-        )
-        self.heuristic = None
-
-
-class AStarComputer(InformedComputer):
-    def __init__(self, character, walkable_maze, **kwargs):
-        super().__init__(
-            character,
-            walkable_maze,
-            kwargs.get("perform_analysis", False)
-        )
-
-        diamond = kwargs.get("diamond")
-        self.diamond_list = kwargs.get("diamond_list")
-        self.diamond_grid_x = diamond.grid_x
-        self.diamond_grid_y = diamond.grid_y
-        self.MANHATTAN_WEIGHT = 2
-        self.mst_edges = []
-
-        if kwargs.get("is_weighted", False):
-            self.heuristic = "weighted_manhattan"
-        else:
-            self.heuristic = "manhattan"
 
     def get_manhattan_distance(self, neighbour) -> int:
         """ This function gets the manhattan distance between player
@@ -150,6 +138,38 @@ class AStarComputer(InformedComputer):
             offset += vertical_diff * 5
 
         return vertical_diff + horizontal_diff + offset
+
+
+class UCSComputer(InformedComputer):
+    def __init__(self, character, walkable_maze, **kwargs):
+        super().__init__(
+            character,
+            walkable_maze,
+            kwargs.get("perform_analysis", False),
+        )
+        self.heuristic = None
+        diamond = kwargs.get("diamond")
+        self.diamond_grid_x = diamond.grid_x
+        self.diamond_grid_y = diamond.grid_y
+
+
+class AStarFilledComputer(InformedComputer):
+    def __init__(self, character, walkable_maze, **kwargs):
+        super().__init__(
+            character,
+            walkable_maze,
+            kwargs.get("perform_analysis", False)
+        )
+
+        self.MANHATTAN_WEIGHT = 2
+        self.mst_edges = []
+
+        self.diamond_list = kwargs.get("diamond_list")
+
+        if kwargs.get("is_weighted", False):
+            self.heuristic = "weighted_manhattan"
+        else:
+            self.heuristic = "manhattan"
 
     def generate_mst(self) -> list:
         """ This generates all the edges of the minimum spanning tree.
@@ -228,6 +248,41 @@ class AStarComputer(InformedComputer):
                 )
 
         return self.mst_edges
+
+    def generate_path(self) -> list:
+        """ This function uses ucs search to find the path to the diamond. """
+
+        if not self.mst_edges:
+            self.mst_edges = self.generate_mst()
+
+        goal = (0, 0)
+
+        while self._walkable_maze_matrix[goal[0]][goal[1]] != 2:
+            goal = self.mst_edges.pop(0)[1]
+            self.diamond_grid_y, self.diamond_grid_x = goal
+
+        return super().generate_path()
+
+
+class AStarComputer(InformedComputer):
+    def __init__(self, character, walkable_maze, **kwargs):
+        super().__init__(
+            character,
+            walkable_maze,
+            kwargs.get("perform_analysis", False)
+        )
+
+        self.MANHATTAN_WEIGHT = 2
+        self.mst_edges = []
+
+        diamond = kwargs.get("diamond")
+        self.diamond_grid_x = diamond.grid_x
+        self.diamond_grid_y = diamond.grid_y
+
+        if kwargs.get("is_weighted", False):
+            self.heuristic = "weighted_manhattan"
+        else:
+            self.heuristic = "manhattan"
 
 
 class GreedyComputer(InformedComputer):

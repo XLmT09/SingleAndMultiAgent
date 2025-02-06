@@ -55,7 +55,6 @@ class Computer:
         self.stop_thread = True
 
     def move(self, screen, world_data, asset_groups, game_over):
-        self.diamond_list = asset_groups
         """ Move the character based on the requested movement. """
         return self.character.draw_animation(screen, world_data, asset_groups,
                                              game_over,
@@ -173,6 +172,7 @@ def get_agent_types():
     from agent.informed_computer import (
         UCSComputer,
         AStarComputer,
+        AStarFilledComputer,
         GreedyComputer
     )
     from agent.uninformed_computer import (
@@ -185,5 +185,6 @@ def get_agent_types():
         "dfs": DFSComputer,
         "ucs": UCSComputer,
         "astar": AStarComputer,
+        "astarFilled": AStarFilledComputer,
         "greedy": GreedyComputer
     }
