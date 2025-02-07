@@ -1,3 +1,16 @@
+###  Week 15
+<ins>**Updates on Algorithm**</ins>
+
+- Implemented A star-filled algorithm; it uses the min spanning tree as a heuristic to calculate the path to collect all the diamonds.
+
+<ins>**Refactoring**</ins>
+- There are now two classes for A star: 
+    - `AstarComputer`
+    - `AstarFilledComputer`
+
+<ins>**Updates on Game**</ins>
+- Based on user input, I added CLI logic to determine whether to use `AStar` or the `AstarFilled` algorithm.
+
 ### Week 14
 
 <ins>**No development had an idea..... It didn't work.....**</ins>
