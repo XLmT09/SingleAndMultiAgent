@@ -3,7 +3,7 @@ import pygame
 import pickle
 import time
 
-from agent.informed_computer import GreedyComputer
+from agent.informed_computer import GreedyComputer, AStarFilledComputer
 from characters import CharacterAnimationManager
 from world import World
 from constants import player_sprite_file_paths, game_values
@@ -146,6 +146,17 @@ class TestGreedyGUIComputer(TestFilledGUIComputer, unittest.TestCase):
     def setUp(self):
         super().setUp(pos_x=350, pos_y=300)
         self.computer = GreedyComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond_list=self.world.get_diamond_group()
+        )
+
+
+class TestAStarFilledGUIComputer(TestFilledGUIComputer, unittest.TestCase):
+    """ This tests the A* search algo in a filled maze environment. """
+    def setUp(self):
+        super().setUp(pos_x=350, pos_y=300)
+        self.computer = AStarFilledComputer(
             self.player,
             self.world.get_walkable_maze_matrix(),
             diamond_list=self.world.get_diamond_group()

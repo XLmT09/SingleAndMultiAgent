@@ -1,3 +1,5 @@
+import heapq
+
 from agent.computer import Computer
 from queue import PriorityQueue
 from collections import deque
@@ -9,6 +11,20 @@ class InformedComputer(Computer):
 
     def __init__(self, character, walkable_maze, perform_analysis):
         super().__init__(character, walkable_maze, perform_analysis)
+
+    def move(self, screen, world_data, asset_groups, game_over):
+        """ Move the character based on the requested movement. """
+
+        # This logic can be improved:
+        # I need to optimize this by updating the diamond coords outside
+        # the move function.
+        if hasattr(self, "diamond_list"):
+            self.diamond_list = asset_groups
+        else:
+            self.diamond_grid_x = asset_groups.sprites()[0].grid_x
+            self.diamond_grid_y = asset_groups.sprites()[0].grid_y
+
+        return super().move(screen, world_data, asset_groups, game_over)
 
     def generate_path(self) -> list:
         """ This function uses ucs search to find the path to the diamond. """
@@ -34,7 +50,7 @@ class InformedComputer(Computer):
             visited.append(current)
 
             # When we found the diamond we can stop the algorithm
-            if self._walkable_maze_matrix[current[0]][current[1]] == 2:
+            if current == (self.diamond_grid_y, self.diamond_grid_x):
                 self._visited_grids = visited
                 if self.perform_analysis:
                     print(f"The number of visited nodes is: {len(came_from)}")
@@ -46,6 +62,11 @@ class InformedComputer(Computer):
             # has been recorded then see if it can grant as a lower path cost.
             for neighbour in self.get_neighbour(current, cost):
                 new_cost, neighbour_pos = neighbour
+
+                if (neighbour_pos in came_from and
+                   came_from[current] == neighbour_pos):
+                    continue
+
                 if ((neighbour_pos not in costs) or
                         (new_cost < costs[neighbour_pos])):
                     costs[neighbour_pos] = new_cost
@@ -74,7 +95,7 @@ class InformedComputer(Computer):
             # Check if the neighbour is a empty space or a ladder
             if (neighbour_grid_value == 1 or neighbour_grid_value == 3):
                 new_cost = cost + 1
-            # Check of the neighbour is a slow tile
+            # Check if the neighbour is a slow tile
             elif (neighbour_grid_value == 4):
                 new_cost = cost + 3
 
@@ -88,35 +109,6 @@ class InformedComputer(Computer):
         # sort neighbour from low to high using the cost value
         return sorted(neighbours, key=lambda x: x[0])
 
-
-class UCSComputer(InformedComputer):
-    def __init__(self, character, walkable_maze, **kwargs):
-        super().__init__(
-            character,
-            walkable_maze,
-            kwargs.get("perform_analysis", False),
-        )
-        self.heuristic = None
-
-
-class AStarComputer(InformedComputer):
-    def __init__(self, character, walkable_maze, **kwargs):
-        super().__init__(
-            character,
-            walkable_maze,
-            kwargs.get("perform_analysis", False)
-        )
-
-        diamond = kwargs.get("diamond")
-        self.diamond_grid_x = diamond.grid_x
-        self.diamond_grid_y = diamond.grid_y
-        self.MANHATTAN_WEIGHT = 2
-
-        if kwargs.get("is_weighted", False):
-            self.heuristic = "weighted_manhattan"
-        else:
-            self.heuristic = "manhattan"
-
     def get_manhattan_distance(self, neighbour) -> int:
         """ This function gets the manhattan distance between player
         current pos and goal. """
@@ -129,6 +121,168 @@ class AStarComputer(InformedComputer):
         return ((abs(neighbour[1] - self.diamond_grid_x) +
                 abs(neighbour[0] - self.diamond_grid_y)) *
                 self.MANHATTAN_WEIGHT)
+
+    def get_manhattan_distance_filled(self, pos1, pos2) -> int:
+        """ This function generates the manhattan distance between two coords
+        we pass it. """
+        horizontal_diff = abs(pos1[1] - pos2[1])
+        vertical_diff = abs(pos1[0] - pos2[0])
+
+        offset = 0
+
+        # update offset value to the heuristic if there is a height difference,
+        # to account for the ladder climbing time.
+        # In other words, give more priority to positions which are on the
+        # same or neighboring levels.
+        if vertical_diff:
+            offset += vertical_diff * 5
+
+        return vertical_diff + horizontal_diff + offset
+
+
+class UCSComputer(InformedComputer):
+    def __init__(self, character, walkable_maze, **kwargs):
+        super().__init__(
+            character,
+            walkable_maze,
+            kwargs.get("perform_analysis", False),
+        )
+        self.heuristic = None
+        diamond = kwargs.get("diamond")
+        self.diamond_grid_x = diamond.grid_x
+        self.diamond_grid_y = diamond.grid_y
+
+
+class AStarFilledComputer(InformedComputer):
+    def __init__(self, character, walkable_maze, **kwargs):
+        super().__init__(
+            character,
+            walkable_maze,
+            kwargs.get("perform_analysis", False)
+        )
+
+        self.MANHATTAN_WEIGHT = 2
+        self.mst_edges = []
+
+        self.diamond_list = kwargs.get("diamond_list")
+
+        if kwargs.get("is_weighted", False):
+            self.heuristic = "weighted_manhattan"
+        else:
+            self.heuristic = "manhattan"
+
+    def generate_mst(self) -> list:
+        """ This generates all the edges of the minimum spanning tree.
+        The MST will act as heuristic for some path finding algorithms."""
+
+        start = self.character.get_player_grid_coordinates()
+        visited = set()
+
+        # key points are all the diamond position
+        key_points = [
+            (diamond.grid_y, diamond.grid_x) for diamond in self.diamond_list
+        ]
+
+        # The heap data struct that will store the POSSIBLE costs between
+        # key points.
+        min_heap = []
+
+        # This will contain all the edges for the final MST, so there will be
+        # no cycles.
+        self.mst_edges = []
+
+        min_cost = float('inf')
+        first_diamond = None
+
+        # This dict will store the lowest cost we can find between two points.
+        # It doesn't guarantee we find its partner (point) with the lowest cost
+        # for various reasons. For example, the globally lowest partner point
+        # has already been visited.
+        edge_map = {}
+
+        # Before staring the algorithm we will first find the diamond with the
+        # lowest cost from the players start position.
+        for diamond_pos in key_points:
+            cost = self.get_manhattan_distance_filled(start, diamond_pos)
+
+            if cost < min_cost:
+                edge_map[start] = (cost, diamond_pos)
+                min_cost = cost
+                first_diamond = diamond_pos
+
+        # push the diamond with the lowest cost from the start to the heap
+        heapq.heappush(min_heap, (min_cost, start, first_diamond))
+
+        # Now we start running the MST algo
+        while min_heap:
+            cost, coord_1, coord_2 = heapq.heappop(min_heap)
+
+            if coord_2 in visited:
+                continue
+
+            # We found the shortest coord from coord_1, now we need to go find
+            # the next shortest cost coord from coord_2.
+            self.mst_edges.append((coord_1, coord_2))
+            visited.add(coord_2)
+
+            new_point, min_cost = None, float('inf')
+
+            # This loop is similar to what we done earlier, but this time find
+            # the diamond with the lowest cost from coord_2.
+            for point in key_points:
+                new_cost = self.get_manhattan_distance_filled(coord_2, point)
+                if point not in visited and new_cost < min_cost:
+                    new_point = point
+                    min_cost = new_cost
+                    edge_map[new_point] = (new_cost, coord_2)
+
+            # once we find the next coord pair, push it to the heap
+            if new_point:
+                heapq.heappush(
+                    min_heap,
+                    (
+                        edge_map[new_point][0],
+                        coord_2,
+                        new_point
+                    )
+                )
+
+        return self.mst_edges
+
+    def generate_path(self) -> list:
+        """ This function uses ucs search to find the path to the diamond. """
+
+        if not self.mst_edges:
+            self.mst_edges = self.generate_mst()
+
+        goal = (0, 0)
+
+        while self._walkable_maze_matrix[goal[0]][goal[1]] != 2:
+            goal = self.mst_edges.pop(0)[1]
+            self.diamond_grid_y, self.diamond_grid_x = goal
+
+        return super().generate_path()
+
+
+class AStarComputer(InformedComputer):
+    def __init__(self, character, walkable_maze, **kwargs):
+        super().__init__(
+            character,
+            walkable_maze,
+            kwargs.get("perform_analysis", False)
+        )
+
+        self.MANHATTAN_WEIGHT = 2
+        self.mst_edges = []
+
+        diamond = kwargs.get("diamond")
+        self.diamond_grid_x = diamond.grid_x
+        self.diamond_grid_y = diamond.grid_y
+
+        if kwargs.get("is_weighted", False):
+            self.heuristic = "weighted_manhattan"
+        else:
+            self.heuristic = "manhattan"
 
 
 class GreedyComputer(InformedComputer):

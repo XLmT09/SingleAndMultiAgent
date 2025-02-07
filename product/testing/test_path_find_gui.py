@@ -152,7 +152,8 @@ class TestUCSGUIComputer(TestGUIComputer, unittest.TestCase):
         super().setUp(pos_x=350, pos_y=300)
         self.computer = UCSComputer(
             self.player,
-            self.world.get_walkable_maze_matrix()
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.world.get_diamond_group().sprites()[0]
         )
 
 

@@ -1,3 +1,35 @@
+###  Week 15
+<ins>**Updates on Algorithm**</ins>
+
+- Implemented A star-filled algorithm; it uses the min spanning tree as a heuristic to calculate the path to collect all the diamonds.
+
+<ins>**Refactoring**</ins>
+- There are now two classes for A star: 
+    - `AstarComputer`
+    - `AstarFilledComputer`
+
+<ins>**Updates on Game**</ins>
+- Based on user input, I added CLI logic to determine whether to use `AStar` or the `AstarFilled` algorithm.
+
+### Week 14
+
+<ins>**No development had an idea..... It didn't work.....**</ins>
+
+I thought about how to model the A star-filled maze algorithm. More specifically, I was thinking about how to model the heuristic function.
+
+The formula is:
+
+`F_cost = G_cost + H_cost`
+
+The `G_cost` is straightforward; it's just the cost from the player to the diamond.
+The `H_cost` (the heuristic function) is more interesting here. This heuristic will help determine the agent's path to visit all the diamonds.
+
+At first, I thought the traveling sales problem (TSP) approach would work; after all, it does find the globally optimal solution. However, the deeper I got, the more impractical I found this solution to be. This is because TSP is an NP-HARD problem, so it won't find the globally optimal path in a reasonable time. Therefore, I scraped this idea and had to think of something else.
+
+If you look at the project plan, I had another idea: to use the MST (Minimum Spanning Tree) as the heuristic. So, I knew using TSP would most likely not work, but I still wanted to try it.
+
+The MST doesn't give the globally optimal path, but it's accurate enough and outputs almost instantly. So I went ahead with this idea.
+
 ### Week 13
 
 <ins>**Updates on Algorithms**</ins>
