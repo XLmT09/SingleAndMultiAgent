@@ -3,7 +3,7 @@ import pickle
 import argparse
 import time
 
-from characters import CharacterAnimationManager
+from characters import CharacterAnimationManager, EnemyAnimationManager
 from world import World
 from agent.computer import get_agent_types
 from constants import player_sprite_file_paths, game_values
@@ -167,7 +167,7 @@ def create_characters(config, maze_array) -> list:
 
     # Now create the enemies
     for _ in range(3):
-        enemy = CharacterAnimationManager(
+        enemy = EnemyAnimationManager(
             game_values["character_width"],
             game_values["character_height"],
             maze_array,

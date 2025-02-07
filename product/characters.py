@@ -471,3 +471,108 @@ class CharacterAnimationManager:
 
     def get_player_grid_coordinates(self) -> int:
         return (self.grid_y, self.grid_x)
+
+
+class EnemyAnimationManager(CharacterAnimationManager):
+    def init(self, width, height, maze_data,
+             is_controlled_by_computer, x=0, y=0, **kwargs):
+        super().__init__(
+            width, height, maze_data, is_controlled_by_computer,
+            x, y, **kwargs
+        )
+
+    def draw_animation(self, screen, world_tile_data, world_assets,
+                       game_over, direction=None) -> int:
+            """ This function handles the logic of drawing the player onto the
+            screen. It also updates the movement speed and detects collisions.
+
+            Args:
+                screen (Surface): The surface we blit the player onto.
+                world_tile_data (list of Rect): List of rects the player can
+                    collide into on the current maze.
+                world_assets (Group): Get list of assets in the maze, currently
+                    the only assets are diamonds.
+                game_over (int): flag to check if we should halt player movement.
+                direction (str): If the computer is taking control then we need
+                    this arg to check the direction the computer wants the player
+                    to go.
+
+            Returns:
+                game_over (int): If set then it will inform main.py to stop
+                    running.
+            """
+
+            # By default we will set player animation to idle
+            self._requested_animation = "idle"
+            update_frame = False
+            current_time = pygame.time.get_ticks()
+            self._dx = 0
+            self._dy = 0
+
+            # Update the animation if the current one is past cool down limit.
+            # Animation cool down is used to make sure transition between the
+            # different sprite images are smooth.
+            if current_time - self._last_update >= C.ANIMATION_COOLDOWN:
+                self._last_update = current_time
+                update_frame = True
+
+            # Stick with jump animation while still in air
+            if self._vel_y != 0:
+                self._requested_animation = "jump"
+
+
+            self.computer_player_movement(direction)
+
+            # Handle velocity movement while in air
+            self._vel_y += 1
+            if self._vel_y > 10:
+                self._vel_y = 10
+            if self._requested_animation != "climb":
+                self._dy += self._vel_y
+
+            # Check for maze collisions by looping through the collidable tiles in
+            # the current maze.
+            for tile in world_tile_data:
+                # Check for collision in x direction
+                if tile[1].colliderect(self.hitbox_rect.x + self._dx,
+                                    self.hitbox_rect.y, self.hitbox_width,
+                                    self.hitbox_height):
+                    self._dx = 0
+                # Check for y direction collisions
+                if tile[1].colliderect(self.hitbox_rect.x,
+                                    self.hitbox_rect.y + self._dy,
+                                    self.hitbox_width, self.hitbox_height):
+                    # Check if below the ground
+                    if self._vel_y < 0 or self._requested_animation == "climb":
+                        self._dy = tile[1].bottom - self.hitbox_rect.top
+                        self._vel_y = 0
+                    # Check if above the ground
+                    elif self._vel_y >= 0:
+                        self._dy = tile[1].top - self.hitbox_rect.bottom
+                        self._vel_y = 0
+
+            # Update the character x and y positions using the delta values
+            self._pos_x += self._dx
+            self._pos_y += self._dy
+
+            # Update the center values, therefore we can use decimal movement.
+            # Directly updating the center values, does not
+            # support decimal movement.
+            self.rect.center = (self._pos_x, self._pos_y)
+            self.hitbox_rect.center = (self._pos_x - 1, self._pos_y + 4)
+
+            # When an the player is facing left we still want to the right position
+            # of the rect so we add the width. This is because the left side if
+            # the rect will be outside the grid when moving left.
+            if self.look_left:
+                self.grid_x = (self.hitbox_rect.x + self.width) // C.TILE_SIZE
+            else:
+                self.grid_x = self.hitbox_rect.x // C.TILE_SIZE
+            self.grid_y = (self.hitbox_rect.y) // C.TILE_SIZE
+
+            # Now draw the animation using the Player class draw_animation
+            # function, as thats where the frames of the different animations
+            # are stored.
+            self._animation_actions[self._requested_animation].draw_animation(
+                screen, self.rect, update_frame, self.look_left
+            )
