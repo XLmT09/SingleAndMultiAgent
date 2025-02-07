@@ -127,21 +127,9 @@ def process_args() -> dict:
     }
 
 
-def setup_game(config) -> dict:
-    """ Initialize key variables needed for this application. """
-
-    # This variable represents the agent
-    computer = None
-
-    # This is the screen the game will be displayed
-    screen = pygame.display.set_mode(
-        (config["screen_width"], config["screen_height"])
-    )
-
-    # Get the maze array under the maze directory
-    maze_array = None
-    with open(config["maze_path"], 'rb') as file:
-        maze_array = pickle.load(file)
+def create_characters(config, maze_array) -> list:
+    """ Initialise all the characters that will be used in the game """
+    character_list = []
 
     # Initialize the player we or the agent will control
     player = CharacterAnimationManager(
@@ -175,33 +163,62 @@ def setup_game(config) -> dict:
         animation_steps=4
     )
 
-    enemy = CharacterAnimationManager(
-        game_values["character_width"],
-        game_values["character_height"],
-        maze_array,
-        is_controlled_by_computer=True,
-        x=450, y=300,
-        in_filled_maze=config["filled"]
+    character_list.append(player)
+
+    # Now create the enemies
+    for _ in range(3):
+        enemy = CharacterAnimationManager(
+            game_values["character_width"],
+            game_values["character_height"],
+            maze_array,
+            is_controlled_by_computer=True,
+            x=450, y=300,
+            in_filled_maze=config["filled"]
+        )
+
+        enemy.set_char_animation(
+            "idle",
+            "assets/images/characters/Pink_Monster/Pink_Monster_Idle_4.png",
+            animation_steps=4
+        )
+        enemy.set_char_animation(
+            "walk",
+            "assets/images/characters/Pink_Monster/Pink_Monster_Walk_6.png",
+            animation_steps=6
+        )
+        enemy.set_char_animation(
+            "climb",
+            "assets/images/characters/Pink_Monster/Pink_Monster_Climb_4.png",
+            animation_steps=4
+        )
+
+        character_list.append(enemy)
+
+    return character_list
+
+
+def setup_game(config) -> dict:
+    """ Initialize key variables needed for this application. """
+
+    # This variable represents the agent
+    computer = None
+
+    # This is the screen the game will be displayed
+    screen = pygame.display.set_mode(
+        (config["screen_width"], config["screen_height"])
     )
 
-    enemy.set_char_animation(
-        "idle",
-        "assets/images/characters/Pink_Monster/Pink_Monster_Idle_4.png",
-        animation_steps=4
-    )
-    enemy.set_char_animation(
-        "walk",
-        "assets/images/characters/Pink_Monster/Pink_Monster_Walk_6.png",
-        animation_steps=6
-    )
-    enemy.set_char_animation(
-        "climb",
-        "assets/images/characters/Pink_Monster/Pink_Monster_Climb_4.png",
-        animation_steps=4
-    )
+    # Get the maze array under the maze directory
+    maze_array = None
+    with open(config["maze_path"], 'rb') as file:
+        maze_array = pickle.load(file)
 
     # Generate the maze
     world = World(maze_array)
+
+    character_list = create_characters(config, maze_array)
+
+    player = character_list[0]
 
     # If algo was specified, initialize a specific computer class and pass
     # arguments to constructor. Else, dont initialize and the user will
@@ -216,10 +233,14 @@ def setup_game(config) -> dict:
             is_weighted=config["weighted"]
         )
 
-    enemy_computer = get_agent_types()["random"](
-        enemy,
-        world.get_walkable_maze_matrix(),
-    )
+    enemy_computers = []
+
+    for enemy in character_list[1:]:
+        enemy_computer = get_agent_types()["random"](
+            enemy,
+            world.get_walkable_maze_matrix(),
+        )
+        enemy_computers.append(enemy_computer)
 
     return {
         "screen": screen,
@@ -234,7 +255,7 @@ def setup_game(config) -> dict:
         "cave_bg": pygame.image.load(
             "assets/images/background/cave.png"
         ).convert_alpha(),
-        "enemy_computer": enemy_computer
+        "enemy_computers": enemy_computers
     }
 
 
@@ -260,7 +281,7 @@ def highlight_visited_and_final_path(enable_highlight, world, screen,
 def start_game_agent(
         screen_width, screen_height, enable_highlighter,
         screen, player, world, computer, game_over, score_text,
-        cave_bg, enemy_computer) -> None:
+        cave_bg, enemy_computers) -> None:
     """ This is the main game function when the computer controls the player,
     the game loop resides in here. """
 
@@ -288,6 +309,10 @@ def start_game_agent(
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 computer.stop_path_find_algo_thread()
+
+                for enemy_computer in game_data["enemy_computers"]:
+                    enemy_computer.stop_path_find_algo_thread()
+
                 pygame.quit()
                 quit()
 
@@ -301,12 +326,13 @@ def start_game_agent(
 
         world.draw_grid(screen, screen_height, screen_width)
 
-        game_over, remove_diamond_pos = enemy_computer.move(
-            screen,
-            tile_data,
-            diamond_positions,
-            game_over
-        )
+        for enemy_computer in enemy_computers:
+            enemy_computer.move(
+                screen,
+                tile_data,
+                diamond_positions,
+                game_over
+            )
 
         # Move and draw the agent
         game_over, remove_diamond_pos = computer.move(
@@ -422,7 +448,9 @@ if __name__ == "__main__":
     if config["algo"]:
         # Start the agent thread
         game_data["computer"].start_thread()
-        game_data["enemy_computer"].start_thread()
+
+        for enemy_computer in game_data["enemy_computers"]:
+            enemy_computer.start_thread()
 
         start_game_agent(
             config["screen_width"],
