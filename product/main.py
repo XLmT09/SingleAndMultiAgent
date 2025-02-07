@@ -175,6 +175,31 @@ def setup_game(config) -> dict:
         animation_steps=4
     )
 
+    enemy = CharacterAnimationManager(
+        game_values["character_width"],
+        game_values["character_height"],
+        maze_array,
+        is_controlled_by_computer=True,
+        x=450, y=300,
+        in_filled_maze=config["filled"]
+    )
+
+    enemy.set_char_animation(
+        "idle",
+        "assets/images/characters/Pink_Monster/Pink_Monster_Idle_4.png",
+        animation_steps=4
+    )
+    enemy.set_char_animation(
+        "walk",
+        "assets/images/characters/Pink_Monster/Pink_Monster_Walk_6.png",
+        animation_steps=6
+    )
+    enemy.set_char_animation(
+        "climb",
+        "assets/images/characters/Pink_Monster/Pink_Monster_Climb_4.png",
+        animation_steps=4
+    )
+
     # Generate the maze
     world = World(maze_array)
 
@@ -191,6 +216,11 @@ def setup_game(config) -> dict:
             is_weighted=config["weighted"]
         )
 
+    enemy_computer = get_agent_types()["random"](
+        enemy,
+        world.get_walkable_maze_matrix(),
+    )
+
     return {
         "screen": screen,
         "player": player,
@@ -203,7 +233,8 @@ def setup_game(config) -> dict:
         # Background image for the game
         "cave_bg": pygame.image.load(
             "assets/images/background/cave.png"
-        ).convert_alpha()
+        ).convert_alpha(),
+        "enemy_computer": enemy_computer
     }
 
 
@@ -229,7 +260,7 @@ def highlight_visited_and_final_path(enable_highlight, world, screen,
 def start_game_agent(
         screen_width, screen_height, enable_highlighter,
         screen, player, world, computer, game_over, score_text,
-        cave_bg) -> None:
+        cave_bg, enemy_computer) -> None:
     """ This is the main game function when the computer controls the player,
     the game loop resides in here. """
 
@@ -269,6 +300,13 @@ def start_game_agent(
         world.load_world(screen)
 
         world.draw_grid(screen, screen_height, screen_width)
+
+        game_over, remove_diamond_pos = enemy_computer.move(
+            screen,
+            tile_data,
+            diamond_positions,
+            game_over
+        )
 
         # Move and draw the agent
         game_over, remove_diamond_pos = computer.move(
@@ -384,6 +422,7 @@ if __name__ == "__main__":
     if config["algo"]:
         # Start the agent thread
         game_data["computer"].start_thread()
+        game_data["enemy_computer"].start_thread()
 
         start_game_agent(
             config["screen_width"],
