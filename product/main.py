@@ -3,9 +3,9 @@ import pickle
 import argparse
 import time
 
-from characters import CharacterAnimationManager, EnemyAnimationManager
 from world import World
 from agent.computer import get_agent_types
+from characters.character import get_character_types
 from constants import player_sprite_file_paths, game_values
 from text import Text
 from lock import visited_and_path_data_flag
@@ -132,7 +132,7 @@ def create_characters(config, maze_array) -> list:
     character_list = []
 
     # Initialize the player we or the agent will control
-    player = CharacterAnimationManager(
+    player = get_character_types()["main"](
         game_values["character_width"],
         game_values["character_height"],
         maze_array,
@@ -167,7 +167,7 @@ def create_characters(config, maze_array) -> list:
 
     # Now create the enemies
     for _ in range(3):
-        enemy = EnemyAnimationManager(
+        enemy = get_character_types()["enemy"](
             game_values["character_width"],
             game_values["character_height"],
             maze_array,
@@ -352,7 +352,7 @@ def start_game_agent(
 
             if not player.in_filled_maze:
                 if world.update_diamond_position(
-                   are_locations_defined=True) == 2:
+                   are_locations_defined=False) == 2:
                     game_over = 1
                     computer.stop_path_find_algo_thread()
             else:
@@ -422,7 +422,7 @@ def start_game_player(screen_width, screen_height, screen, player, world,
         if player.get_is_diamond_found():
             if not player.in_filled_maze:
                 if world.update_diamond_position(
-                   are_locations_defined=True) == 2:
+                   are_locations_defined=False) == 2:
                     game_over = 1
             else:
                 world.clear_diamond(remove_diamond_pos[0],

@@ -11,7 +11,7 @@ class Computer:
         available to use.
 
     Attributes:
-        character (CharacterAnimationManager): The character the computer will
+        character (MainAnimationManager): The character the computer will
             be controlling.
         requested_movement (str): The movement the computer class will command
             the character to perform.
@@ -29,7 +29,7 @@ class Computer:
             to get to the goal state.
 
     Args:
-        character (CharacterAnimationManager): The character the computer will
+        character (MainAnimationManager): The character the computer will
             be controlling.
         walkable_maze (list of list): The maze which represents the walkable
             areas of the character.

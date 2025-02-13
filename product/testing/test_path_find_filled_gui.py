@@ -4,7 +4,8 @@ import pickle
 import time
 
 from agent.informed_computer import GreedyComputer, AStarFilledComputer
-from characters import CharacterAnimationManager
+from characters.character import get_character_types
+
 from world import World
 from constants import player_sprite_file_paths, game_values
 
@@ -37,7 +38,7 @@ class TestFilledGUIComputer():
         pygame.display.init()
         self.screen = pygame.display.set_mode((850, 350))
 
-        self.player = CharacterAnimationManager(
+        self.player = get_character_types()["main"](
             CHARACTER_WIDTH,
             CHARACTER_HEIGHT,
             maze_map,
