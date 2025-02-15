@@ -307,7 +307,7 @@ def start_game_agent(
 
         # Event handling
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT or game_over:
                 computer.stop_path_find_algo_thread()
 
                 for enemy_computer in game_data["enemy_computers"]:
@@ -329,17 +329,16 @@ def start_game_agent(
         for enemy_computer in enemy_computers:
             enemy_computer.move(
                 screen,
-                tile_data,
-                diamond_positions,
-                game_over
+                tile_data
             )
 
         # Move and draw the agent
         game_over, remove_diamond_pos = computer.move(
             screen,
             tile_data,
-            diamond_positions,
-            game_over
+            asset_groups=diamond_positions,
+            game_over=game_over,
+            enemy_computers=enemy_computers
         )
 
         # When the diamond is found we will call to regenerate
@@ -358,10 +357,10 @@ def start_game_agent(
             else:
                 world.clear_diamond(remove_diamond_pos[0],
                                     remove_diamond_pos[1])
-                computer.update_diamond_list(diamond_positions)
 
             player.set_is_diamond_found_to_false()
             diamond_positions = world.get_diamond_group()
+            computer.update_diamond_list(diamond_positions)
             enable_highlight = True
 
         if enable_highlighter:

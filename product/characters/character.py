@@ -337,8 +337,7 @@ class CharacterAnimationManager:
 
         return diamond_removal_coord
 
-    def draw_animation(self, screen, world_tile_data, world_assets,
-                       game_over, direction=None) -> int:
+    def draw_animation(self, screen, world_tile_data, direction=None) -> int:
         """ This function handles the logic of drawing the player onto the
         screen. It also updates the movement speed and detects collisions.
 

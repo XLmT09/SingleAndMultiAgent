@@ -24,7 +24,7 @@ class TestFilledGUIComputer():
     file will inherit from.
 
     Format is similar to main.py, anything not commented here would
-    likely be commented over there.
+    likely be commented ove.r there.
     """
     def setUp(self, pos_x, pos_y):
         """
@@ -108,8 +108,8 @@ class TestFilledGUIComputer():
             self.game_over, remove_diamond_pos = self.computer.move(
                 self.screen,
                 self.tile_data,
-                self.diamond_positions,
-                self.game_over
+                asset_groups=self.diamond_positions,
+                game_over=self.game_over
             )
 
             # We have found the diamond and can begin to stop the test

@@ -54,11 +54,14 @@ class Computer:
         """ Stop the path find thread. """
         self.stop_thread = True
 
-    def move(self, screen, world_data, asset_groups, game_over):
+    def move(self, screen, world_data, **kwargs):
         """ Move the character based on the requested movement. """
-        return self.character.draw_animation(screen, world_data, asset_groups,
-                                             game_over,
-                                             self.requested_movement)
+        return self.character.draw_animation(
+            screen,
+            world_data,
+            self.requested_movement,
+            *kwargs.values()
+        )
 
     def perform_path_find(self) -> None:
         """ This functions keeps searching for a path until the stop_thread
@@ -163,9 +166,17 @@ class Computer:
         self._walkable_maze_matrix = walkable_maze
 
     def update_diamond_list(self, new_diamond_list):
-        """ This function is used in a filled maze environment. We update the
-        diamond list so that, the found diamond is not in the list anymore."""
-        self.diamond_list = new_diamond_list
+        """ This function is used to update the status of the list of
+        diamonds present. """
+
+        # The first case updates status of filled maze, else we are nothing
+        # the filled maze and just need to update the single diamond hence the
+        # index zero.
+        if hasattr(self, "diamond_list"):
+            self.diamond_list = new_diamond_list
+        else:
+            self.diamond_grid_x = new_diamond_list.sprites()[0].grid_x
+            self.diamond_grid_y = new_diamond_list.sprites()[0].grid_y
 
 
 def get_agent_types():

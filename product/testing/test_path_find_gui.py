@@ -98,6 +98,7 @@ class TestGUIComputer():
                 self.world.update_diamond_position()
                 self.player.set_is_diamond_found_to_false()
                 self.diamond_positions = self.world.get_diamond_group()
+                self.computer.update_diamond_list(self.diamond_positions)
                 score_count += 1
 
             # Blitting the tiles
@@ -107,8 +108,8 @@ class TestGUIComputer():
             self.game_over, remove_diamond_pos = self.computer.move(
                 self.screen,
                 self.tile_data,
-                self.diamond_positions,
-                self.game_over
+                asset_groups=self.diamond_positions,
+                game_over=self.game_over
             )
 
             # Can end the test once collision is detected

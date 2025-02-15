@@ -12,20 +12,6 @@ class InformedComputer(Computer):
     def __init__(self, character, walkable_maze, perform_analysis):
         super().__init__(character, walkable_maze, perform_analysis)
 
-    def move(self, screen, world_data, asset_groups, game_over):
-        """ Move the character based on the requested movement. """
-
-        # This logic can be improved:
-        # I need to optimize this by updating the diamond coords outside
-        # the move function.
-        if hasattr(self, "diamond_list"):
-            self.diamond_list = asset_groups
-        else:
-            self.diamond_grid_x = asset_groups.sprites()[0].grid_x
-            self.diamond_grid_y = asset_groups.sprites()[0].grid_y
-
-        return super().move(screen, world_data, asset_groups, game_over)
-
     def generate_path(self) -> list:
         """ This function uses ucs search to find the path to the diamond. """
 
