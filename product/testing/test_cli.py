@@ -278,3 +278,10 @@ class TestCli(unittest.TestCase):
         """ Test checks enemy_count value given by user is registered."""
         result = process_args()
         self.assertEqual(result["enemy_count"], 3)
+
+    @patch('sys.argv', ['main', '--algo', 'ucs', '--size', 'small'])
+    def test_cli_enemy_count_default(self):
+        """ Test checks that when enemy count value is not given, then by
+        default it should be 0"""
+        result = process_args()
+        self.assertEqual(result["enemy_count"], 0)
