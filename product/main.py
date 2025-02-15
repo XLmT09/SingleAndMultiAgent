@@ -60,6 +60,14 @@ def process_args() -> dict:
              " agent"
     )
 
+    parser.add_argument(
+        "--enemy_count",
+        type=int,
+        default=0,
+        required=False,
+        help="The number of enemies to appear in the game."
+    )
+
     # parse args from command line
     args = parser.parse_args()
 
@@ -123,7 +131,8 @@ def process_args() -> dict:
         "algo": args.algo,
         "enable_highlighter": args.highlight,
         "weighted": args.weighted,
-        "filled": filled
+        "filled": filled,
+        "enemy_count": args.enemy_count
     }
 
 
@@ -166,7 +175,7 @@ def create_characters(config, maze_array) -> list:
     character_list.append(player)
 
     # Now create the enemies
-    for _ in range(3):
+    for _ in range(config["enemy_count"]):
         enemy = get_character_types()["enemy"](
             game_values["character_width"],
             game_values["character_height"],
