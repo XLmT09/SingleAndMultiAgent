@@ -6,7 +6,9 @@ import time
 from world import World
 from agent.computer import get_agent_types
 from characters.character import get_character_types
-from constants import player_sprite_file_paths, game_values
+from constants import (
+    player_sprite_file_paths, game_values, pink_enemy_file_sprite_paths
+)
 from text import Text
 from lock import visited_and_path_data_flag
 
@@ -187,17 +189,17 @@ def create_characters(config, maze_array) -> list:
 
         enemy.set_char_animation(
             "idle",
-            "assets/images/characters/Pink_Monster/Pink_Monster_Idle_4.png",
+            pink_enemy_file_sprite_paths["idle"],
             animation_steps=4
         )
         enemy.set_char_animation(
             "walk",
-            "assets/images/characters/Pink_Monster/Pink_Monster_Walk_6.png",
+            pink_enemy_file_sprite_paths["walk"],
             animation_steps=6
         )
         enemy.set_char_animation(
             "climb",
-            "assets/images/characters/Pink_Monster/Pink_Monster_Climb_4.png",
+            pink_enemy_file_sprite_paths["climb"],
             animation_steps=4
         )
 

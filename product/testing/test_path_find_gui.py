@@ -5,9 +5,10 @@ import pickle
 from agent.uninformed_computer import BFSComputer, DFSComputer, RandomComputer
 from agent.informed_computer import AStarComputer, UCSComputer
 from characters.character import get_character_types
-
 from world import World
-from constants import player_sprite_file_paths, game_values
+from constants import (
+    player_sprite_file_paths, game_values, pink_enemy_file_sprite_paths
+)
 
 CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32
@@ -191,17 +192,17 @@ class TestGUIEnemyCollisionComputer(TestGUIComputer, unittest.TestCase):
 
         self.enemy.set_char_animation(
             "idle",
-            "assets/images/characters/Pink_Monster/Pink_Monster_Idle_4.png",
+            pink_enemy_file_sprite_paths["idle"],
             animation_steps=4
         )
         self.enemy.set_char_animation(
             "walk",
-            "assets/images/characters/Pink_Monster/Pink_Monster_Walk_6.png",
+            pink_enemy_file_sprite_paths["walk"],
             animation_steps=6
         )
         self.enemy.set_char_animation(
             "climb",
-            "assets/images/characters/Pink_Monster/Pink_Monster_Climb_4.png",
+            pink_enemy_file_sprite_paths["climb"],
             animation_steps=4
         )
 
