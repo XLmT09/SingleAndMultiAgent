@@ -271,3 +271,10 @@ class TestCli(unittest.TestCase):
                     "when using greedy algorithm.",
                     error_output
                 )
+
+    @patch('sys.argv', ['main', '--algo', 'ucs', '--size', 'small',
+                        '--enemy_count', '3'])
+    def test_cli_enemy_count(self):
+        """ Test checks enemy_count value given by user is registered."""
+        result = process_args()
+        self.assertEqual(result["enemy_count"], 3)
