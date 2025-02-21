@@ -9,8 +9,8 @@ class InformedComputer(Computer):
     """ This computer class will hold similar characteristics between different
     informed search algorithms. """
 
-    def __init__(self, character, walkable_maze, perform_analysis):
-        super().__init__(character, walkable_maze, perform_analysis)
+    def __init__(self, character, walkable_maze, **kwargs):
+        super().__init__(character, walkable_maze, **kwargs)
 
     def generate_path(self) -> list:
         """ This function uses ucs search to find the path to the diamond. """
@@ -131,7 +131,7 @@ class UCSComputer(InformedComputer):
         super().__init__(
             character,
             walkable_maze,
-            kwargs.get("perform_analysis", False),
+            **kwargs
         )
         self.heuristic = None
         diamond = kwargs.get("diamond")
@@ -144,7 +144,7 @@ class AStarFilledComputer(InformedComputer):
         super().__init__(
             character,
             walkable_maze,
-            kwargs.get("perform_analysis", False)
+            **kwargs
         )
 
         self.MANHATTAN_WEIGHT = 2
@@ -255,7 +255,7 @@ class AStarComputer(InformedComputer):
         super().__init__(
             character,
             walkable_maze,
-            kwargs.get("perform_analysis", False)
+            **kwargs
         )
 
         self.MANHATTAN_WEIGHT = 2
@@ -276,7 +276,7 @@ class GreedyComputer(InformedComputer):
         super().__init__(
             character,
             walkable_maze,
-            kwargs.get("perform_analysis", False),
+            **kwargs,
         )
         self.heuristic = None
         self.diamond_list = kwargs.get("diamond_list")

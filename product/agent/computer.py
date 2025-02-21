@@ -4,6 +4,7 @@ import inspect
 import numpy as np
 
 from lock import visited_and_path_data_flag
+from collections import deque
 
 
 class Computer:
@@ -34,21 +35,28 @@ class Computer:
         walkable_maze (list of list): The maze which represents the walkable
             areas of the character.
     """
-    def __init__(self, character, walkable_maze, perform_analysis):
+    def __init__(self, character, walkable_maze, **kwargs):
         self.character = character
         self.requested_movement = "RIGHT"
         self._walkable_maze_matrix = walkable_maze
         # right, left, up, down
         self._directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
         self.stop_thread = False
-        self.perform_analysis = perform_analysis
+        self.perform_analysis = kwargs.get("perform_analysis", False)
         self._visited_grids = []
         self._path_generated = []
+        self.path_to_follow = []
+        self.enemy_list = kwargs.get("enemy_list", [])
+        self.enemy_in_way = False
         self.th = threading.Thread(target=self.perform_path_find)
+        if self.enemy_list:
+            self.check_th = threading.Thread(target=self.check_for_enemies)
 
     def start_thread(self) -> None:
         """ Start the path find thread. """
         self.th.start()
+        if self.enemy_list:
+            self.check_th.start()
 
     def stop_path_find_algo_thread(self) -> None:
         """ Stop the path find thread. """
@@ -70,7 +78,34 @@ class Computer:
             self.move_based_on_path_instructions()
         print("PERFORM_PATH_FIND THREAD HAS STOPPED")
 
-    def reconstruct_path(self, search_path_history, end) -> None:
+    def check_for_enemies(self) -> bool:
+        search_depth = 3
+        left_side, right_side, enemy_coords = set(), set(), set()
+
+        while not self.stop_thread:
+            for enemy in self.enemy_list:
+                for step in range(search_depth):
+                    y, x = self.character.get_player_grid_coordinates()
+
+                    enemy_coords.add(enemy.get_player_grid_coordinates())
+
+                    left_side.add((y, x-step))
+                    right_side.add((y, x+step))
+
+            if enemy_coords & left_side:
+                self.requested_movement = "RIGHT"
+                self.enemy_in_way = True
+            elif enemy_coords & right_side:
+                self.requested_movement = "LEFT"
+                self.enemy_in_way = True
+            else:
+                self.enemy_in_way = False
+
+            left_side.clear()
+            right_side.clear()
+            enemy_coords.clear()
+
+    def reconstruct_path(self, search_path_history, end, **kwargs) -> None:
         """ Some algo's will store store contents of every path its
             looked into, in this function we will extract the
             path its found to the target.
@@ -100,29 +135,29 @@ class Computer:
     def move_based_on_path_instructions(self) -> None:
         """ This function will get the BFS path, then  move the character
         to follow the path it's found. """
-        path_to_follow = self.generate_path()
+        self.path_to_follow = self.generate_path()
 
         if self.perform_analysis:
-            print(f"The path is: {path_to_follow}")
-            print(f"Path length is: {len(path_to_follow)}")
+            print(f"The path is: {self.path_to_follow}")
+            print(f"Path length is: {len(self.path_to_follow)}")
 
-        instruction_number = 0
-        target = path_to_follow[-1]
         climbing = False
         player_position = (self.character.grid_y, self.character.grid_x)
 
-        while player_position != target:
+        while self.path_to_follow:
+            if self.enemy_in_way:
+                self.path_to_follow = self.generate_path()
+                continue
+
             if self.stop_thread:
                 print("STOPPING THE COMPUTER THREAD.")
                 break
-            if instruction_number == len(path_to_follow):
-                return
 
             pos_diff = tuple(np.subtract(player_position,
-                             path_to_follow[instruction_number]))
+                             self.path_to_follow[0]))
 
             if (pos_diff == (0, 0)):
-                instruction_number += 1
+                self.path_to_follow.pop(0)
                 continue
 
             if (climbing and pos_diff[1] > 0):

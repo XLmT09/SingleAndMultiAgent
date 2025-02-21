@@ -183,7 +183,7 @@ def create_characters(config, maze_array) -> list:
             game_values["character_height"],
             maze_array,
             is_controlled_by_computer=True,
-            x=450, y=300,
+            x=300, y=300,
             in_filled_maze=config["filled"]
         )
 
@@ -241,7 +241,8 @@ def setup_game(config) -> dict:
             perform_analysis=False,
             diamond=world.get_diamond_group().sprites()[0],
             diamond_list=world.get_diamond_group(),
-            is_weighted=config["weighted"]
+            is_weighted=config["weighted"],
+            enemy_list=character_list[1:]
         )
 
     enemy_computers = []
