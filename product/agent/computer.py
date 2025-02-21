@@ -4,7 +4,6 @@ import inspect
 import numpy as np
 
 from lock import visited_and_path_data_flag
-from collections import deque
 
 
 class Computer:
