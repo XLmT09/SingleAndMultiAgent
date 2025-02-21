@@ -1,4 +1,21 @@
-###  Week 15
+### Week 17
+<ins>**Updates on Algorithm**</ins>
+- When the agent encounters an enemy which is at most 3 blocks away, it will move away and re-calculate a new path to the diamond.
+
+### Week 16
+<ins>**Updates on Game**</ins>
+- Add enemy agents to the game.
+- The enemy agent will move around the map randomly.
+- If the main player collides with an enemy, then the game ends.
+- The cli takes a flag `enemy_count`, which is the number of enemies to produce in the game. By default no enemies are generated if the flag is not passed.
+
+<ins>**Refactoring**</ins>
+- The character file, is now split into 3 files:
+  - `character.py` - attributes and functions all character types share are in here.
+  - `enemy_character.py`
+  - `main_character.py`
+
+### Week 15
 <ins>**Updates on Algorithm**</ins>
 
 - Implemented A star-filled algorithm; it uses the min spanning tree as a heuristic to calculate the path to collect all the diamonds.
