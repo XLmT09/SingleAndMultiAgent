@@ -1,5 +1,7 @@
 product/__pycache__/
 product/testing/__pycache__/
+agent/__pycache__/
+characters/__pycache__/
 .gitlab-ci.yml~
 ..gitlab-ci.yml.un~
 product/maze/

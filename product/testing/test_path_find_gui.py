@@ -2,11 +2,13 @@ import unittest
 import pygame
 import pickle
 
-from agent.uninformed_computer import BFSComputer, DFSComputer
+from agent.uninformed_computer import BFSComputer, DFSComputer, RandomComputer
 from agent.informed_computer import AStarComputer, UCSComputer
-from characters import CharacterAnimationManager
+from characters.character import get_character_types
 from world import World
-from constants import player_sprite_file_paths, game_values
+from constants import (
+    player_sprite_file_paths, game_values, pink_enemy_file_sprite_paths
+)
 
 CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32
@@ -37,7 +39,7 @@ class TestGUIComputer():
         pygame.display.init()
         self.screen = pygame.display.set_mode((850, 350))
 
-        self.player = CharacterAnimationManager(
+        self.player = get_character_types()["main"](
             CHARACTER_WIDTH,
             CHARACTER_HEIGHT,
             maze_map,
@@ -97,6 +99,7 @@ class TestGUIComputer():
                 self.world.update_diamond_position()
                 self.player.set_is_diamond_found_to_false()
                 self.diamond_positions = self.world.get_diamond_group()
+                self.computer.update_diamond_list(self.diamond_positions)
                 score_count += 1
 
             # Blitting the tiles
@@ -106,8 +109,8 @@ class TestGUIComputer():
             self.game_over, remove_diamond_pos = self.computer.move(
                 self.screen,
                 self.tile_data,
-                self.diamond_positions,
-                self.game_over
+                asset_groups=self.diamond_positions,
+                game_over=self.game_over
             )
 
             # Can end the test once collision is detected
@@ -165,3 +168,97 @@ class TestAstarGUIComputer(TestGUIComputer, unittest.TestCase):
             self.world.get_walkable_maze_matrix(),
             diamond=self.world.get_diamond_group().sprites()[0]
         )
+
+
+class TestGUIEnemyCollisionComputer(TestGUIComputer, unittest.TestCase):
+    """ This test class will also test the GUI, but this time we will add
+    enemies in the game."""
+    def setUp(self):
+        super().setUp(pos_x=350, pos_y=300)
+
+        self.computer = AStarComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.world.get_diamond_group().sprites()[0]
+        )
+
+        self.enemy = get_character_types()["enemy"](
+            game_values["character_width"],
+            game_values["character_height"],
+            maze_map,
+            is_controlled_by_computer=True,
+            x=450, y=300
+        )
+
+        self.enemy.set_char_animation(
+            "idle",
+            pink_enemy_file_sprite_paths["idle"],
+            animation_steps=4
+        )
+        self.enemy.set_char_animation(
+            "walk",
+            pink_enemy_file_sprite_paths["walk"],
+            animation_steps=6
+        )
+        self.enemy.set_char_animation(
+            "climb",
+            pink_enemy_file_sprite_paths["climb"],
+            animation_steps=4
+        )
+
+        self.enemy_computer = RandomComputer(
+            self.enemy,
+            self.world.get_walkable_maze_matrix(),
+        )
+
+    def testPathFindGUI(self):
+        """ This function test for a collision between the enemy and
+        main player. """
+
+        # Start the path finding algorithm
+        self.computer.start_thread()
+
+        # We will run a game loop until collision is detected
+        while not self.game_over:
+            self.screen.blit(self.bg, (0, 0))
+
+            # We have found the diamond and can begin to stop the test
+            if self.player.get_is_diamond_found():
+                self.world.update_diamond_position()
+                self.player.set_is_diamond_found_to_false()
+                self.diamond_positions = self.world.get_diamond_group()
+                self.computer.update_diamond_list(self.diamond_positions)
+
+            # Blitting the tiles
+            self.world.load_world(self.screen)
+
+            # Keep the enemy idle to guarantee a collision
+            self.enemy_computer.requested_movement = "idle"
+            self.enemy_computer.move(
+                self.screen,
+                self.tile_data
+            )
+
+            # Moving the player
+            self.game_over, _ = self.computer.move(
+                self.screen,
+                self.tile_data,
+                asset_groups=self.diamond_positions,
+                game_over=self.game_over,
+                enemy_computer=[self.enemy_computer]
+            )
+
+            # End test once enemy collision was detected.
+            if self.game_over:
+                self.assertTrue(
+                    "Test passed as collision with enemy was detected."
+                )
+                self.computer.stop_thread = True
+                break
+
+            # Set the game refresh rate
+            clock.tick(game_values["FPS"])
+
+            # Now render all changes we made in this loop
+            # iteration onto the game screen.
+            pygame.display.update()

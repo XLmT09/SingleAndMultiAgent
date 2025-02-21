@@ -11,7 +11,7 @@ class RandomComputer(Computer):
         super().__init__(
             character,
             walkable_maze,
-            kwargs.get("perform_analysis", False)
+            **kwargs
         )
         self.moves = ["LEFT", "RIGHT"]
 
@@ -88,7 +88,7 @@ class BFSComputer(Computer):
         super().__init__(
             character,
             walkable_maze,
-            kwargs.get("perform_analysis", False)
+            **kwargs
         )
 
     def generate_path(self) -> list:
@@ -132,7 +132,7 @@ class DFSComputer(Computer):
         super().__init__(
             character,
             walkable_maze,
-            kwargs.get("perform_analysis", False)
+            **kwargs
         )
 
     def generate_path(self) -> list:

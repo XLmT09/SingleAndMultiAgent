@@ -4,7 +4,8 @@ import pickle
 
 from agent.uninformed_computer import DFSComputer, BFSComputer
 from agent.informed_computer import UCSComputer, AStarComputer
-from characters import CharacterAnimationManager
+from characters.character import get_character_types
+
 from world import World
 from constants import player_sprite_file_paths
 
@@ -25,10 +26,12 @@ class TestComputer(unittest.TestCase):
         """
         pygame.init()
         pygame.display.set_mode((1, 1), 0, 32)
-        self.player = CharacterAnimationManager(CHARACTER_WIDTH,
-                                                CHARACTER_HEIGHT,
-                                                self.maze_map, True,
-                                                pos_x, pos_y)
+        self.player = get_character_types()["main"](
+            CHARACTER_WIDTH,
+            CHARACTER_HEIGHT,
+            self.maze_map, True,
+            pos_x, pos_y
+        )
         self.player.set_char_animation("idle",
                                        player_sprite_file_paths["idle"], 4)
         self.player.set_char_animation("jump",

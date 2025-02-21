@@ -4,7 +4,8 @@ import pickle
 import time
 
 from agent.informed_computer import GreedyComputer, AStarFilledComputer
-from characters import CharacterAnimationManager
+from characters.character import get_character_types
+
 from world import World
 from constants import player_sprite_file_paths, game_values
 
@@ -23,7 +24,7 @@ class TestFilledGUIComputer():
     file will inherit from.
 
     Format is similar to main.py, anything not commented here would
-    likely be commented over there.
+    likely be commented ove.r there.
     """
     def setUp(self, pos_x, pos_y):
         """
@@ -37,7 +38,7 @@ class TestFilledGUIComputer():
         pygame.display.init()
         self.screen = pygame.display.set_mode((850, 350))
 
-        self.player = CharacterAnimationManager(
+        self.player = get_character_types()["main"](
             CHARACTER_WIDTH,
             CHARACTER_HEIGHT,
             maze_map,
@@ -107,8 +108,8 @@ class TestFilledGUIComputer():
             self.game_over, remove_diamond_pos = self.computer.move(
                 self.screen,
                 self.tile_data,
-                self.diamond_positions,
-                self.game_over
+                asset_groups=self.diamond_positions,
+                game_over=self.game_over
             )
 
             # We have found the diamond and can begin to stop the test
