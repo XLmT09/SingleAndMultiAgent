@@ -145,6 +145,15 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_1")
         self.assertEqual(result["algo"], "random")
 
+    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small'])
+    def test_cli_minimax_algo(self):
+        """ Test cli with random as algo value. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 850)
+        self.assertEqual(result["screen_height"], 350)
+        self.assertEqual(result["maze_path"], "maze/maze_1")
+        self.assertEqual(result["algo"], "minimax")
+
     @patch('sys.argv', ['main', '--size', 'bogus', '--algo', 'BFS'])
     def test_invalid_size_argument(self):
         """ Give the size flag an invalid value and check that
