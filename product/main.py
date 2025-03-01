@@ -236,16 +236,19 @@ def setup_game(config) -> dict:
 
     player = character_list[0]
 
-    # If both the agent and enemy are intelligent we need to set up a state
-    # for both agent types to use.
-    state = {
-        "main_agent": player.get_player_grid_coordinates(),
-        "enemies": character_list[1].get_player_grid_coordinates(),
-        "diamond_positions": world.get_diamond_group(),
-        "score": 0,
-        "win": 0,
-        "lose": 0
-    }
+    state = None
+
+    if len(character_list) > 1:
+        # If both the agent and enemy are intelligent we need to set up a state
+        # for both agent types to use.
+        state = {
+            "main_agent": player.get_player_grid_coordinates(),
+            "enemies": character_list[1].get_player_grid_coordinates(),
+            "diamond_positions": world.get_diamond_group(),
+            "score": 0,
+            "win": 0,
+            "lose": 0
+        }
 
 
     # If algo was specified, initialize a specific computer class and pass
@@ -259,7 +262,7 @@ def setup_game(config) -> dict:
             diamond=world.get_diamond_group().sprites()[0],
             diamond_list=world.get_diamond_group(),
             is_weighted=config["weighted"],
-            enemy_list=character_list[1:],
+            enemy_list=character_list[1:] if len(character_list) > 1 else [],
             state=state,
             is_main=True 
         )
@@ -331,6 +334,8 @@ def start_game_agent(
     # Measure run time of the application
     start = time.time()
 
+    state = None
+
     # Game loop logic
     while True:
         # We want to draw the background first, then
@@ -358,21 +363,25 @@ def start_game_agent(
 
         world.draw_grid(screen, screen_height, screen_width)
 
-        state = {
-            "main_agent": player.get_player_grid_coordinates(),
-            "enemies": enemy_computers[0].character.get_player_grid_coordinates(),
-            "diamond_positions": world.get_diamond_group(),
-            "score": 0,
-            "win": 0,
-            "lose": 0
-        }
+        if enemy_computers:
+            state = {
+                "main_agent": player.get_player_grid_coordinates(),
+                "enemies":
+                    enemy_computers[0].character.get_player_grid_coordinates(),
+                "diamond_positions": world.get_diamond_group(),
+                "score": 0,
+                "win": 0,
+                "lose": 0
+            }
 
-        for enemy_computer in enemy_computers:
-            enemy_computer.move(
-                screen,
-                tile_data,
-            )
-            enemy_computer.update_state(state)
+            for enemy_computer in enemy_computers:
+                enemy_computer.move(
+                    screen,
+                    tile_data,
+                )
+                enemy_computer.update_state(state)
+
+            computer.update_state(state)
 
         # Move and draw the agent
         game_over, remove_diamond_pos = computer.move(
@@ -383,7 +392,7 @@ def start_game_agent(
             enemy_computers=enemy_computers
         )
 
-        computer.update_state(state)
+        player.draw_outline(screen)
 
         # When the diamond is found we will call to regenerate
         # at a new position.
