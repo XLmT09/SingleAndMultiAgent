@@ -41,7 +41,7 @@ def process_args() -> dict:
     # define the algo flag
     parser.add_argument(
         "--algo",
-        choices=["random", "dfs", "bfs", "ucs", "astar", "greedy"],
+        choices=["random", "dfs", "bfs", "ucs", "astar", "greedy", "minimax"],
         required=False,
         help="Choose a algorithm: random, dfs, bfs, or ucs"
     )
@@ -114,11 +114,16 @@ def process_args() -> dict:
             "random."
         )
 
-    filled_compatible_algos = ["greedy", "random", "astar"]
+    filled_compatible_algos = ["greedy", "random", "astar", "minimax"]
     if (args.algo and filled and not (args.algo in filled_compatible_algos)):
         parser.error(
             "Filled maze only works when user controlled or when using "
             "greedy algorithm."
+        )
+
+    if args.algo == "minimax" and args.enemy_count == 0:
+        parser.error(
+            "Minimax algorithm requires at least one enemy to be present."
         )
 
     # If we are in a filled maze and using astar then update astar to work in
@@ -183,7 +188,7 @@ def create_characters(config, maze_array) -> list:
             game_values["character_height"],
             maze_array,
             is_controlled_by_computer=True,
-            x=300, y=300,
+            x=200, y=200,
             in_filled_maze=config["filled"]
         )
 
@@ -231,6 +236,18 @@ def setup_game(config) -> dict:
 
     player = character_list[0]
 
+    # If both the agent and enemy are intelligent we need to set up a state
+    # for both agent types to use.
+    state = {
+        "main_agent": player.get_player_grid_coordinates(),
+        "enemies": character_list[1].get_player_grid_coordinates(),
+        "diamond_positions": world.get_diamond_group(),
+        "score": 0,
+        "win": 0,
+        "lose": 0
+    }
+
+
     # If algo was specified, initialize a specific computer class and pass
     # arguments to constructor. Else, dont initialize and the user will
     # control the player.
@@ -242,15 +259,18 @@ def setup_game(config) -> dict:
             diamond=world.get_diamond_group().sprites()[0],
             diamond_list=world.get_diamond_group(),
             is_weighted=config["weighted"],
-            enemy_list=character_list[1:]
+            enemy_list=character_list[1:],
+            state=state,
+            is_main=True 
         )
 
     enemy_computers = []
 
     for enemy in character_list[1:]:
-        enemy_computer = get_agent_types()["random"](
+        enemy_computer = get_agent_types()[config["algo"]](
             enemy,
             world.get_walkable_maze_matrix(),
+            state=state
         )
         enemy_computers.append(enemy_computer)
 
@@ -338,11 +358,21 @@ def start_game_agent(
 
         world.draw_grid(screen, screen_height, screen_width)
 
+        state = {
+            "main_agent": player.get_player_grid_coordinates(),
+            "enemies": enemy_computers[0].character.get_player_grid_coordinates(),
+            "diamond_positions": world.get_diamond_group(),
+            "score": 0,
+            "win": 0,
+            "lose": 0
+        }
+
         for enemy_computer in enemy_computers:
             enemy_computer.move(
                 screen,
-                tile_data
+                tile_data,
             )
+            enemy_computer.update_state(state)
 
         # Move and draw the agent
         game_over, remove_diamond_pos = computer.move(
@@ -352,6 +382,8 @@ def start_game_agent(
             game_over=game_over,
             enemy_computers=enemy_computers
         )
+
+        computer.update_state(state)
 
         # When the diamond is found we will call to regenerate
         # at a new position.
