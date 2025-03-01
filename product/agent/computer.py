@@ -67,7 +67,7 @@ class Computer:
             screen,
             world_data,
             self.requested_movement,
-            *kwargs.values()
+            **kwargs
         )
 
     def perform_path_find(self) -> None:
@@ -223,6 +223,9 @@ def get_agent_types():
     from agent.uninformed_computer import (
         RandomComputer, BFSComputer, DFSComputer
     )
+    from agent.competitive_computer import (
+        MinimaxComputer
+    )
 
     return {
         "random": RandomComputer,
@@ -231,5 +234,6 @@ def get_agent_types():
         "ucs": UCSComputer,
         "astar": AStarComputer,
         "astarFilled": AStarFilledComputer,
-        "greedy": GreedyComputer
+        "greedy": GreedyComputer,
+        "minimax": MinimaxComputer
     }
