@@ -14,7 +14,6 @@ class MinimaxComputer(Computer):
             self.agent_type = 0
         else:
             self.agent_type = 1
-        self.climb = False
 
     def evaluation_function(self, state, depth):
         main_agent_pos = (
@@ -30,7 +29,9 @@ class MinimaxComputer(Computer):
         score = state["score"]
 
         distance = self.manhattan_distance(main_agent_pos, enemy_position)
-        enemy_distance = distance = self.manhattan_distance(main_agent_pos, enemy_position)
+        enemy_distance = distance = (
+            self.manhattan_distance(main_agent_pos, enemy_position)
+        )
 
         if main_agent_pos == enemy_position:
             return -500
@@ -49,35 +50,25 @@ class MinimaxComputer(Computer):
 
     def legal_movements(self, pos):
         legal_movements = set()
-        if pos[1] >= len(self._walkable_maze_matrix[0]): return legal_movements
+        if pos[1] >= len(self._walkable_maze_matrix[0]):
+            return legal_movements
 
-        if pos[0] >= 0 and self._walkable_maze_matrix[pos[0]][pos[1]] == 3:
+        if (pos[0] >= 0 and
+           self._walkable_maze_matrix[pos[0]][pos[1]] == 3):
             legal_movements.add("UP")
-            print("added")
-            return list(legal_movements)
-
-        if pos[0] >= 0 and self._walkable_maze_matrix[pos[0]][pos[1]] == 3 and self._walkable_maze_matrix[pos[0]][pos[1] - 1] == 3:
-            legal_movements.add("UP")
-            return list(legal_movements)
-
-        # if pos[0] - 1 >= 0 and self._walkable_maze_matrix[pos[0]][pos[1] - 1] != 0 and self._walkable_maze_matrix[pos[0]][pos[1]] == 3:
-        #     legal_movements.add("UP LEFT")
-        # if pos[0] + 1 < len(self._walkable_maze_matrix) and self._walkable_maze_matrix[pos[0]][pos[1] + 1] != 0 and self._walkable_maze_matrix[pos[0]][pos[1]] == 3:
-        #     legal_movements.add("UP RIGHT")
-
-        if "UP LEFT" in legal_movements or "UP RIGHT" in legal_movements:
-            return list(legal_movements)
-
-        if pos[1] - 1 >= 0 and self._walkable_maze_matrix[pos[0]][pos[1] - 1] != 0:
+        if (pos[1] - 1 > 0 and
+           self._walkable_maze_matrix[pos[0]][pos[1] - 1] != 0):
             legal_movements.add("LEFT")
-        if pos[1] + 1 < len(self._walkable_maze_matrix[0]) and self._walkable_maze_matrix[pos[0]][pos[1] + 1] != 0:
+        if (pos[1] + 1 < len(self._walkable_maze_matrix[0]) and
+           self._walkable_maze_matrix[pos[0]][pos[1] + 1] != 0):
             legal_movements.add("RIGHT")
-        if pos[0] + 1 < len(self._walkable_maze_matrix) and self._walkable_maze_matrix[pos[0]][pos[1]] == 3:
+        if (pos[0] + 1 < len(self._walkable_maze_matrix) and
+           self._walkable_maze_matrix[pos[0]][pos[1]] == 3):
             legal_movements.add("DOWN")
 
-        # if self.agent_type == 0:
+        # if self.agent_type == 1:
         #     print(legal_movements)
-        #     print(pos)
+
         return list(legal_movements)
 
     def minimax(self, state, depth, agent):
@@ -96,14 +87,16 @@ class MinimaxComputer(Computer):
                     action_to_take = action
                     # if action == "UP":
                     #     print("UP")
-            #print(f"{action_to_take} and best value {best_value}")
+            # print(f"{action_to_take} and best value {best_value}")
             return (best_value, action_to_take)
         else:
             best_value = float("inf")
             if not self.stop_thread:
                 for action in self.legal_movements(state["enemies"]):
                     successor = self.generate_successor(state, agent, action)
-                    current_value = self.minimax(successor, depth - 1, agent=0)[0]
+                    current_value = (
+                        self.minimax(successor, depth - 1, agent=0)[0]
+                    )
                     if best_value > current_value:
                         best_value = current_value
                         action_to_take = action
@@ -123,10 +116,6 @@ class MinimaxComputer(Computer):
             return (y, x - 1)
         elif action == 'RIGHT':
             return (y, x + 1)
-        elif action == 'UP LEFT':
-            return (y - 1, x - 1)
-        elif action == 'UP RIGHT':
-            return (y - 1, x + 1)
 
         return position
 
@@ -161,7 +150,17 @@ class MinimaxComputer(Computer):
         flag is set. """
         while not self.stop_thread:
             state_copy = self.state.copy()
-            self.requested_movement = self.minimax(state_copy, depth=5, agent=self.agent_type)[1]
+
+            # we are using state coordinates instead of directly retrieving
+            # character coordinates to avoid going into illegal girds.
+            next_grid = self.simulate_movement(
+                self.state["main_agent"] if self.agent_type == 0
+                else self.state["enemies"],
+                self.minimax(state_copy, depth=5, agent=self.agent_type)[1]
+            )
+
+            self.path_to_follow = [next_grid]
+            self.move_based_on_path_instructions()
 
     def update_state(self, state):
         self.state = state
