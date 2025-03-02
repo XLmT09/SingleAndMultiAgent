@@ -297,6 +297,8 @@ class CharacterAnimationManager:
         elif direction == "UP":
             self._requested_animation = "climb"
             self._dy -= 2
+            # algin the player to the center of the ladder
+            self._pos_x = self.grid_x * C.TILE_SIZE + 25
         elif direction == "UP RIGHT":
             self._requested_animation = "climb"
             self._dy -= 2
