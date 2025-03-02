@@ -145,21 +145,30 @@ class MinimaxComputer(Computer):
 
         return new_state
 
+    def generate_path(self):
+        """
+        Minimax is different to other algo is, because it doesn't pre-determine
+        the whole path. Instead it just needs to locate the best grid to travel
+        to at any given moment.
+
+        In other words it only needs to return a path of length one.
+        """
+        state_copy = self.state.copy()
+
+        # we are using state coordinates instead of directly retrieving
+        # character coordinates to avoid going into illegal girds.
+        next_grid = self.simulate_movement(
+            self.state["main_agent"] if self.agent_type == 0
+            else self.state["enemies"],
+            self.minimax(state_copy, depth=5, agent=self.agent_type)[1]
+        )
+
+        return [next_grid]
+
     def perform_path_find(self) -> None:
         """ This functions keeps searching for a path until the stop_thread
         flag is set. """
         while not self.stop_thread:
-            state_copy = self.state.copy()
-
-            # we are using state coordinates instead of directly retrieving
-            # character coordinates to avoid going into illegal girds.
-            next_grid = self.simulate_movement(
-                self.state["main_agent"] if self.agent_type == 0
-                else self.state["enemies"],
-                self.minimax(state_copy, depth=5, agent=self.agent_type)[1]
-            )
-
-            self.path_to_follow = [next_grid]
             self.move_based_on_path_instructions()
 
     def update_state(self, state):
