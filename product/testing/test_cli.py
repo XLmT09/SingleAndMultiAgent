@@ -145,7 +145,7 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_1")
         self.assertEqual(result["algo"], "random")
 
-    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small', '--enemy_count', '1'])
+    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small'])
     def test_cli_minimax_algo(self):
         """ Test cli with minimax as algo value. """
         result = process_args()
@@ -295,20 +295,27 @@ class TestCli(unittest.TestCase):
         result = process_args()
         self.assertEqual(result["enemy_count"], 0)
 
-    @patch('sys.argv', ['main', '--size', 'small', '--algo', 'minimax'])
-    def test_cli_fails_when_minimax_and_no_enemy_count(self):
-        """ Test the cli will fail when minimax algo is given and
-        no enemy count is given. """
+    def test_cli_fails_on_minimax_with_zero_enemies(self):
+        """ Test the cli will fail when we are in a filled maze but using an
+        algorithm not compatible with filled mazes. """
 
-        # Redirect stderr to prevent error message from printing
-        with patch('sys.stderr', new=io.StringIO()) as fake_stderr:
-            # argparse calls sys.exit() on a invalid input
-            with self.assertRaises(SystemExit):
-                process_args()
+        incompatible_algos = ["bfs", "dfs", "ucs"]
 
-            error_output = fake_stderr.getvalue()
+        for algo in incompatible_algos:
+            with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
+                with patch(
+                    'sys.argv',
+                    ['main', '--size', 'small-filled', '--algo', algo]
+                ):
+                    with self.assertRaises(SystemExit):
+                        process_args()
 
-            self.assertIn(
-                "Minimax algorithm requires at least one enemy to be present.",
-                error_output
-            )
+                # Capture the error message printed to stderr
+                error_output = fake_stderr.getvalue()
+
+                # Check if the error message is the expected one
+                self.assertIn(
+                    "error: Filled maze only works when user controlled or "
+                    "when using greedy algorithm.",
+                    error_output
+                )
