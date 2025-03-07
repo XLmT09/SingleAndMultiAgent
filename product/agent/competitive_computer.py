@@ -131,14 +131,14 @@ class MinimaxComputer(Computer):
         if agent == 0:
             new_state["main_agent"] = (
                 self.simulate_movement(
-                    state["main_agent"],
+                    new_state["main_agent"],
                     action
                 )
             )
         else:
             new_state["enemies"] = (
                 self.simulate_movement(
-                    state["enemies"],
+                    new_state["enemies"],
                     action
                 )
             )
