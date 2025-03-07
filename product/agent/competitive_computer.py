@@ -54,7 +54,7 @@ class MinimaxComputer(Computer):
             return legal_movements
 
         if (pos[0] >= 0 and
-           self._walkable_maze_matrix[pos[0]][pos[1]] == 3):
+           self._walkable_maze_matrix[pos[0] - 1][pos[1]] == 3):
             legal_movements.add("UP")
         if (pos[1] - 1 > 0 and
            self._walkable_maze_matrix[pos[0]][pos[1] - 1] != 0):
