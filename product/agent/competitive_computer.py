@@ -196,7 +196,21 @@ class MinimaxComputer(Computer):
         return state["win"] or state["lose"]
 
     def generate_successor(self, state, agent, action):
+        """This function generates a new simulated state.
+
+        Attributes:
+            state (dict): The state we will use to generate the successor
+                state.
+            agent (int): The agent type.
+            action (String): The movement we want to perform on the current
+                state to create the successor.
+        """
+
+        # We must copy the state, to avoid modifying values of the original
+        # one.
         new_state = state.copy()
+
+        # We need to check which agent to perform the action on
         if agent == 0:
             new_state["main_agent"] = (
                 self.simulate_movement(
@@ -204,6 +218,13 @@ class MinimaxComputer(Computer):
                     action
                 )
             )
+
+            # If the action leads to diamond overlap, then increment the
+            # diamond count. This will be useful a useful heuristic to
+            # consider for the evaluation function.
+            for dmd in state["diamond_positions"]:
+                if (dmd.grid_y, dmd.grid_x) == new_state["main_agent"]:
+                    new_state["diamond_count"] += 1
         else:
             new_state["enemies"] = (
                 self.simulate_movement(
@@ -229,7 +250,7 @@ class MinimaxComputer(Computer):
         next_grid = self.simulate_movement(
             self.state["main_agent"] if self.agent_type == 0
             else self.state["enemies"],
-            self.minimax(state_copy, depth=5, agent=self.agent_type)[1]
+            action=self.minimax(state_copy, depth=2, agent=self.agent_type)[1]
         )
 
         return [next_grid]

@@ -246,8 +246,9 @@ def setup_game(config) -> dict:
             "enemies": character_list[1].get_player_grid_coordinates(),
             "diamond_positions": world.get_diamond_group(),
             "score": 0,
-            "win": 0,
-            "lose": 0
+            "win": False,
+            "lose": False,
+            "diamond_count": 0
         }
 
     # If algo was specified, initialize a specific computer class and pass
@@ -369,8 +370,9 @@ def start_game_agent(
                     enemy_computers[0].character.get_player_grid_coordinates(),
                 "diamond_positions": world.get_diamond_group(),
                 "score": 0,
-                "win": 0,
-                "lose": 0
+                "win": False,
+                "lose": False,
+                "diamond_count": 0
             }
 
             for enemy_computer in enemy_computers:
