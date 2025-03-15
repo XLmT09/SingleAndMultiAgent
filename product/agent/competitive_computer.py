@@ -82,7 +82,7 @@ class MinimaxComputer(Computer):
             best_value = float("-inf")
             for action in self.legal_movements(state["main_agent"]):
                 successor = self.generate_successor(state, agent, action)
-                current_value = self.minimax(successor, depth - 1, agent=1)[0]
+                current_value = self.minimax(successor, depth, agent=1)[0]
                 if best_value < current_value:
                     best_value = current_value
                     action_to_take = action
