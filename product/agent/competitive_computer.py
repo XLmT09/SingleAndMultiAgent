@@ -53,16 +53,17 @@ class MinimaxComputer(Computer):
         if pos[1] >= len(self._walkable_maze_matrix[0]):
             return legal_movements
 
+        # check if its possible to move to the next grid.
         if (pos[0] >= 0 and
            self._walkable_maze_matrix[pos[0] - 1][pos[1]] == 3):
             legal_movements.add("UP")
         if (pos[1] - 1 > 0 and
            self._walkable_maze_matrix[pos[0]][pos[1] - 1] != 0):
             legal_movements.add("LEFT")
-        if (pos[1] + 1 < len(self._walkable_maze_matrix[0]) and
+        if (pos[1] + 1 <= len(self._walkable_maze_matrix[0]) and
            self._walkable_maze_matrix[pos[0]][pos[1] + 1] != 0):
             legal_movements.add("RIGHT")
-        if (pos[0] + 1 < len(self._walkable_maze_matrix) and
+        if (pos[0] + 1 <= len(self._walkable_maze_matrix) and
            self._walkable_maze_matrix[pos[0] + 1][pos[1]] != 0):
             legal_movements.add("DOWN")
 
