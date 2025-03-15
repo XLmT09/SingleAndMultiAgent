@@ -143,7 +143,20 @@ class Computer:
         climbing = False
         player_position = (self.character.grid_y, self.character.grid_x)
 
+        is_comp_agent = hasattr(self, "state")
+
+        max_iterations = 500000
+
         while self.path_to_follow:
+            max_iterations -= 1
+
+            # If the max iterations reaches zero, then the computer is stuck
+            # trying to traverse the maze. We will break and let the
+            # controlling algo re calculate a new path.
+            # NOTE: this is for comp agents
+            if is_comp_agent and max_iterations <= 0:
+                break
+
             if self.enemy_in_way:
                 self.path_to_follow = self.generate_path()
                 continue
