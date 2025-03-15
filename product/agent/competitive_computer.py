@@ -84,28 +84,23 @@ class MinimaxComputer(Computer):
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
     def legal_movements(self, pos):
-        legal_movements = set()
-        if pos[1] >= len(self._walkable_maze_matrix[0]):
-            return legal_movements
+        """Find the legal movements that the agent can perform."""
+        legal_movements = []
 
-        # check if its possible to move to the next grid.
-        if (pos[0] >= 0 and
+        if (pos[0] - 1 > 0 and
            self._walkable_maze_matrix[pos[0] - 1][pos[1]] == 3):
-            legal_movements.add("UP")
-        if (pos[1] - 1 > 0 and
-           self._walkable_maze_matrix[pos[0]][pos[1] - 1] != 0):
-            legal_movements.add("LEFT")
-        if (pos[1] + 1 <= len(self._walkable_maze_matrix[0]) and
-           self._walkable_maze_matrix[pos[0]][pos[1] + 1] != 0):
-            legal_movements.add("RIGHT")
-        if (pos[0] + 1 <= len(self._walkable_maze_matrix) and
+            legal_movements.append("UP")
+        if (pos[0] + 1 < len(self._walkable_maze_matrix) - 1 and
            self._walkable_maze_matrix[pos[0] + 1][pos[1]] != 0):
-            legal_movements.add("DOWN")
+            legal_movements.append("DOWN")
+        if (pos[1] - 1 > 1 and
+           self._walkable_maze_matrix[pos[0]][pos[1] - 1] != 0):
+            legal_movements.append("LEFT")
+        if (pos[1] + 1 < len(self._walkable_maze_matrix[0]) - 1 and
+           self._walkable_maze_matrix[pos[0]][pos[1] + 1] != 0):
+            legal_movements.append("RIGHT")
 
-        # if self.agent_type == 1:
-        #     print(legal_movements)
-
-        return list(legal_movements)
+        return legal_movements
 
     def minimax(self, state, depth, agent, visited_states=None):
         """ This function will simulate the minimax algorithm. It will
