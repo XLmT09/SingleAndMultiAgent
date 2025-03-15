@@ -307,9 +307,9 @@ class CharacterAnimationManager:
             self._requested_animation = "climb"
             self._dy -= 2
             self._dx -= 1
-        # elif direction == "DOWN":
-        #     self._requested_animation = "climb"
-        #     self._dy += 1
+        elif direction == "DOWN":
+            self._requested_animation = "jump"
+            self._dy += 1
         else:
             self._dx, self._dy = 0, 0
             self._requested_animation = "idle"
