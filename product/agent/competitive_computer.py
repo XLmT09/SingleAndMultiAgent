@@ -44,6 +44,41 @@ class MinimaxComputer(Computer):
 
         return score
 
+    def generate_bfs_dist(self, pos1, pos2) -> list:
+        """ This function uses bfs search to find the closest path between two
+        positions.
+
+        Attributes:
+            pos1 (tuple): The first position to start the search from. It is
+            of the form (grid_y, grid_x).
+            pos2 (tuple): The goal position.
+        """
+        # The queue will contain tuples with two arguments.
+        # arg1 is a pos tuple
+        # arg2 is the current distance that has been covered.
+        queue = [(pos1, 0)]
+        visited = set()
+
+        while queue:
+            current, dist = queue.pop(0)
+            visited.add(current)
+
+            if current == pos2:
+                return dist
+
+            # Loop through all 4 directions the computer can take
+            for direction in self._directions:
+                next_grid = (current[0] + direction[0],
+                             current[1] + direction[1])
+
+                # Check if the next grid we are looking at is
+                # walkable and not visited.
+                if (self._walkable_maze_matrix[next_grid[0]][next_grid[1]]
+                        != 0 and next_grid not in visited):
+                    queue.append((next_grid, dist + 1))
+
+        return None
+
     def manhattan_distance(self, pos1, pos2):
         """Computes Manhattan distance between two points."""
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
