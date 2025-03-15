@@ -250,7 +250,6 @@ def setup_game(config) -> dict:
             "lose": 0
         }
 
-
     # If algo was specified, initialize a specific computer class and pass
     # arguments to constructor. Else, dont initialize and the user will
     # control the player.
@@ -264,7 +263,7 @@ def setup_game(config) -> dict:
             is_weighted=config["weighted"],
             enemy_list=character_list[1:] if len(character_list) > 1 else [],
             state=state,
-            is_main=True 
+            is_main=True
         )
 
     enemy_computers = []
