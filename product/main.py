@@ -207,6 +207,11 @@ def create_characters(config, maze_array) -> list:
             pink_enemy_file_sprite_paths["climb"],
             animation_steps=4
         )
+        enemy.set_char_animation(
+            "jump",
+            pink_enemy_file_sprite_paths["jump"],
+            animation_steps=8
+        )
 
         character_list.append(enemy)
 
