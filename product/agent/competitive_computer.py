@@ -17,7 +17,7 @@ class MinimaxComputer(Computer):
         else:
             self.agent_type = 1
 
-    def evaluation_function(self, state):
+    def evaluation_function(self, state, depth):
         """The function is used to calculate the cost of a game state."""
 
         main_agent_pos = state["main_agent"]
