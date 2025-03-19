@@ -249,7 +249,9 @@ def setup_game(config) -> dict:
         state = {
             "main_agent": player.get_player_grid_coordinates(),
             "enemies": character_list[1].get_player_grid_coordinates(),
-            "diamond_positions": world.get_diamond_group(),
+            "diamond_positions": [
+                (dmd.grid_y, dmd.grid_x) for dmd in world.get_diamond_group()
+            ],
             "score": 0,
             "win": False,
             "lose": False,
@@ -369,11 +371,14 @@ def start_game_agent(
         world.draw_grid(screen, screen_height, screen_width)
 
         if enemy_computers:
+            dmd_list = [
+                (dmd.grid_y, dmd.grid_x) for dmd in world.get_diamond_group()
+            ]
             state = {
                 "main_agent": player.get_player_grid_coordinates(),
                 "enemies":
                     enemy_computers[0].character.get_player_grid_coordinates(),
-                "diamond_positions": world.get_diamond_group(),
+                "diamond_positions": dmd_list,
                 "score": 0,
                 "win": False,
                 "lose": False,
