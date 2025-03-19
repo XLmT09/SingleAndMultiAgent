@@ -245,7 +245,7 @@ class TestGUIEnemyCollisionComputer(TestGUIComputer, unittest.TestCase):
                 self.tile_data,
                 asset_groups=self.diamond_positions,
                 game_over=self.game_over,
-                enemy_computer=[self.enemy_computer]
+                enemy_computers=[self.enemy_computer]
             )
 
             # End test once enemy collision was detected.
