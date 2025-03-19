@@ -250,6 +250,79 @@ class MinimaxComputer(Computer):
 
         return [next_grid]
 
+    def move_based_on_path_instructions(self) -> None:
+        """ This function will get the BFS path, then  move the character
+        to follow the path it's found. """
+        self.path_to_follow = self.generate_path()
+
+        print(self.path_to_follow)
+        if self.perform_analysis:
+            print(f"The path is: {self.path_to_follow}")
+            print(f"Path length is: {len(self.path_to_follow)}")
+
+        climbing = False
+        player_position = (self.character.grid_y, self.character.grid_x)
+
+        # Go top the next coord in the path, once coord is reached pop it of
+        # the list and exit the function.
+        while self.path_to_follow:
+            if self.stop_thread:
+                print("STOPPING THE COMPUTER THREAD.")
+                break
+
+            # If for some reason the enemy is very close to us then generate a
+            # new coord to go to.
+            if self.enemy_in_way:
+                self.path_to_follow = self.generate_path()
+                continue
+
+            # Check that the path we have generated is valid a grid, if it is
+            # not then clear the list and exit the loop.
+            path_coord_y, path_coord_x = self.path_to_follow[0]
+            if self._walkable_maze_matrix[path_coord_y][path_coord_x] == 0:
+                self.path_to_follow.pop(0)
+                break
+
+            # calculate the position difference between the next coord and
+            # current player location, to help decide which direction to take.
+            pos_diff = tuple(
+                np.subtract(
+                    player_position,
+                    self.path_to_follow[0]
+                )
+            )
+
+            # update the requested movement value, this value will be used by
+            # the main thread to control player movement.
+            coord1, coord2 = player_position
+
+            if (pos_diff == (0, 0) or
+               abs(pos_diff[1]) > 1 or abs(pos_diff[0]) > 1):
+                self.path_to_follow.pop(0)
+                continue
+            if (climbing and (pos_diff[1] > 0 and
+               self._walkable_maze_matrix[coord1][coord2] == 3)):
+                self.requested_movement = "UP LEFT"
+                time.sleep(2)
+                climbing = False
+            elif (climbing and (pos_diff[1] < 0 and
+                  self._walkable_maze_matrix[coord1][coord2] == 3)):
+                self.requested_movement = "UP RIGHT"
+                time.sleep(2)
+                climbing = False
+            elif (pos_diff[0] > 0 or climbing):
+                self.requested_movement = "UP"
+                climbing = True
+            elif (pos_diff[1] > 0 and not climbing):
+                self.requested_movement = "LEFT"
+            elif (pos_diff[1] < 0 and not climbing):
+                self.requested_movement = "RIGHT"
+
+            # update the player position value
+            player_position = (self.character.grid_y, self.character.grid_x)
+
+        return 0
+
     def perform_path_find(self) -> None:
         """ This functions keeps searching for a path until the stop_thread
         flag is set. """
