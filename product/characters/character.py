@@ -261,7 +261,7 @@ class CharacterAnimationManager:
         # we will climb.
         if key[pygame.K_UP] and self._maze_data[self.grid_y][self.grid_x] == 3:
             self._requested_animation = "climb"
-            self._dy -= 2
+            self._dy -= 1
         if key[pygame.K_SPACE] and not self._jumped:
             self._requested_animation = "jump"
             self._vel_y = -15
@@ -296,7 +296,7 @@ class CharacterAnimationManager:
                 self._dx -= 1
         elif direction == "UP":
             self._requested_animation = "climb"
-            self._dy -= 2
+            self._dy -= 1
             # algin the player to the center of the ladder
             self._pos_x = self.grid_x * C.TILE_SIZE + 25
         elif direction == "UP RIGHT":
@@ -305,11 +305,12 @@ class CharacterAnimationManager:
             self._dx += 1
         elif direction == "UP LEFT":
             self._requested_animation = "climb"
-            self._dy -= 2
+            self._dy -= 1
             self._dx -= 1
         elif direction == "DOWN":
-            self._requested_animation = "jump"
+            self._requested_animation = "climb"
             self._dy += 1
+            self._pos_x = self.grid_x * C.TILE_SIZE + 25
         else:
             self._dx, self._dy = 0, 0
             self._requested_animation = "idle"
