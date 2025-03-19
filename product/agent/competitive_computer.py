@@ -1,4 +1,6 @@
 from agent.computer import Computer
+import numpy as np
+import time
 
 
 class MinimaxComputer(Computer):
@@ -71,6 +73,23 @@ class MinimaxComputer(Computer):
 
         return score
 
+    def get_manhattan_distance_filled(self, pos1, pos2) -> int:
+        """ This function generates the manhattan distance between two coords
+        we pass it. """
+        horizontal_diff = abs(pos1[1] - pos2[1])
+        vertical_diff = abs(pos1[0] - pos2[0])
+
+        offset = 0
+
+        # update offset value to the heuristic if there is a height difference,
+        # to account for the ladder climbing time.
+        # In other words, give more priority to positions which are on the
+        # same or neighboring levels.
+        if vertical_diff:
+            offset += vertical_diff * 10
+
+        return vertical_diff + horizontal_diff + offset
+
     def generate_bfs_dist(self, pos1, pos2) -> list:
         """ This function uses bfs search to find the closest path between two
         positions.
@@ -114,18 +133,18 @@ class MinimaxComputer(Computer):
         """Find the legal movements that the agent can perform."""
         legal_movements = []
 
-        if (pos[0] - 1 > 0 and
-           self._walkable_maze_matrix[pos[0] - 1][pos[1]] == 3):
-            legal_movements.append("UP")
-        if (pos[0] + 1 < len(self._walkable_maze_matrix) - 1 and
-           self._walkable_maze_matrix[pos[0] + 1][pos[1]] != 0):
-            legal_movements.append("DOWN")
         if (pos[1] - 1 > 1 and
            self._walkable_maze_matrix[pos[0]][pos[1] - 1] != 0):
             legal_movements.append("LEFT")
         if (pos[1] + 1 < len(self._walkable_maze_matrix[0]) - 1 and
            self._walkable_maze_matrix[pos[0]][pos[1] + 1] != 0):
             legal_movements.append("RIGHT")
+        if (pos[0] + 1 < len(self._walkable_maze_matrix) - 1 and
+           self._walkable_maze_matrix[pos[0] + 1][pos[1]] == 3):
+            legal_movements.append("DOWN")
+        if (pos[0] - 1 >= 1 and
+           self._walkable_maze_matrix[pos[0] - 1][pos[1]] == 3):
+            legal_movements.append("UP")
 
         return legal_movements
 
@@ -154,9 +173,9 @@ class MinimaxComputer(Computer):
 
         # end algorithm if we reached max depth or find a terminating state
         if self.is_terminal(state) or depth <= 0:
-            return (self.evaluation_function(state, depth), "None")
+            return (self.evaluation_function(state, depth), None)
 
-        action_to_take = "None"
+        action_to_take = None
 
         if agent == 0:
             best_value = float("-inf")
@@ -173,9 +192,11 @@ class MinimaxComputer(Computer):
                 if best_value <= current_value:
                     best_value = current_value
                     action_to_take = action
+            return (best_value, action_to_take)
         else:
             best_value = float("inf")
             if not self.stop_thread:
+
                 for action in self.legal_movements(state["enemies"]):
                     successor = self.generate_successor(state, agent, action)
 
@@ -191,21 +212,21 @@ class MinimaxComputer(Computer):
                     if best_value >= current_value:
                         best_value = current_value
                         action_to_take = action
+
+                return (best_value, action_to_take)
             else:
                 return (0, "None")
-
-        return (best_value, action_to_take)
 
     def simulate_movement(self, position, action):
         y, x = position
 
-        if action == 'UP':
+        if action == "UP":
             return (y - 1, x)
-        elif action == 'DOWN':
+        elif action == "DOWN":
             return (y + 1, x)
-        elif action == 'LEFT':
+        elif action == "LEFT":
             return (y, x - 1)
-        elif action == 'RIGHT':
+        elif action == "RIGHT":
             return (y, x + 1)
 
         return position
@@ -267,12 +288,13 @@ class MinimaxComputer(Computer):
         """
         state_copy = self.state.copy()
 
+        cost, action = self.minimax(state_copy, depth=3, agent=self.agent_type)
+
         # we are using state coordinates instead of directly retrieving
         # character coordinates to avoid going into illegal girds.
         next_grid = self.simulate_movement(
-            self.state["main_agent"] if self.agent_type == 0
-            else self.state["enemies"],
-            action=self.minimax(state_copy, depth=2, agent=self.agent_type)[1]
+            self.character.get_player_grid_coordinates(),
+            action=action
         )
 
         return [next_grid]
