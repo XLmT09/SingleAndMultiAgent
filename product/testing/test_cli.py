@@ -86,6 +86,16 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_7")
         self.assertEqual(result["algo"], "greedy")
 
+    @patch('sys.argv', ['main', '--size', 'small-filled', '--algo', 'minimax',
+           '--enemy_count', '1'])
+    def test_small_filled_maze_comp_algo(self):
+        """ Test that for a comp algo, it will output maze 8 instead of 5. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 850)
+        self.assertEqual(result["screen_height"], 350)
+        self.assertEqual(result["maze_path"], "maze/maze_8")
+        self.assertEqual(result["algo"], "minimax")
+
     @patch('sys.argv', ['main', '--size', 'large-filled', '--algo', 'astar'])
     def test_large_size_and_a_star_filled_algo(self):
         """ Test a star filled algo is registered. """
@@ -145,7 +155,8 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_1")
         self.assertEqual(result["algo"], "random")
 
-    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small'])
+    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small',
+           '--enemy_count', '1'])
     def test_cli_minimax_algo(self):
         """ Test cli with minimax as algo value. """
         result = process_args()
