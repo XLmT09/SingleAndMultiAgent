@@ -15,32 +15,59 @@ class MinimaxComputer(Computer):
         else:
             self.agent_type = 1
 
-    def evaluation_function(self, state, depth):
-        main_agent_pos = (
-            state["main_agent"]
-        )
-        enemy_position = (
-            state["enemies"]
-        )
+    def evaluation_function(self, state):
+        """The function is used to calculate the cost of a game state."""
 
+        main_agent_pos = state["main_agent"]
+        enemy_agent_pos = state["enemies"]
+        score = 0
+
+        # if the state ends in a win or lose state, we return -/+infinity
+        if state["lose"]:
+            return float('-inf')
+        if state["win"]:
+            return float('inf')
+
+        # Add the bfs distance between the main agent and enemy position of
+        # the given state.
+        score += self.generate_bfs_dist(main_agent_pos, enemy_agent_pos)
+
+        # Calculate the distance between the main_agents position in the
+        # actual game and enemy state position.
+        real_dist = self.generate_bfs_dist(
+            self.state["main_agent"],
+            state["enemies"]
+            ) + 1
+
+        # If the distance between the current player pos and state pos of the
+        # enemy is close, then add a big negative cost.
+        if real_dist <= 4:
+            score -= 100
+        else:
+            score += real_dist
+
+        # We will also use manhattan for our evaluation
+        score += self.manhattan_distance(main_agent_pos, enemy_agent_pos)
+
+        # For the second set of calculations we will need information about
+        # the diamonds, so we will store all there coords in a list.
         diamond_positions = [
             (dmd.grid_y, dmd.grid_x) for dmd in state["diamond_positions"]
         ]
-        score = state["score"]
 
-        distance = self.manhattan_distance(main_agent_pos, enemy_position)
-        enemy_distance = distance = (
-            self.manhattan_distance(main_agent_pos, enemy_position)
-        )
-
-        if main_agent_pos == enemy_position:
-            return -500
-
-        score -= 1 * (1 + enemy_distance)
-
+        # from all the diamonds in the game, find the closet one.
+        closest_diamond = float("inf")
         for diamond in diamond_positions:
-            distance = self.manhattan_distance(main_agent_pos, diamond)
-            score += 10 / (distance + 1) + depth
+            closest_diamond = min(
+                closest_diamond,
+                self.generate_bfs_dist(main_agent_pos, diamond)
+            )
+
+        score += 5000 / (closest_diamond + 1)
+
+        # We will give awards for the number of diamonds the current state
+        # covers for the main agent.
+        score += state["diamond_count"]
 
         return score
 
