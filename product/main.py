@@ -82,7 +82,10 @@ def process_args() -> dict:
         screen_height = 350
         # retrieve the small maze filled with diamonds
         if "filled" in args.size:
-            maze = "maze/maze_5"
+            if args.algo == "minimax":
+                maze = "maze/maze_8"
+            else:
+                maze = "maze/maze_5"
             filled = True
         else:
             maze = "maze/maze_1"
