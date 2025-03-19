@@ -1,6 +1,7 @@
 from agent.computer import Computer
 import numpy as np
 import time
+import copy
 
 
 class MinimaxComputer(Computer):
@@ -17,7 +18,9 @@ class MinimaxComputer(Computer):
         else:
             self.agent_type = 1
 
-    def evaluation_function(self, state, depth):
+        self.prev_action = None
+
+    def evaluation_function(self, state, depth, action):
         """The function is used to calculate the cost of a game state."""
 
         main_agent_pos = state["main_agent"]
@@ -32,7 +35,7 @@ class MinimaxComputer(Computer):
 
         # Add the bfs distance between the main agent and enemy position of
         # the given state.
-        score += self.generate_bfs_dist(main_agent_pos, enemy_agent_pos)
+        score -= 50 / (self.generate_bfs_dist(main_agent_pos, enemy_agent_pos) + 1)
 
         # Calculate the distance between the main_agents position in the
         # actual game and enemy state position.
@@ -48,14 +51,17 @@ class MinimaxComputer(Computer):
         else:
             score += real_dist
 
-        # We will also use manhattan for our evaluation
-        score += self.manhattan_distance(main_agent_pos, enemy_agent_pos)
+        prev_dist = self.generate_bfs_dist(self.state["main_agent"], state["enemies"]) + 1
+        new_dist = self.generate_bfs_dist(main_agent_pos, self.state["enemies"]) + 1
+
+        if new_dist > prev_dist:
+            score += 50  # Reward increasing distance from the enemy
+        else:
+            score -= 50  # Penalize getting closer
 
         # For the second set of calculations we will need information about
         # the diamonds, so we will store all there coords in a list.
-        diamond_positions = [
-            (dmd.grid_y, dmd.grid_x) for dmd in state["diamond_positions"]
-        ]
+        diamond_positions = state["diamond_positions"]
 
         # from all the diamonds in the game, find the closet one.
         closest_diamond = float("inf")
@@ -64,12 +70,16 @@ class MinimaxComputer(Computer):
                 closest_diamond,
                 self.generate_bfs_dist(main_agent_pos, diamond)
             )
+            #score += self.manhattan_distance(main_agent_pos, diamond)
 
-        score += 5000 / (closest_diamond + 1)
+        score += 10 / (closest_diamond + 1) - (5 / (real_dist + 1))
 
         # We will give awards for the number of diamonds the current state
         # covers for the main agent.
         score += state["diamond_count"]
+
+        if action == self.prev_action:
+            score += 5  # Small bonus to avoid unnecessary changes
 
         return score
 
@@ -148,7 +158,7 @@ class MinimaxComputer(Computer):
 
         return legal_movements
 
-    def minimax(self, state, depth, agent, visited_states=None):
+    def minimax(self, state, depth, agent, player_action=None, visited_states=None):
         """ This function will simulate the minimax algorithm. It will
         simulate movement with both the agent and enemies and find the best
         movement for whichever agent called the algo.
@@ -162,18 +172,10 @@ class MinimaxComputer(Computer):
             visited_sates (set): Avoid going traversing down repeated states
                 by keeping track of states combinations currently visited.
         """
-        if visited_states is None:
-            visited_states = set()
-
-        state_tuple = (tuple(state["main_agent"]), tuple(state["enemies"]))
-        if state_tuple in visited_states:
-            return (self.evaluation_function(state, depth), "None")
-
-        visited_states.add(state_tuple)
 
         # end algorithm if we reached max depth or find a terminating state
         if self.is_terminal(state) or depth <= 0:
-            return (self.evaluation_function(state, depth), None)
+            return (self.evaluation_function(state, depth, player_action), None)
 
         action_to_take = None
 
@@ -186,6 +188,7 @@ class MinimaxComputer(Computer):
                     successor,
                     depth,
                     agent=1,
+                    player_action=action,
                     visited_states=visited_states
                 )[0]
 
@@ -206,6 +209,7 @@ class MinimaxComputer(Computer):
                         successor,
                         depth - 1,
                         agent=0,
+                        player_action=player_action,
                         visited_states=visited_states
                     )[0]
 
@@ -229,7 +233,7 @@ class MinimaxComputer(Computer):
         elif action == "RIGHT":
             return (y, x + 1)
 
-        return position
+        return None
 
     def is_terminal(self, state):
         if len(state["diamond_positions"]) == 0:
@@ -251,7 +255,7 @@ class MinimaxComputer(Computer):
 
         # We must copy the state, to avoid modifying values of the original
         # one.
-        new_state = state.copy()
+        new_state = copy.deepcopy(state)
 
         # We need to check which agent to perform the action on
         if agent == 0:
@@ -266,7 +270,7 @@ class MinimaxComputer(Computer):
             # diamond count. This will be useful a useful heuristic to
             # consider for the evaluation function.
             for dmd in state["diamond_positions"]:
-                if (dmd.grid_y, dmd.grid_x) == new_state["main_agent"]:
+                if dmd == new_state["main_agent"]:
                     new_state["diamond_count"] += 1
         else:
             new_state["enemies"] = (
@@ -286,9 +290,9 @@ class MinimaxComputer(Computer):
 
         In other words it only needs to return a path of length one.
         """
-        state_copy = self.state.copy()
+        state_copy = copy.deepcopy(self.state)
 
-        cost, action = self.minimax(state_copy, depth=3, agent=self.agent_type)
+        cost, action = self.minimax(state_copy, depth=4, agent=self.agent_type)
 
         # we are using state coordinates instead of directly retrieving
         # character coordinates to avoid going into illegal girds.
@@ -296,6 +300,8 @@ class MinimaxComputer(Computer):
             self.character.get_player_grid_coordinates(),
             action=action
         )
+
+        self.prev_action = action
 
         return [next_grid]
 
@@ -323,12 +329,12 @@ class MinimaxComputer(Computer):
             # new coord to go to.
             if self.enemy_in_way:
                 self.path_to_follow = self.generate_path()
-                continue
+                break
 
             # Check that the path we have generated is valid a grid, if it is
             # not then clear the list and exit the loop.
             path_coord_y, path_coord_x = self.path_to_follow[0]
-            if self._walkable_maze_matrix[path_coord_y][path_coord_x] == 0:
+            if (self._walkable_maze_matrix[path_coord_y][path_coord_x] == 0):
                 self.path_to_follow.pop(0)
                 break
 
@@ -349,17 +355,17 @@ class MinimaxComputer(Computer):
                abs(pos_diff[1]) > 1 or abs(pos_diff[0]) > 1):
                 self.path_to_follow.pop(0)
                 continue
-            if (climbing and (pos_diff[1] > 0 and
-               self._walkable_maze_matrix[coord1][coord2] == 3)):
+            if ((climbing and pos_diff[1] > 0) or
+               (self._walkable_maze_matrix[coord1][coord2] == 3 and pos_diff[1] > 0)):
                 self.requested_movement = "UP LEFT"
                 time.sleep(2)
                 climbing = False
-            elif (climbing and (pos_diff[1] < 0 and
-                  self._walkable_maze_matrix[coord1][coord2] == 3)):
+            elif ((climbing and pos_diff[1] < 0) or
+                  (self._walkable_maze_matrix[coord1][coord2] == 3 and pos_diff[1] < 0)):
                 self.requested_movement = "UP RIGHT"
                 time.sleep(2)
                 climbing = False
-            elif (pos_diff[0] > 0 or climbing):
+            elif (pos_diff[0] > 0):
                 self.requested_movement = "UP"
                 climbing = True
             elif (pos_diff[1] > 0 and not climbing):
@@ -368,7 +374,7 @@ class MinimaxComputer(Computer):
                 self.requested_movement = "RIGHT"
 
             # update the player position value
-            player_position = (self.character.grid_y, self.character.grid_x)
+            player_position = self.character.get_player_grid_coordinates()
 
         return 0
 
