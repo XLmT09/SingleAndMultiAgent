@@ -168,21 +168,28 @@ class Computer:
             pos_diff = tuple(np.subtract(player_position,
                              self.path_to_follow[0]))
 
+            coord1, coord2 = player_position
+
             if (pos_diff == (0, 0)):
                 self.path_to_follow.pop(0)
                 continue
 
-            if (climbing and pos_diff[1] > 0):
+            if (climbing and (pos_diff[1] > 0 and
+               self._walkable_maze_matrix[coord1][coord2] == 3)):
                 self.requested_movement = "UP LEFT"
-                time.sleep(1)
+                time.sleep(2)
                 climbing = False
-            elif (climbing and pos_diff[1] < 0):
+            elif (climbing and (pos_diff[1] < 0 and
+                  self._walkable_maze_matrix[coord1][coord2] == 3)):
                 self.requested_movement = "UP RIGHT"
-                time.sleep(1)
+                time.sleep(2)
                 climbing = False
             elif (pos_diff[0] > 0 or climbing):
                 self.requested_movement = "UP"
                 climbing = True
+            elif (pos_diff[0] < 0 or climbing):
+                self.requested_movement = "DOWN"
+                climbing = False
             elif (pos_diff[1] > 0 and not climbing):
                 self.requested_movement = "LEFT"
             elif (pos_diff[1] < 0 and not climbing):
