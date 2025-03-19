@@ -35,7 +35,9 @@ class MinimaxComputer(Computer):
 
         # Add the bfs distance between the main agent and enemy position of
         # the given state.
-        score -= 50 / (self.generate_bfs_dist(main_agent_pos, enemy_agent_pos) + 1)
+        score -= (
+            50 / (self.generate_bfs_dist(main_agent_pos, enemy_agent_pos) + 1)
+        )
 
         # Calculate the distance between the main_agents position in the
         # actual game and enemy state position.
@@ -51,8 +53,14 @@ class MinimaxComputer(Computer):
         else:
             score += real_dist
 
-        prev_dist = self.generate_bfs_dist(self.state["main_agent"], state["enemies"]) + 1
-        new_dist = self.generate_bfs_dist(main_agent_pos, self.state["enemies"]) + 1
+        prev_dist = self.generate_bfs_dist(
+            self.state["main_agent"],
+            state["enemies"]
+        ) + 1
+        new_dist = self.generate_bfs_dist(
+            main_agent_pos,
+            self.state["enemies"]
+        ) + 1
 
         if new_dist > prev_dist:
             score += 50  # Reward increasing distance from the enemy
@@ -70,7 +78,6 @@ class MinimaxComputer(Computer):
                 closest_diamond,
                 self.generate_bfs_dist(main_agent_pos, diamond)
             )
-            #score += self.manhattan_distance(main_agent_pos, diamond)
 
         score += 10 / (closest_diamond + 1) - (5 / (real_dist + 1))
 
@@ -78,8 +85,9 @@ class MinimaxComputer(Computer):
         # covers for the main agent.
         score += state["diamond_count"]
 
+        # Small bonus to avoid unnecessary changes
         if action == self.prev_action:
-            score += 5  # Small bonus to avoid unnecessary changes
+            score += 5
 
         return score
 
@@ -158,7 +166,7 @@ class MinimaxComputer(Computer):
 
         return legal_movements
 
-    def minimax(self, state, depth, agent, player_action=None, visited_states=None):
+    def minimax(self, state, depth, agent, player_action=None):
         """ This function will simulate the minimax algorithm. It will
         simulate movement with both the agent and enemies and find the best
         movement for whichever agent called the algo.
@@ -175,7 +183,10 @@ class MinimaxComputer(Computer):
 
         # end algorithm if we reached max depth or find a terminating state
         if self.is_terminal(state) or depth <= 0:
-            return (self.evaluation_function(state, depth, player_action), None)
+            return (
+                self.evaluation_function(
+                    state, depth, player_action
+                ), None)
 
         action_to_take = None
 
@@ -189,7 +200,6 @@ class MinimaxComputer(Computer):
                     depth,
                     agent=1,
                     player_action=action,
-                    visited_states=visited_states
                 )[0]
 
                 if best_value <= current_value:
@@ -210,7 +220,6 @@ class MinimaxComputer(Computer):
                         depth - 1,
                         agent=0,
                         player_action=player_action,
-                        visited_states=visited_states
                     )[0]
 
                     if best_value >= current_value:
@@ -356,12 +365,14 @@ class MinimaxComputer(Computer):
                 self.path_to_follow.pop(0)
                 continue
             if ((climbing and pos_diff[1] > 0) or
-               (self._walkable_maze_matrix[coord1][coord2] == 3 and pos_diff[1] > 0)):
+               (self._walkable_maze_matrix[coord1][coord2] == 3 and
+               pos_diff[1] > 0)):
                 self.requested_movement = "UP LEFT"
                 time.sleep(2)
                 climbing = False
             elif ((climbing and pos_diff[1] < 0) or
-                  (self._walkable_maze_matrix[coord1][coord2] == 3 and pos_diff[1] < 0)):
+                  (self._walkable_maze_matrix[coord1][coord2] == 3 and
+                  pos_diff[1] < 0)):
                 self.requested_movement = "UP RIGHT"
                 time.sleep(2)
                 climbing = False
