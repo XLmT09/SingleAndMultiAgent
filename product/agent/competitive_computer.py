@@ -20,7 +20,7 @@ class MinimaxComputer(Computer):
 
         self.prev_action = None
 
-    def evaluation_function(self, state, depth, action):
+    def evaluation_function(self, state, depth, player_action):
         """The function is used to calculate the cost of a game state."""
 
         main_agent_pos = state["main_agent"]
@@ -53,20 +53,6 @@ class MinimaxComputer(Computer):
         else:
             score += real_dist
 
-        prev_dist = self.generate_bfs_dist(
-            self.state["main_agent"],
-            state["enemies"]
-        ) + 1
-        new_dist = self.generate_bfs_dist(
-            main_agent_pos,
-            self.state["enemies"]
-        ) + 1
-
-        if new_dist > prev_dist:
-            score += 50  # Reward increasing distance from the enemy
-        else:
-            score -= 50  # Penalize getting closer
-
         # For the second set of calculations we will need information about
         # the diamonds, so we will store all there coords in a list.
         diamond_positions = state["diamond_positions"]
@@ -86,7 +72,7 @@ class MinimaxComputer(Computer):
         score += state["diamond_count"]
 
         # Small bonus to avoid unnecessary changes
-        if action == self.prev_action:
+        if player_action == self.prev_action and self.agent_type == 0:
             score += 5
 
         return score
@@ -141,13 +127,13 @@ class MinimaxComputer(Computer):
                         != 0 and next_grid not in visited):
                     queue.append((next_grid, dist + 1))
 
-        return None
+        return float("-inf")
 
     def manhattan_distance(self, pos1, pos2):
         """Computes Manhattan distance between two points."""
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
-    def legal_movements(self, pos):
+    def legal_movements(self, pos, action):
         """Find the legal movements that the agent can perform."""
         legal_movements = []
 
@@ -155,18 +141,21 @@ class MinimaxComputer(Computer):
            self._walkable_maze_matrix[pos[0]][pos[1] - 1] != 0):
             legal_movements.append("LEFT")
         if (pos[1] + 1 < len(self._walkable_maze_matrix[0]) - 1 and
-           self._walkable_maze_matrix[pos[0]][pos[1] + 1] != 0):
+           self._walkable_maze_matrix[pos[0]][pos[1] + 1] != 0
+           and action != "LEFT"):
             legal_movements.append("RIGHT")
-        if (pos[0] + 1 < len(self._walkable_maze_matrix) - 1 and
-           self._walkable_maze_matrix[pos[0] + 1][pos[1]] == 3):
+        if (pos[0] + 1 < len(self._walkable_maze_matrix) and
+           self._walkable_maze_matrix[pos[0] + 1][pos[1]] == 3
+           and action != "UP"):
             legal_movements.append("DOWN")
         if (pos[0] - 1 >= 1 and
-           self._walkable_maze_matrix[pos[0] - 1][pos[1]] == 3):
+           self._walkable_maze_matrix[pos[0] - 1][pos[1]] == 3
+           and action != "DOWN"):
             legal_movements.append("UP")
 
         return legal_movements
 
-    def minimax(self, state, depth, agent, player_action=None):
+    def minimax(self, state, depth, agent, player_action=None, enemy_action=None):
         """ This function will simulate the minimax algorithm. It will
         simulate movement with both the agent and enemies and find the best
         movement for whichever agent called the algo.
@@ -192,7 +181,8 @@ class MinimaxComputer(Computer):
 
         if agent == 0:
             best_value = float("-inf")
-            for action in self.legal_movements(state["main_agent"]):
+            for action in self.legal_movements(state["main_agent"],
+                                               player_action):
                 successor = self.generate_successor(state, agent, action)
 
                 current_value = self.minimax(
@@ -200,17 +190,20 @@ class MinimaxComputer(Computer):
                     depth,
                     agent=1,
                     player_action=action,
+                    enemy_action=enemy_action
                 )[0]
 
                 if best_value <= current_value:
                     best_value = current_value
                     action_to_take = action
+
             return (best_value, action_to_take)
         else:
             best_value = float("inf")
             if not self.stop_thread:
 
-                for action in self.legal_movements(state["enemies"]):
+                for action in self.legal_movements(state["enemies"],
+                                                   enemy_action):
                     successor = self.generate_successor(state, agent, action)
 
                     # we decrease the depth here because we at this point both
@@ -220,6 +213,7 @@ class MinimaxComputer(Computer):
                         depth - 1,
                         agent=0,
                         player_action=player_action,
+                        enemy_action=action
                     )[0]
 
                     if best_value >= current_value:
@@ -301,7 +295,7 @@ class MinimaxComputer(Computer):
         """
         state_copy = copy.deepcopy(self.state)
 
-        cost, action = self.minimax(state_copy, depth=4, agent=self.agent_type)
+        cost, action = self.minimax(state_copy, depth=2, agent=self.agent_type)
 
         # we are using state coordinates instead of directly retrieving
         # character coordinates to avoid going into illegal girds.
@@ -319,7 +313,6 @@ class MinimaxComputer(Computer):
         to follow the path it's found. """
         self.path_to_follow = self.generate_path()
 
-        print(self.path_to_follow)
         if self.perform_analysis:
             print(f"The path is: {self.path_to_follow}")
             print(f"Path length is: {len(self.path_to_follow)}")
@@ -332,12 +325,6 @@ class MinimaxComputer(Computer):
         while self.path_to_follow:
             if self.stop_thread:
                 print("STOPPING THE COMPUTER THREAD.")
-                break
-
-            # If for some reason the enemy is very close to us then generate a
-            # new coord to go to.
-            if self.enemy_in_way:
-                self.path_to_follow = self.generate_path()
                 break
 
             # Check that the path we have generated is valid a grid, if it is
