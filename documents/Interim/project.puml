@@ -1,0 +1,135 @@
+@startuml Maze
+class Diamond {
+    - _diamond_sprite_list : list
+    - _current_sprite : int
+    + image : Surface
+    + rect : Rect
+
+    - _load_diamond_images() : None
+    + update_position(x : int, y : int) : None
+    + update() : None
+}
+
+class World {
+    - _world_matrix : List<List<int>>
+    - _maze_size : list
+    - _collidable_tile_list : int
+    - _non_collidable_tile_list : List<List<int>> 
+    - _tile_list_images : list  
+    - _diamond_group : Group    
+    - _ladder_img : Image
+    - _walkable_maze_matrix : List<List<int>> 
+    + was_highlight_ran : bool
+    + diamond_regeneration_positions : bool
+
+    + _load_asset_and_tile_images() : None
+    + _genrate_world_tiles_and_assets() : None
+    + _find_walkable_areas_in_the_maze() : None
+    + get_walkable_locations(clear_diamond_pos : bool) : list
+    + update_diamond_position(are_locations_defined : bool) : int
+    + draw_grid(screen : Surface, screen_height : int, screen_width : int) : None
+    + load_world(screen : Surface) : None
+    + highlight_grids_visited_by_algo(screen : Surface, viisted_list : List<tuples>, path_to_gaol : List<tuples>) : int
+    + print_walkable_maze_matrix() : None
+}
+
+class Computer {
+    + character : CharacterAnimationManager
+    + requested_movement : str
+    - _walkable_maze_matrix : List<List<int>>
+    - _directions : List<tuples>
+    + stop_thread : bool
+    + perfrom_analysis : bool
+    - _visited_grids : List<tuples>
+    - _path_generated : List<tuples>
+    + th : Thread
+
+    + start_thread() : None
+    + stop_path_find_algo_thread() : None
+    + move(screen : Surface, world_data : List<Rect>, asset_groups : Group, game_over : int) : None
+    + reconstruct_path(search_path_histroy : List<tuples>, end : tuple)
+    + move_based_on_path_instructions() : None
+    + get_visited_grids_and_path_to_goal() : list
+}
+
+class RandomComputer {
+    + perfrom_path_find() : None
+}
+
+class BFSComputer {
+    + perfrom_path_find() : None
+    + generate_path(): List<tuples>
+}
+
+class DFSComputer {
+    + perfrom_path_find() : None
+    + generate_path(): List<tuples>
+}
+
+class UCSComputer {
+    + perfrom_path_find() : None
+    + generate_path(): List<tuples>
+    + get_neighbour(current : tuple, cost : int) : List<tuples>
+}
+
+class Player {
+    - _sprite_sheet: Surface
+    + width : int
+    + height : int
+    - _steps : int
+    - _animation_list : List<Surface>
+    - _animation_list_left : List<Surface>
+    - _frame_counter : int
+
+    + load_image(frame : int, scale : int, look_left : bool) : Surface
+    + draw_animation(screen : Surface, rect : Rect, update_frame : bool, look_left : bool) : None
+}
+
+class CharacterAnimationManager {
+    + width, height : int, int
+    + height : int
+    + rect : Rect
+    + hitbox_width : int
+    + hitbox_height : int
+    + hitbox_rect
+    + grid_x : int
+    + grid_y : int
+    - _pos_x : int
+    - _pos_y : int
+    - _animation_actions : dict
+    - _requested_animation : str
+    - _last_update : int
+    - _vel_y : int
+    - _dx : float
+    - _dy : int
+    - _jumped : bool
+    - _is_controlled_by_computer : bool
+    - _maze_data : List<int>
+    - _is_diamond_found : bool
+    - _score : int
+
+    + set_char_animation(animation_desciption : str, sprite_sheet : str, animation_steps : int) : None
+    + draw_outline(screen : Surface) : None
+    + human_player_movement() : None
+    + computer_player_movement(direction : str) : None
+    + draw_animation(screen : Surface, world_tile_data : List<Rect>, world_assets : Group, game_over : int, direction: str)
+}
+
+class Text {
+    - _font : Font
+
+    + draw(screen : Surface, text_string: str, x : int, y : int) : None
+}
+
+World *-- Diamond
+CharacterAnimationManager *-- Player
+CharacterAnimationManager ..> World : uses _maze_data, _collidable_tile_list
+Computer ..> CharacterAnimationManager : depends on
+RandomComputer --|> Computer
+BFSComputer --|> Computer
+DFSComputer --|> Computer
+UCSComputer --|> Computer
+Text ..> CharacterAnimationManager : uses _score
+World ..> Computer : uses _visited_grids, _paths_generated
+Computer ..> World : uses _walkable_maze_matrix,_collidable_tile_list...
+@enduml

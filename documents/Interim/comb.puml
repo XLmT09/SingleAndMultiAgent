@@ -1,0 +1,78 @@
+@startuml Maze
+class World {
+    + world_matrix : List<List<int>>
+    + maze_size : list
+    + collidable_tile_list : int
+    + non_collidable_tile_list : List<List<int>> 
+    + tile_list_images : list  
+    + diamond_group : Group    
+    + ladder_img : Image
+    + walkable_maze_matrix : List<List<int>>
+    + diamond_regeneration_positions : bool
+    - was_highlight_ran : bool
+
+    + genrate_world_tiles_and_assets() : None
+    + find_walkable_areas_in_the_maze() : None
+    + get_walkable_locations(clear_diamond_pos : bool) : list
+    + update_diamond_position(are_locations_defined : bool) : int
+    + draw_grid(screen : Surface, screen_height : int, screen_width : int) : None
+    + load_world(screen : Surface) : None
+    + highlight_grids_visited_by_algo(screen : Surface, viisted_list : List<tuples>, path_to_gaol : List<tuples>) : int
+    + print_walkable_maze_matrix() : None
+    - load_asset_and_tile_images() : None
+}
+
+class Computer {
+    + character : CharacterAnimationManager
+    + requested_movement : str
+    + walkable_maze_matrix : List<List<int>>
+    + stop_thread : bool
+    + perfrom_analysis : bool
+    + visited_grids : List<tuples>
+    + path_generated : List<tuples>
+    - th : Thread
+    - directions : List<tuples>
+
+    + start_thread() : None
+    + stop_path_find_algo_thread() : None
+    + move(screen : Surface, world_data : List<Rect>, asset_groups : Group, game_over : int) : None
+    + reconstruct_path(search_path_histroy : List<tuples>, end : tuple)
+    + move_based_on_path_instructions() : None
+    + get_visited_grids_and_path_to_goal() : list
+}
+
+class CharacterAnimationManager {
+    + width, height : int, int
+    + height : int
+    + rect : Rect
+    + hitbox_width : int
+    + hitbox_height : int
+    + hitbox_rect
+    + grid_x : int
+    + grid_y : int
+    - pos_x : int
+    - pos_y : int
+    - animation_actions : dict
+    - requested_animation : str
+    - last_update : int
+    - vel_y : int
+    - dx : float
+    - dy : int
+    - jumped : bool
+    - is_controlled_by_computer : bool
+    - maze_data : List<int>
+    - is_diamond_found : bool
+    - score : int
+
+    + set_char_animation(animation_desciption : str, sprite_sheet : str, animation_steps : int) : None
+    + draw_outline(screen : Surface) : None
+    + human_player_movement() : None
+    + computer_player_movement(direction : str) : None
+    + draw_animation(screen : Surface, world_tile_data : List<Rect>, world_assets : Group, game_over : int, direction: str)
+}
+
+CharacterAnimationManager ..> World : uses diamond_group, collidable_tile_list
+Computer --> CharacterAnimationManager : depends on
+World ..> Computer : uses visited_grids, path_generated
+Computer ..> World : uses walkable_maze_matrix, collidable_tile_list, diamond_group
+@enduml

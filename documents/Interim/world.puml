@@ -1,0 +1,37 @@
+@startuml Maze
+class Diamond {
+    + image : Surface
+    + rect : Rect
+    - diamond_sprite_list : list
+    - current_sprite : int
+
+    - load_diamond_images() : None
+    + update_position(x : int, y : int) : None
+    + update() : None
+}
+
+class World {
+    + world_matrix : List<List<int>>
+    + maze_size : list
+    + collidable_tile_list : int
+    + non_collidable_tile_list : List<List<int>> 
+    + tile_list_images : list  
+    + diamond_group : Group    
+    + ladder_img : Image
+    + walkable_maze_matrix : List<List<int>>
+    + diamond_regeneration_positions : bool
+    - was_highlight_ran : bool
+
+    + genrate_world_tiles_and_assets() : None
+    + find_walkable_areas_in_the_maze() : None
+    + get_walkable_locations(clear_diamond_pos : bool) : list
+    + update_diamond_position(are_locations_defined : bool) : int
+    + draw_grid(screen : Surface, screen_height : int, screen_width : int) : None
+    + load_world(screen : Surface) : None
+    + highlight_grids_visited_by_algo(screen : Surface, viisted_list : List<tuples>, path_to_gaol : List<tuples>) : int
+    + print_walkable_maze_matrix() : None
+    - load_asset_and_tile_images() : None
+}
+
+World *-- Diamond
+@enduml
