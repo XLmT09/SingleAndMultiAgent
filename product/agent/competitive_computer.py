@@ -347,18 +347,17 @@ class MinimaxComputer(Computer):
             # the main thread to control player movement.
             coord1, coord2 = player_position
 
-            if (pos_diff == (0, 0) or
-               abs(pos_diff[1]) > 1 or abs(pos_diff[0]) > 1):
+            if (pos_diff == (0, 0)):
                 self.path_to_follow.pop(0)
                 continue
             if ((climbing and pos_diff[1] > 0) or
-               (self._walkable_maze_matrix[coord1][coord2] == 3 and
+               (climbing and self._walkable_maze_matrix[coord1][coord2] == 3 and
                pos_diff[1] > 0)):
                 self.requested_movement = "UP LEFT"
                 time.sleep(2)
                 climbing = False
             elif ((climbing and pos_diff[1] < 0) or
-                  (self._walkable_maze_matrix[coord1][coord2] == 3 and
+                  (climbing and self._walkable_maze_matrix[coord1][coord2] == 3 and
                   pos_diff[1] < 0)):
                 self.requested_movement = "UP RIGHT"
                 time.sleep(2)
@@ -366,6 +365,9 @@ class MinimaxComputer(Computer):
             elif (pos_diff[0] > 0):
                 self.requested_movement = "UP"
                 climbing = True
+            elif (pos_diff[0] < 0 or climbing):
+                self.requested_movement = "DOWN"
+                climbing = False
             elif (pos_diff[1] > 0 and not climbing):
                 self.requested_movement = "LEFT"
             elif (pos_diff[1] < 0 and not climbing):
