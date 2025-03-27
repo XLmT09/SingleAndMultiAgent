@@ -151,7 +151,7 @@ class MinimaxComputer(Computer):
         """Find the legal movements that the agent can perform."""
         legal_movements = []
 
-        if (pos[1] - 1 > 1 and
+        if (pos[1] - 1 >= 1 and
            self._walkable_maze_matrix[pos[0]][pos[1] - 1] != 0):
             legal_movements.append("LEFT")
         if (pos[1] + 1 < len(self._walkable_maze_matrix[0]) - 1 and
