@@ -36,7 +36,7 @@ class MinimaxComputer(Computer):
         # Add the bfs distance between the main agent and enemy position of
         # the given state.
         score -= (
-            50 / (self.generate_bfs_dist(main_agent_pos, enemy_agent_pos) + 1)
+            20 / (self.generate_bfs_dist(main_agent_pos, enemy_agent_pos) + 1)
         )
 
         # Calculate the distance between the main_agents position in the
@@ -155,7 +155,8 @@ class MinimaxComputer(Computer):
 
         return legal_movements
 
-    def minimax(self, state, depth, agent, player_action=None, enemy_action=None):
+    def minimax(self, state, depth, agent, player_action=None,
+                enemy_action=None):
         """ This function will simulate the minimax algorithm. It will
         simulate movement with both the agent and enemies and find the best
         movement for whichever agent called the algo.
@@ -309,8 +310,10 @@ class MinimaxComputer(Computer):
         return [next_grid]
 
     def move_based_on_path_instructions(self) -> None:
-        """ This function will get the BFS path, then  move the character
-        to follow the path it's found. """
+        """ This function will use generate_path to locate the next grid to
+        traverse to. Then it will update the requested_movement based on which
+        grid to travel towards.
+        """
         self.path_to_follow = self.generate_path()
 
         if self.perform_analysis:
@@ -343,22 +346,28 @@ class MinimaxComputer(Computer):
                 )
             )
 
-            # update the requested movement value, this value will be used by
+            # Update the requested movement value, this value will be used by
             # the main thread to control player movement.
             coord1, coord2 = player_position
 
-            if (pos_diff == (0, 0)):
+            # if we are currently on the desired grid or is has a distance
+            # greater than 1, then remove the value and calculate a new grid
+            # to traverse to.
+            if (pos_diff == (0, 0) or
+               abs(pos_diff[1]) > 1 or abs(pos_diff[0]) > 1):
                 self.path_to_follow.pop(0)
                 continue
+            # If the agent is climbing and the desired grid is to the left,
+            # then do a up left movement.
             if ((climbing and pos_diff[1] > 0) or
-               (climbing and self._walkable_maze_matrix[coord1][coord2] == 3 and
-               pos_diff[1] > 0)):
+               (climbing and self._walkable_maze_matrix[coord1][coord2] == 3
+               and pos_diff[1] > 0)):
                 self.requested_movement = "UP LEFT"
                 time.sleep(2)
                 climbing = False
             elif ((climbing and pos_diff[1] < 0) or
-                  (climbing and self._walkable_maze_matrix[coord1][coord2] == 3 and
-                  pos_diff[1] < 0)):
+                  (climbing and self._walkable_maze_matrix[coord1][coord2] == 3
+                   and pos_diff[1] < 0)):
                 self.requested_movement = "UP RIGHT"
                 time.sleep(2)
                 climbing = False
