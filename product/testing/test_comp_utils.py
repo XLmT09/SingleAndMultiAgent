@@ -125,5 +125,19 @@ class TestCompetitiveUtils(unittest.TestCase):
             state=state
         )
 
+    #  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    #  ┃ 💡 REMINDER: THIS CODE IS TESTED ON MAZE 8
+    #  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+    def test_legal_movements_left_right(self):
+        """Test if the computer can ONLY move left and right, when there
+        are no walls."""
+
+        legal_moves = self.computer.legal_movements(
+            (1, 3), None
+        )
+
+        self.assertEqual(legal_moves, ["LEFT", "RIGHT"])
+
     def tearDown(self):
         pygame.quit()
