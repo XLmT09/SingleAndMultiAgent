@@ -131,13 +131,26 @@ class TestCompetitiveUtils(unittest.TestCase):
 
     def test_legal_movements_left_right(self):
         """Test if the computer can ONLY move left and right, when there
-        are no walls."""
+        are no walls.
+        """
 
         legal_moves = self.computer.legal_movements(
-            (1, 3), None
+            pos=(1, 3),
+            prev_action=None
         )
 
         self.assertEqual(legal_moves, ["LEFT", "RIGHT"])
+
+    def test_legal_movements_up_down(self):
+        """Test if the computer can ONLY move up and down, when they are on a
+        ladder with walls on either side."""
+
+        legal_moves = self.computer.legal_movements(
+            pos=(4, 9),
+            prev_action=None
+        )
+
+        self.assertEqual(legal_moves, ["DOWN", "UP"])
 
     def tearDown(self):
         pygame.quit()
