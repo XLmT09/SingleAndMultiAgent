@@ -7,7 +7,8 @@ from world import World
 from agent.computer import get_agent_types
 from characters.character import get_character_types
 from constants import (
-    player_sprite_file_paths, game_values, pink_enemy_file_sprite_paths
+    player_sprite_file_paths, game_values, pink_enemy_file_sprite_paths,
+    MAX_ENEMIES
 )
 from text import Text
 from lock import visited_and_path_data_flag
@@ -127,6 +128,11 @@ def process_args() -> dict:
     if args.algo == "minimax" and args.enemy_count == 0:
         parser.error(
             "Minimax algorithm requires at least one enemy to be present."
+        )
+
+    if args.enemy_count > MAX_ENEMIES:
+        parser.error(
+            f"Enemy count cannot be greater than {MAX_ENEMIES}."
         )
 
     # If we are in a filled maze and using astar then update astar to work in

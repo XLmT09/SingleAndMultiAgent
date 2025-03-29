@@ -11,6 +11,8 @@ game_values = {
     "FPS": 60
 }
 
+MAX_ENEMIES = 3
+
 # grid type
 FREE_GRID = 0
 DIAMOND_GRID = 2
