@@ -14,7 +14,10 @@ game_values = {
 # grid type
 FREE_GRID = 0
 DIAMOND_GRID = 2
-LADDER_GRID = 4
+LADDER_GRID = 3
+
+# Walkable
+NON_WALKABLE_GRID = 0
 
 # colours
 BLACK = (0, 0, 0)
