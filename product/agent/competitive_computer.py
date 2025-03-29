@@ -1,10 +1,25 @@
 from agent.computer import Computer
+import constants as C
 import numpy as np
 import time
 import copy
 
 
 class MinimaxComputer(Computer):
+    """ This class will represent the agents different pathfinding algos
+        available to use.
+
+    Most attributes/args have been explained in the parent class, I will
+    mention whats ones specific to minimax.
+
+    Attributes:
+        character (MainAnimationManager): The character the computer will
+            be controlling.
+        state (dict): Representation of the game state and any given moment.
+        _agent_type (int): Identifies if the agent is the main or enemy.
+        _prev_action (str): stores the previous action the minimax agent has
+            taken.
+    """
     def __init__(self, character, walkable_maze, **kwargs):
         super().__init__(
             character,
@@ -13,15 +28,25 @@ class MinimaxComputer(Computer):
         )
 
         self.state = kwargs.get("state", {})
-        if kwargs.get("is_main"):
-            self.agent_type = 0
-        else:
-            self.agent_type = 1
 
-        self.prev_action = None
+        if kwargs.get("is_main"):
+            self._agent_type = 0
+        else:
+            self._agent_type = 1
+
+        self._prev_action = None
 
     def evaluation_function(self, state, depth, player_action):
-        """The function is used to calculate the cost of a game state."""
+        """The function is used to calculate the cost of a game state.
+
+        Attributes:
+            state (dict): The current game state.
+            depth (int): The current depth of the game tree.
+            player_action (str): The action taken by the player.
+
+            Returns:
+                int: The score of the state.
+        """
 
         main_agent_pos = state["main_agent"]
         enemy_agent_pos = state["enemies"]
@@ -71,21 +96,26 @@ class MinimaxComputer(Computer):
         # covers for the main agent.
         score += state["diamond_count"]
 
-        # Small bonus to avoid unnecessary changes
-        if player_action == self.prev_action and self.agent_type == 0:
-            score += 5
-
         return score
 
     def get_manhattan_distance_filled(self, pos1, pos2) -> int:
         """ This function generates the manhattan distance between two coords
-        we pass it. """
+        we pass it.
+
+        Attributes:
+            pos1 (tuple): The first position to start the search from. It is
+                of the form (grid_y, grid_x).
+            pos2 (tuple): The goal position.
+
+        Returns:
+            int: The manhattan distance between two points.
+        """
         horizontal_diff = abs(pos1[1] - pos2[1])
         vertical_diff = abs(pos1[0] - pos2[0])
 
         offset = 0
 
-        # update offset value to the heuristic if there is a height difference,
+        # Update offset value to the heuristic if there is a height difference,
         # to account for the ladder climbing time.
         # In other words, give more priority to positions which are on the
         # same or neighboring levels.
@@ -94,18 +124,22 @@ class MinimaxComputer(Computer):
 
         return vertical_diff + horizontal_diff + offset
 
-    def generate_bfs_dist(self, pos1, pos2) -> list:
+    def generate_bfs_dist(self, pos1, pos2) -> int:
         """ This function uses bfs search to find the closest path between two
         positions.
 
         Attributes:
             pos1 (tuple): The first position to start the search from. It is
-            of the form (grid_y, grid_x).
+                of the form (grid_y, grid_x).
             pos2 (tuple): The goal position.
+
+        Returns:
+            int: The shortest distance between two points.
         """
-        # The queue will contain tuples with two arguments.
-        # arg1 is a pos tuple
-        # arg2 is the current distance that has been covered.
+
+        # The queue will contain tuples with two arguments:
+        #   1. arg1 is a pos tuple
+        #   2. arg2 is the current distance that has been covered.
         queue = [(pos1, 0)]
         visited = set()
 
@@ -129,34 +163,66 @@ class MinimaxComputer(Computer):
 
         return float("-inf")
 
-    def manhattan_distance(self, pos1, pos2):
-        """Computes Manhattan distance between two points."""
+    def manhattan_distance(self, pos1, pos2) -> int:
+        """Computes manhattan distance between two points.
+
+        Attributes:
+            pos1 (tuple): Represents the first coordinates.
+            pos2 (tuple): Represents the second coordinates.
+
+        Returns:
+            int: The manhattan distance between two points.
+        """
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
-    def legal_movements(self, pos, action):
-        """Find the legal movements that the agent can perform."""
+    def legal_movements(self, pos, prev_action) -> list:
+        """Determine the legal movements that the agent can perform.
+
+        Args:
+            pos (tuple): The (x, y) coordinates of the agent, used to check
+                available movement directions.
+            prev_action: The previous action taken in the recursive call stack,
+                not the actual game movement. This prevents redundant
+                backtracking and optimizes the minimax algorithm.
+
+        Returns:
+            list: A list of valid movement directions based on the given
+                coordinates.
+        """
         legal_movements = []
 
-        if (pos[1] - 1 >= 1 and
-           self._walkable_maze_matrix[pos[0]][pos[1] - 1] != 0):
+        # Define boundary constraints to check if a move is within the game
+        # limits.
+        # These values help determine whether a movement is valid or out of
+        # bounds.
+        LEFT_WALL, RIGHT_WALL = 0, len(self._walkable_maze_matrix[0]) - 1
+        CEILING, FLOOR = 0, len(self._walkable_maze_matrix) - 1
+
+        if (pos[1] - 1 > LEFT_WALL and
+           self._walkable_maze_matrix[pos[0]][pos[1] - 1] !=
+           C.NON_WALKABLE_GRID):
             legal_movements.append("LEFT")
-        if (pos[1] + 1 < len(self._walkable_maze_matrix[0]) - 1 and
-           self._walkable_maze_matrix[pos[0]][pos[1] + 1] != 0
-           and action != "LEFT"):
+
+        if (pos[1] + 1 < RIGHT_WALL and
+           self._walkable_maze_matrix[pos[0]][pos[1] + 1] !=
+           C.NON_WALKABLE_GRID
+           and prev_action != "LEFT"):
             legal_movements.append("RIGHT")
-        if (pos[0] + 1 < len(self._walkable_maze_matrix) and
-           self._walkable_maze_matrix[pos[0] + 1][pos[1]] == 3
-           and action != "UP"):
+
+        if (pos[0] + 1 < FLOOR and
+           self._walkable_maze_matrix[pos[0] + 1][pos[1]] == C.LADDER_GRID
+           and prev_action != "UP"):
             legal_movements.append("DOWN")
-        if (pos[0] - 1 >= 1 and
-           self._walkable_maze_matrix[pos[0] - 1][pos[1]] == 3
-           and action != "DOWN"):
+
+        if (pos[0] - 1 >= CEILING and
+           self._walkable_maze_matrix[pos[0] - 1][pos[1]] == C.LADDER_GRID
+           and prev_action != "DOWN"):
             legal_movements.append("UP")
 
         return legal_movements
 
     def minimax(self, state, depth, agent, player_action=None,
-                enemy_action=None):
+                enemy_action=None) -> tuple:
         """ This function will simulate the minimax algorithm. It will
         simulate movement with both the agent and enemies and find the best
         movement for whichever agent called the algo.
@@ -169,6 +235,13 @@ class MinimaxComputer(Computer):
                 function. 0 means main agent otherwise its the enemy.
             visited_sates (set): Avoid going traversing down repeated states
                 by keeping track of states combinations currently visited.
+            player_action (str): The action taken by the player.
+            enemy_action (str): The action taken by the enemy.
+
+        Returns:
+            tuple: A tuple containing the best value and the action to take.
+                The best value is the score of the state, and the action is
+                the movement to take.
         """
 
         # end algorithm if we reached max depth or find a terminating state
@@ -180,10 +253,15 @@ class MinimaxComputer(Computer):
 
         action_to_take = None
 
+        # There are two loops we can use to traverse the game tree, one for the
+        # main agent and one for the enemy. Each loop will call the minimax
+        # algo again on the opposite agent.
         if agent == 0:
             best_value = float("-inf")
             for action in self.legal_movements(state["main_agent"],
                                                player_action):
+
+                # Generate the sate for when the action is performed.
                 successor = self.generate_successor(state, agent, action)
 
                 current_value = self.minimax(
@@ -225,7 +303,16 @@ class MinimaxComputer(Computer):
             else:
                 return (0, "None")
 
-    def simulate_movement(self, position, action):
+    def simulate_movement(self, position, action) -> tuple:
+        """ This function simulates the movement of the agent.
+
+        Attributes:
+            position (tuple): The current position of the agent.
+            action (str): The movement to perform.
+
+        Returns:
+            tuple: The new position after the movement.
+        """
         y, x = position
 
         if action == "UP":
@@ -237,16 +324,27 @@ class MinimaxComputer(Computer):
         elif action == "RIGHT":
             return (y, x + 1)
 
+        # if action was not given return None
         return None
 
-    def is_terminal(self, state):
+    def is_terminal(self, state) -> bool:
+        """ This function checks if the game has reached a terminal state.
+
+        Attributes:
+            state (dict): The current game state we will assess.
+
+        Returns:
+            bool: True if the game has reached a terminal state, otherwise
+                False.
+        """
         if len(state["diamond_positions"]) == 0:
             state["win"] = True
         elif state["main_agent"] == state["enemies"]:
             state["lose"] = True
+
         return state["win"] or state["lose"]
 
-    def generate_successor(self, state, agent, action):
+    def generate_successor(self, state, agent, action) -> dict:
         """This function generates a new simulated state.
 
         Attributes:
@@ -255,6 +353,9 @@ class MinimaxComputer(Computer):
             agent (int): The agent type.
             action (String): The movement we want to perform on the current
                 state to create the successor.
+
+        Returns:
+            dict: The new state after performing the action.
         """
 
         # We must copy the state, to avoid modifying values of the original
@@ -286,17 +387,25 @@ class MinimaxComputer(Computer):
 
         return new_state
 
-    def generate_path(self):
+    def generate_path(self) -> list:
         """
         Minimax is different to other algo is, because it doesn't pre-determine
         the whole path. Instead it just needs to locate the best grid to travel
         to at any given moment.
 
         In other words it only needs to return a path of length one.
+
+        Returns:
+            list: A list with one coord representing the next grid to
+                traverse to.
         """
         state_copy = copy.deepcopy(self.state)
 
-        cost, action = self.minimax(state_copy, depth=2, agent=self.agent_type)
+        cost, action = self.minimax(
+            state_copy,
+            depth=2,
+            agent=self._agent_type
+        )
 
         # we are using state coordinates instead of directly retrieving
         # character coordinates to avoid going into illegal girds.
@@ -305,7 +414,7 @@ class MinimaxComputer(Computer):
             action=action
         )
 
-        self.prev_action = action
+        self._prev_action = action
 
         return [next_grid]
 
@@ -400,5 +509,5 @@ class MinimaxComputer(Computer):
         while not self.stop_thread:
             self.move_based_on_path_instructions()
 
-    def update_state(self, state):
+    def update_state(self, state) -> None:
         self.state = state
