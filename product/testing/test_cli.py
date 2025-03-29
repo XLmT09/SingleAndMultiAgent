@@ -86,6 +86,16 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_7")
         self.assertEqual(result["algo"], "greedy")
 
+    @patch('sys.argv', ['main', '--size', 'small-filled', '--algo', 'minimax',
+           '--enemy_count', '1'])
+    def test_small_filled_maze_comp_algo(self):
+        """ Test that for a comp algo, it will output maze 8 instead of 5. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 850)
+        self.assertEqual(result["screen_height"], 350)
+        self.assertEqual(result["maze_path"], "maze/maze_8")
+        self.assertEqual(result["algo"], "minimax")
+
     @patch('sys.argv', ['main', '--size', 'large-filled', '--algo', 'astar'])
     def test_large_size_and_a_star_filled_algo(self):
         """ Test a star filled algo is registered. """
@@ -144,6 +154,16 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["screen_height"], 350)
         self.assertEqual(result["maze_path"], "maze/maze_1")
         self.assertEqual(result["algo"], "random")
+
+    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small',
+           '--enemy_count', '1'])
+    def test_cli_minimax_algo(self):
+        """ Test cli with minimax as algo value. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 850)
+        self.assertEqual(result["screen_height"], 350)
+        self.assertEqual(result["maze_path"], "maze/maze_1")
+        self.assertEqual(result["algo"], "minimax")
 
     @patch('sys.argv', ['main', '--size', 'bogus', '--algo', 'BFS'])
     def test_invalid_size_argument(self):
@@ -285,3 +305,28 @@ class TestCli(unittest.TestCase):
         default it should be 0"""
         result = process_args()
         self.assertEqual(result["enemy_count"], 0)
+
+    def test_cli_fails_on_minimax_with_zero_enemies(self):
+        """ Test the cli will fail when we are in a filled maze but using an
+        algorithm not compatible with filled mazes. """
+
+        incompatible_algos = ["bfs", "dfs", "ucs"]
+
+        for algo in incompatible_algos:
+            with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
+                with patch(
+                    'sys.argv',
+                    ['main', '--size', 'small-filled', '--algo', algo]
+                ):
+                    with self.assertRaises(SystemExit):
+                        process_args()
+
+                # Capture the error message printed to stderr
+                error_output = fake_stderr.getvalue()
+
+                # Check if the error message is the expected one
+                self.assertIn(
+                    "error: Filled maze only works when user controlled or "
+                    "when using greedy algorithm.",
+                    error_output
+                )

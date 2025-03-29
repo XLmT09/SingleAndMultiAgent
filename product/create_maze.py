@@ -115,6 +115,27 @@ filled_large_size_maze = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]   # noqa: E501
 ]
 
+filled_small_comp_maze = [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 1],
+    [1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1],
+    [1, 3, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 3, 1],
+    [1, 3, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 3, 1],
+    [1, 3, 2, 2, 2, 2, 0, 2, 2, 3, 2, 2, 2, 2, 2, 3, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+]
+
+# Like filled_small_comp_maze but with 5 diamonds
+test_filled_small_comp_maze = [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 3, 1],
+    [1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1],
+    [1, 3, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 0, 0, 3, 1],
+    [1, 3, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 3, 1],
+    [1, 3, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 2, 2, 0, 3, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+]
+
 # create a maze dir
 os.makedirs('maze', exist_ok=True)
 
@@ -138,3 +159,9 @@ with open('maze/maze_6', 'wb') as file:
 
 with open('maze/maze_7', 'wb') as file:
     pickle.dump(filled_large_size_maze, file)
+
+with open('maze/maze_8', 'wb') as file:
+    pickle.dump(filled_small_comp_maze, file)
+
+with open('maze/test_maze_8', 'wb') as file:
+    pickle.dump(test_filled_small_comp_maze, file)

@@ -67,7 +67,7 @@ class Computer:
             screen,
             world_data,
             self.requested_movement,
-            *kwargs.values()
+            **kwargs
         )
 
     def perform_path_find(self) -> None:
@@ -143,7 +143,20 @@ class Computer:
         climbing = False
         player_position = (self.character.grid_y, self.character.grid_x)
 
+        is_comp_agent = hasattr(self, "state")
+
+        max_iterations = 500000
+
         while self.path_to_follow:
+            max_iterations -= 1
+
+            # If the max iterations reaches zero, then the computer is stuck
+            # trying to traverse the maze. We will break and let the
+            # controlling algo re calculate a new path.
+            # NOTE: this is for comp agents
+            if is_comp_agent and max_iterations <= 0:
+                break
+
             if self.enemy_in_way:
                 self.path_to_follow = self.generate_path()
                 continue
@@ -155,21 +168,28 @@ class Computer:
             pos_diff = tuple(np.subtract(player_position,
                              self.path_to_follow[0]))
 
+            coord1, coord2 = player_position
+
             if (pos_diff == (0, 0)):
                 self.path_to_follow.pop(0)
                 continue
 
-            if (climbing and pos_diff[1] > 0):
+            if (climbing and (pos_diff[1] > 0 and
+               self._walkable_maze_matrix[coord1][coord2] == 3)):
                 self.requested_movement = "UP LEFT"
-                time.sleep(1)
+                time.sleep(2)
                 climbing = False
-            elif (climbing and pos_diff[1] < 0):
+            elif (climbing and (pos_diff[1] < 0 and
+                  self._walkable_maze_matrix[coord1][coord2] == 3)):
                 self.requested_movement = "UP RIGHT"
-                time.sleep(1)
+                time.sleep(2)
                 climbing = False
             elif (pos_diff[0] > 0 or climbing):
                 self.requested_movement = "UP"
                 climbing = True
+            elif (pos_diff[0] < 0 or climbing):
+                self.requested_movement = "DOWN"
+                climbing = False
             elif (pos_diff[1] > 0 and not climbing):
                 self.requested_movement = "LEFT"
             elif (pos_diff[1] < 0 and not climbing):
@@ -223,6 +243,9 @@ def get_agent_types():
     from agent.uninformed_computer import (
         RandomComputer, BFSComputer, DFSComputer
     )
+    from agent.competitive_computer import (
+        MinimaxComputer
+    )
 
     return {
         "random": RandomComputer,
@@ -231,5 +254,6 @@ def get_agent_types():
         "ucs": UCSComputer,
         "astar": AStarComputer,
         "astarFilled": AStarFilledComputer,
-        "greedy": GreedyComputer
+        "greedy": GreedyComputer,
+        "minimax": MinimaxComputer
     }

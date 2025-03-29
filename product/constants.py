@@ -14,7 +14,10 @@ game_values = {
 # grid type
 FREE_GRID = 0
 DIAMOND_GRID = 2
-LADDER_GRID = 4
+LADDER_GRID = 3
+
+# Walkable
+NON_WALKABLE_GRID = 0
 
 # colours
 BLACK = (0, 0, 0)
@@ -41,7 +44,8 @@ player_sprite_file_paths = {
 pink_enemy_file_sprite_paths = {
     "idle": "assets/images/characters/Pink_Monster/Pink_Monster_Idle_4.png",
     "walk": "assets/images/characters/Pink_Monster/Pink_Monster_Walk_6.png",
-    "climb": "assets/images/characters/Pink_Monster/Pink_Monster_Climb_4.png"
+    "climb": "assets/images/characters/Pink_Monster/Pink_Monster_Climb_4.png",
+    "jump": "assets/images/characters/Pink_Monster/Pink_Monster_Jump_8.png",
 }
 
 # unlike the player, the diamond sprite images are in separate files and
