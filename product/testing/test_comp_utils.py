@@ -152,5 +152,16 @@ class TestCompetitiveUtils(unittest.TestCase):
 
         self.assertEqual(legal_moves, ["DOWN", "UP"])
 
+    def test_legal_movements_down_left_right(self):
+        """Test if the agent has reached the top of the ladder they can
+        ONLY go down, left and right."""
+
+        legal_moves = self.computer.legal_movements(
+            pos=(3, 9),
+            prev_action=None
+        )
+
+        self.assertEqual(legal_moves, ["LEFT", "RIGHT", "DOWN"])
+
     def tearDown(self):
         pygame.quit()
