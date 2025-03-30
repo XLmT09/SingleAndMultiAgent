@@ -259,12 +259,12 @@ class TestMinimaxGUIComputer(TestCompFilledGUIComputer, unittest.TestCase):
             is_weighted=True,
             state=self.state,
             is_main=True,
-            character_list=2
+            num_characters=2
         )
 
         self.enemy_computer = MinimaxComputer(
             self.enemy_list[0],
             self.world.get_walkable_maze_matrix(),
             state=self.state,
-            character_list=2
+            num_characters=2
         )

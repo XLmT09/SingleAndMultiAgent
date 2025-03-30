@@ -29,13 +29,10 @@ class MinimaxComputer(Computer):
 
         self.state = kwargs.get("state", {})
 
-        if kwargs.get("is_main"):
-            self._agent_type = 0
-        else:
-            self._agent_type = 1
+        self._agent_type = kwargs.get("agent_type")
 
         self._prev_action = None
-        self.num_characters = kwargs.get("character_list")
+        self.num_characters = kwargs.get("num_characters")
 
     def evaluation_function(self, state, depth, player_action):
         """The function is used to calculate the cost of a game state.
