@@ -2,16 +2,15 @@ import pygame
 import pickle
 import argparse
 import time
+import os
 
 from world import World
 from agent.computer import get_agent_types
 from characters.character import get_character_types
-from constants import (
-    player_sprite_file_paths, game_values, pink_enemy_file_sprite_paths,
-    MAX_ENEMIES
-)
 from text import Text
 from lock import visited_and_path_data_flag
+
+import constants as C
 
 # Setup some initial pygame logic, which is needed
 # regardless of the options we choose.
@@ -130,9 +129,9 @@ def process_args() -> dict:
             "Minimax algorithm requires at least one enemy to be present."
         )
 
-    if args.enemy_count > MAX_ENEMIES:
+    if args.enemy_count > C.MAX_ENEMIES:
         parser.error(
-            f"Enemy count cannot be greater than {MAX_ENEMIES}."
+            f"Enemy count cannot be greater than {C.MAX_ENEMIES}."
         )
 
     # If we are in a filled maze and using astar then update astar to work in
@@ -158,8 +157,8 @@ def create_characters(config, maze_array) -> list:
 
     # Initialize the player we or the agent will control
     player = get_character_types()["main"](
-        game_values["character_width"],
-        game_values["character_height"],
+        C.game_values["character_width"],
+        C.game_values["character_height"],
         maze_array,
         is_controlled_by_computer=True if config["algo"] else False,
         x=350, y=300,
@@ -169,22 +168,22 @@ def create_characters(config, maze_array) -> list:
     # Setup the sprite animations for the player
     player.set_char_animation(
         "idle",
-        player_sprite_file_paths["idle"],
+        C.player_sprite_file_paths["idle"],
         animation_steps=4
     )
     player.set_char_animation(
         "jump",
-        player_sprite_file_paths["jump"],
+        C.player_sprite_file_paths["jump"],
         animation_steps=8
     )
     player.set_char_animation(
         "walk",
-        player_sprite_file_paths["walk"],
+        C.player_sprite_file_paths["walk"],
         animation_steps=6
     )
     player.set_char_animation(
         "climb",
-        player_sprite_file_paths["climb"],
+        C.player_sprite_file_paths["climb"],
         animation_steps=4
     )
 
@@ -201,8 +200,8 @@ def create_characters(config, maze_array) -> list:
         x, y = enemy_positions[enemy_index]
 
         enemy = get_character_types()["enemy"](
-            game_values["character_width"],
-            game_values["character_height"],
+            C.game_values["character_width"],
+            C.game_values["character_height"],
             maze_array,
             is_controlled_by_computer=True,
             x=x, y=y,
@@ -211,22 +210,22 @@ def create_characters(config, maze_array) -> list:
 
         enemy.set_char_animation(
             "idle",
-            pink_enemy_file_sprite_paths["idle"],
+            C.pink_enemy_file_sprite_paths["idle"],
             animation_steps=4
         )
         enemy.set_char_animation(
             "walk",
-            pink_enemy_file_sprite_paths["walk"],
+            C.pink_enemy_file_sprite_paths["walk"],
             animation_steps=6
         )
         enemy.set_char_animation(
             "climb",
-            pink_enemy_file_sprite_paths["climb"],
+            C.pink_enemy_file_sprite_paths["climb"],
             animation_steps=4
         )
         enemy.set_char_animation(
             "jump",
-            pink_enemy_file_sprite_paths["jump"],
+            C.pink_enemy_file_sprite_paths["jump"],
             animation_steps=8
         )
 
@@ -377,13 +376,11 @@ def start_game_agent(
         # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT or game_over:
-                computer.stop_path_find_algo_thread()
+                os._exit(0)
 
-                for enemy_computer in game_data["enemy_computers"]:
-                    enemy_computer.stop_path_find_algo_thread()
-
-                pygame.quit()
-                quit()
+        if game_over:
+            print(C.GAME_OVER)
+            os._exit(0)
 
         # Check for user keyboard input
         key = pygame.key.get_pressed()
@@ -471,7 +468,7 @@ def start_game_agent(
         score_text.draw(screen, f"Score {player.get_player_score()}", 20, 20)
 
         # Set the game refresh rate
-        clock.tick(game_values["FPS"])
+        clock.tick(C.game_values["FPS"])
 
         # Now render all changes we made in this loop
         # iteration onto the game screen.
@@ -529,7 +526,7 @@ def start_game_player(screen_width, screen_height, screen, player, world,
         score_text.draw(screen, f"Score {player.get_player_score()}", 20, 20)
 
         # Set the game refresh rate
-        clock.tick(game_values["FPS"])
+        clock.tick(C.game_values["FPS"])
 
         # Now render all changes we made in this loop
         # iteration onto the game screen.
