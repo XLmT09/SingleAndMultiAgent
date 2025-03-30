@@ -68,20 +68,6 @@ class MinimaxComputer(Computer):
                 20 / (self.generate_bfs_dist(main_agent_pos, enemy_agent) + 1)
             )
 
-            # Calculate the distance between the main_agents position in the
-            # actual game and enemy state position.
-            real_dist = self.generate_bfs_dist(
-                self.state["main_agent"],
-                enemy_agent
-            ) + 1
-
-            # If the distance between the current player pos and state pos of
-            # the enemy is close, then add a big negative cost.
-            if real_dist <= 4:
-                score -= 100
-            else:
-                score += real_dist
-
         # For the second set of calculations we will need information about
         # the diamonds, so we will store all there coords in a list.
         diamond_positions = state["diamond_positions"]
@@ -94,7 +80,7 @@ class MinimaxComputer(Computer):
                 self.generate_bfs_dist(main_agent_pos, diamond)
             )
 
-        score += 10 / (closest_diamond + 1) - (5 / (real_dist + 1))
+        score += 10 / (closest_diamond + 1)
 
         # We will give awards for the number of diamonds the current state
         # covers for the main agent.
@@ -288,7 +274,10 @@ class MinimaxComputer(Computer):
             best_value = float("inf")
             if not self.stop_thread:
 
-                for action in self.legal_movements(state["enemies"],
+                # Skip the first enemy agent, because it is the main agent.
+                enemy_pos = state["enemies"][agent_index - 1]
+
+                for action in self.legal_movements(enemy_pos,
                                                    enemy_action):
 
                     successor = self.generate_successor(
@@ -351,12 +340,12 @@ class MinimaxComputer(Computer):
         """
         if len(state["diamond_positions"]) == 0:
             state["win"] = True
-        elif state["main_agent"] == state["enemies"]:
+        elif state["main_agent"] in state["enemies"]:
             state["lose"] = True
 
         return state["win"] or state["lose"]
 
-    def generate_successor(self, state, agent, action) -> dict:
+    def generate_successor(self, state, agent_index, action) -> dict:
         """This function generates a new simulated state.
 
         Attributes:
@@ -375,7 +364,7 @@ class MinimaxComputer(Computer):
         new_state = copy.deepcopy(state)
 
         # We need to check which agent to perform the action on
-        if agent == 0:
+        if agent_index == 0:
             new_state["main_agent"] = (
                 self.simulate_movement(
                     new_state["main_agent"],
@@ -390,9 +379,9 @@ class MinimaxComputer(Computer):
                 if dmd == new_state["main_agent"]:
                     new_state["diamond_count"] += 1
         else:
-            new_state["enemies"] = (
+            new_state["enemies"][agent_index - 1] = (
                 self.simulate_movement(
-                    new_state["enemies"],
+                    new_state["enemies"][agent_index - 1],
                     action
                 )
             )
