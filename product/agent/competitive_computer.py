@@ -35,6 +35,7 @@ class MinimaxComputer(Computer):
             self._agent_type = 1
 
         self._prev_action = None
+        self.num_characters = kwargs.get("character_list")
 
     def evaluation_function(self, state, depth, player_action):
         """The function is used to calculate the cost of a game state.
@@ -221,7 +222,7 @@ class MinimaxComputer(Computer):
 
         return legal_movements
 
-    def minimax(self, state, depth, agent, player_action=None,
+    def minimax(self, state, depth, agent_index, player_action=None,
                 enemy_action=None) -> tuple:
         """ This function will simulate the minimax algorithm. It will
         simulate movement with both the agent and enemies and find the best
@@ -231,7 +232,7 @@ class MinimaxComputer(Computer):
             state (dict): The current game state.
             depth (int): Number which indicated how far down the game tree
                 we are.
-            agent (int): Indicate which agent is currently running the
+            agent_index (int): Indicate which agent is currently running the
                 function. 0 means main agent otherwise its the enemy.
             visited_sates (set): Avoid going traversing down repeated states
                 by keeping track of states combinations currently visited.
@@ -253,21 +254,24 @@ class MinimaxComputer(Computer):
 
         action_to_take = None
 
+        # Check which agent will run the function next.
+        next_agent = (agent_index + 1) % self.num_characters
+
         # There are two loops we can use to traverse the game tree, one for the
         # main agent and one for the enemy. Each loop will call the minimax
         # algo again on the opposite agent.
-        if agent == 0:
+        if agent_index == 0:
             best_value = float("-inf")
             for action in self.legal_movements(state["main_agent"],
                                                player_action):
 
                 # Generate the sate for when the action is performed.
-                successor = self.generate_successor(state, agent, action)
+                successor = self.generate_successor(state, agent_index, action)
 
                 current_value = self.minimax(
                     successor,
                     depth,
-                    agent=1,
+                    agent_index=next_agent,
                     player_action=action,
                     enemy_action=enemy_action
                 )[0]
@@ -283,14 +287,19 @@ class MinimaxComputer(Computer):
 
                 for action in self.legal_movements(state["enemies"],
                                                    enemy_action):
-                    successor = self.generate_successor(state, agent, action)
+
+                    successor = self.generate_successor(
+                        state,
+                        agent_index,
+                        action
+                    )
 
                     # we decrease the depth here because we at this point both
                     # the player and enemy(s) have made there moves.
                     current_value = self.minimax(
                         successor,
-                        depth - 1,
-                        agent=0,
+                        depth - 1 if next_agent == 0 else depth,
+                        next_agent,
                         player_action=player_action,
                         enemy_action=action
                     )[0]
@@ -404,7 +413,7 @@ class MinimaxComputer(Computer):
         cost, action = self.minimax(
             state_copy,
             depth=2,
-            agent=self._agent_type
+            agent_index=self._agent_type
         )
 
         # we are using state coordinates instead of directly retrieving

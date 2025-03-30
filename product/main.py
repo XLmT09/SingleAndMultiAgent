@@ -280,7 +280,8 @@ def setup_game(config) -> dict:
             is_weighted=config["weighted"],
             enemy_list=character_list[1:] if len(character_list) > 1 else [],
             state=state,
-            is_main=True
+            is_main=True,
+            character_list=len(character_list)
         )
 
     enemy_computers = []
@@ -289,7 +290,8 @@ def setup_game(config) -> dict:
         enemy_computer = get_agent_types()[config["algo"]](
             enemy,
             world.get_walkable_maze_matrix(),
-            state=state
+            state=state,
+            character_list=len(character_list)
         )
         enemy_computers.append(enemy_computer)
 
