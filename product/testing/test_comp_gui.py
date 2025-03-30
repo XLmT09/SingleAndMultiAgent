@@ -82,34 +82,54 @@ class TestCompFilledGUIComputer():
             "assets/images/background/cave.png"
         ).convert_alpha()
 
-        self.enemy = get_character_types()["enemy"](
-            CHARACTER_WIDTH,
-            CHARACTER_HEIGHT,
-            maze_map,
-            is_controlled_by_computer=True,
-            x=200, y=100
-        )
+        self.enemy_list = []
 
-        self.enemy.set_char_animation(
-            "idle",
-            pink_enemy_file_sprite_paths["idle"],
-            animation_steps=4
-        )
-        self.enemy.set_char_animation(
-            "walk",
-            pink_enemy_file_sprite_paths["walk"],
-            animation_steps=6
-        )
-        self.enemy.set_char_animation(
-            "climb",
-            pink_enemy_file_sprite_paths["climb"],
-            animation_steps=4
-        )
-        self.enemy.set_char_animation(
-            "jump",
-            pink_enemy_file_sprite_paths["jump"],
-            animation_steps=8
-        )
+        enemy_pos = [
+            (200, 200),
+            (100, 200),
+            (400, 400)
+        ]
+
+        for enemy_index in range(1):
+            x, y = enemy_pos[enemy_index]
+
+            enemy = get_character_types()["enemy"](
+                CHARACTER_WIDTH,
+                CHARACTER_HEIGHT,
+                maze_map,
+                is_controlled_by_computer=True,
+                x=x, y=y
+            )
+
+            enemy.set_char_animation(
+                "idle",
+                pink_enemy_file_sprite_paths["idle"],
+                animation_steps=4
+            )
+            enemy.set_char_animation(
+                "walk",
+                pink_enemy_file_sprite_paths["walk"],
+                animation_steps=6
+            )
+            enemy.set_char_animation(
+                "climb",
+                pink_enemy_file_sprite_paths["climb"],
+                animation_steps=4
+            )
+            enemy.set_char_animation(
+                "jump",
+                pink_enemy_file_sprite_paths["jump"],
+                animation_steps=8
+            )
+
+            self.enemy_list.append(enemy)
+
+        enemy_positions = []
+
+        for enemy in self.enemy_list:
+            enemy_positions.append(enemy.get_player_grid_coordinates())
+
+        self.enemy = self.enemy_list[0]
 
         diamond_pos = []
 
@@ -118,7 +138,7 @@ class TestCompFilledGUIComputer():
 
         self.state = {
             "main_agent": self.player.get_player_grid_coordinates(),
-            "enemies": self.enemy.get_player_grid_coordinates(),
+            "enemies": enemy_positions,
             "diamond_positions": diamond_pos,
             "score": 0,
             "win": False,
@@ -145,7 +165,7 @@ class TestCompFilledGUIComputer():
         # We will stop once all diamonds have been found
         score_count = 0
         # This test maze will only have 5 diamonds
-        TARGET = 5
+        TARGET = 3
 
         # We will run a game loop until collision is detected
         while running:
@@ -159,10 +179,15 @@ class TestCompFilledGUIComputer():
             for dmd in self.world.get_diamond_group():
                 dmd_list.append((dmd.grid_y, dmd.grid_x))
 
+            enemy_positions = []
+
+            for enemy in self.enemy_list:
+                enemy_positions.append(enemy.get_player_grid_coordinates())
+
             # Update the state of the game
             new_state = {
                 "main_agent": self.player.get_player_grid_coordinates(),
-                "enemies": self.enemy.get_player_grid_coordinates(),
+                "enemies": enemy_positions,
                 "diamond_positions": dmd_list,
                 "score": 0,
                 "win": False,
@@ -232,13 +257,14 @@ class TestMinimaxGUIComputer(TestCompFilledGUIComputer, unittest.TestCase):
             self.world.get_walkable_maze_matrix(),
             diamond_list=self.world.get_diamond_group(),
             is_weighted=True,
-            enemy_list=[self.enemy],
             state=self.state,
-            is_main=True
+            is_main=True,
+            character_list=2
         )
 
         self.enemy_computer = MinimaxComputer(
-            self.enemy,
+            self.enemy_list[0],
             self.world.get_walkable_maze_matrix(),
-            state=self.state
+            state=self.state,
+            character_list=2
         )
