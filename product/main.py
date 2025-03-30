@@ -253,11 +253,16 @@ def setup_game(config) -> dict:
     state = None
 
     if len(character_list) > 1:
+        enemy_coords = []
+
+        for enemy in character_list[1:]:
+            enemy_coords.append(enemy.get_player_grid_coordinates())
+
         # If both the agent and enemy are intelligent we need to set up a state
         # for both agent types to use.
         state = {
             "main_agent": player.get_player_grid_coordinates(),
-            "enemies": character_list[1].get_player_grid_coordinates(),
+            "enemies": enemy_coords,
             "diamond_positions": [
                 (dmd.grid_y, dmd.grid_x) for dmd in world.get_diamond_group()
             ],
@@ -385,10 +390,16 @@ def start_game_agent(
             dmd_list = [
                 (dmd.grid_y, dmd.grid_x) for dmd in world.get_diamond_group()
             ]
+
+            enemy_coords = []
+            # Before updating the state we need to gather all the enemy coords
+            for enemy_computer in enemy_computers:
+                enemy = enemy_computer.character
+                enemy_coords.append(enemy.get_player_grid_coordinates())
+
             state = {
                 "main_agent": player.get_player_grid_coordinates(),
-                "enemies":
-                    enemy_computers[0].character.get_player_grid_coordinates(),
+                "enemies": enemy_coords,
                 "diamond_positions": dmd_list,
                 "score": 0,
                 "win": False,
@@ -397,11 +408,12 @@ def start_game_agent(
             }
 
             for enemy_computer in enemy_computers:
+                enemy_computer.update_state(state)
+
                 enemy_computer.move(
                     screen,
                     tile_data,
                 )
-                enemy_computer.update_state(state)
 
             computer.update_state(state)
 
