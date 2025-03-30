@@ -274,5 +274,41 @@ class TestCompetitiveUtils(unittest.TestCase):
             calculated_positions
         )
 
+    def test_generate_successors_on_one_enemy_does_not_affect_others(self):
+        """Test that when we generate a successor for one enemy, the other
+        agents are not affected."""
+
+        # Before starting test, ensure initial coordinates are correct
+        self.assertEqual(
+            [(5, 6), (3, 3), (3, 1), (7, 7)],
+            [
+                self.state["main_agent"],
+                self.state["enemies"][0],
+                self.state["enemies"][1],
+                self.state["enemies"][2]
+            ]
+        )
+
+        # Index of agent
+        enemy_two = 2
+
+        # In this test, we will apply a left movement to all agents
+
+        new_agent_pos = self.computer.generate_successor(
+            self.state,
+            enemy_two,
+            "LEFT"
+        )["enemies"][1]
+
+        self.assertEqual(
+            [(5, 6), (3, 3), (3, 0), (7, 7)],
+            [
+                self.state["main_agent"],
+                self.state["enemies"][0],
+                new_agent_pos,
+                self.state["enemies"][2]
+            ]
+        )
+
     def tearDown(self):
         pygame.quit()
