@@ -50,7 +50,7 @@ class MinimaxComputer(Computer):
         """
 
         main_agent_pos = state["main_agent"]
-        enemy_agent_pos = state["enemies"]
+        enemy_agent_positions = state["enemies"]
         score = 0
 
         # if the state ends in a win or lose state, we return -/+infinity
@@ -59,25 +59,28 @@ class MinimaxComputer(Computer):
         if state["win"]:
             return float('inf')
 
-        # Add the bfs distance between the main agent and enemy position of
-        # the given state.
-        score -= (
-            20 / (self.generate_bfs_dist(main_agent_pos, enemy_agent_pos) + 1)
-        )
+        # We need to go through every enemy agent and calculate the total
+        # distance between the main agent and enemy agents.
+        for enemy_agent in enemy_agent_positions:
+            # Add the bfs distance between the main agent and enemy position of
+            # the given state.
+            score -= (
+                20 / (self.generate_bfs_dist(main_agent_pos, enemy_agent) + 1)
+            )
 
-        # Calculate the distance between the main_agents position in the
-        # actual game and enemy state position.
-        real_dist = self.generate_bfs_dist(
-            self.state["main_agent"],
-            state["enemies"]
+            # Calculate the distance between the main_agents position in the
+            # actual game and enemy state position.
+            real_dist = self.generate_bfs_dist(
+                self.state["main_agent"],
+                enemy_agent
             ) + 1
 
-        # If the distance between the current player pos and state pos of the
-        # enemy is close, then add a big negative cost.
-        if real_dist <= 4:
-            score -= 100
-        else:
-            score += real_dist
+            # If the distance between the current player pos and state pos of
+            # the enemy is close, then add a big negative cost.
+            if real_dist <= 4:
+                score -= 100
+            else:
+                score += real_dist
 
         # For the second set of calculations we will need information about
         # the diamonds, so we will store all there coords in a list.
