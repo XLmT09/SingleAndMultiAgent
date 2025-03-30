@@ -190,14 +190,22 @@ def create_characters(config, maze_array) -> list:
 
     character_list.append(player)
 
+    enemy_positions = [
+        (500, 100),
+        (700, 200),
+        (100, 300)
+    ]
+
     # Now create the enemies
-    for _ in range(config["enemy_count"]):
+    for enemy_index in range(config["enemy_count"]):
+        x, y = enemy_positions[enemy_index]
+
         enemy = get_character_types()["enemy"](
             game_values["character_width"],
             game_values["character_height"],
             maze_array,
             is_controlled_by_computer=True,
-            x=200, y=200,
+            x=x, y=y,
             in_filled_maze=config["filled"]
         )
 
@@ -285,18 +293,19 @@ def setup_game(config) -> dict:
             is_weighted=config["weighted"],
             enemy_list=character_list[1:] if len(character_list) > 1 else [],
             state=state,
-            is_main=True,
-            character_list=len(character_list)
+            agent_type=0,  # 0 is the main agent
+            num_characters=len(character_list)
         )
 
     enemy_computers = []
 
-    for enemy in character_list[1:]:
+    for enemy_index, enemy in enumerate(character_list[1:]):
         enemy_computer = get_agent_types()[config["algo"]](
             enemy,
             world.get_walkable_maze_matrix(),
             state=state,
-            character_list=len(character_list)
+            agent_type=enemy_index + 1,  # 1 is the first enemy
+            num_characters=len(character_list)
         )
         enemy_computers.append(enemy_computer)
 
