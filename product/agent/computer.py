@@ -134,62 +134,42 @@ class Computer:
     def move_based_on_path_instructions(self) -> None:
         """ This function will get the BFS path, then  move the character
         to follow the path it's found. """
-        self.path_to_follow = self.generate_path()
+        path_to_follow = self.generate_path()
 
         if self.perform_analysis:
-            print(f"The path is: {self.path_to_follow}")
-            print(f"Path length is: {len(self.path_to_follow)}")
+            print(f"The path is: {path_to_follow}")
+            print(f"Path length is: {len(path_to_follow)}")
 
+        instruction_number = 0
+        target = path_to_follow[-1]
         climbing = False
         player_position = (self.character.grid_y, self.character.grid_x)
 
-        is_comp_agent = hasattr(self, "state")
-
-        max_iterations = 500000
-
-        while self.path_to_follow:
-            max_iterations -= 1
-
-            # If the max iterations reaches zero, then the computer is stuck
-            # trying to traverse the maze. We will break and let the
-            # controlling algo re calculate a new path.
-            # NOTE: this is for comp agents
-            if is_comp_agent and max_iterations <= 0:
-                break
-
-            if self.enemy_in_way:
-                self.path_to_follow = self.generate_path()
-                continue
-
+        while player_position != target:
             if self.stop_thread:
                 print("STOPPING THE COMPUTER THREAD.")
                 break
+            if instruction_number == len(path_to_follow):
+                return
 
             pos_diff = tuple(np.subtract(player_position,
-                             self.path_to_follow[0]))
-
-            coord1, coord2 = player_position
+                             path_to_follow[instruction_number]))
 
             if (pos_diff == (0, 0)):
-                self.path_to_follow.pop(0)
+                instruction_number += 1
                 continue
 
-            if (climbing and (pos_diff[1] > 0 and
-               self._walkable_maze_matrix[coord1][coord2] == 3)):
+            if (climbing and pos_diff[1] > 0):
                 self.requested_movement = "UP LEFT"
-                time.sleep(2)
+                time.sleep(1)
                 climbing = False
-            elif (climbing and (pos_diff[1] < 0 and
-                  self._walkable_maze_matrix[coord1][coord2] == 3)):
+            elif (climbing and pos_diff[1] < 0):
                 self.requested_movement = "UP RIGHT"
-                time.sleep(2)
+                time.sleep(1)
                 climbing = False
             elif (pos_diff[0] > 0 or climbing):
                 self.requested_movement = "UP"
                 climbing = True
-            elif (pos_diff[0] < 0 or climbing):
-                self.requested_movement = "DOWN"
-                climbing = False
             elif (pos_diff[1] > 0 and not climbing):
                 self.requested_movement = "LEFT"
             elif (pos_diff[1] < 0 and not climbing):
