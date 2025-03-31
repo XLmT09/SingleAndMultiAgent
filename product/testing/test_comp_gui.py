@@ -10,7 +10,8 @@ from world import World
 from constants import (
     player_sprite_file_paths,
     game_values,
-    pink_enemy_file_sprite_paths
+    pink_enemy_file_sprite_paths,
+    MAX_PATH_TEST_TIME
 )
 
 CHARACTER_WIDTH = 32
@@ -152,7 +153,7 @@ class TestCompFilledGUIComputer():
         two diamonds without errors. """
 
         # Max time this test will be allocated (in seconds)
-        max_time = 250
+        max_time = MAX_PATH_TEST_TIME
         start_time = time.time()
 
         # Start the path finding algorithm
@@ -258,7 +259,7 @@ class TestMinimaxGUIComputer(TestCompFilledGUIComputer, unittest.TestCase):
             diamond_list=self.world.get_diamond_group(),
             is_weighted=True,
             state=self.state,
-            is_main=True,
+            agent_type=0,
             num_characters=2
         )
 
@@ -266,5 +267,6 @@ class TestMinimaxGUIComputer(TestCompFilledGUIComputer, unittest.TestCase):
             self.enemy_list[0],
             self.world.get_walkable_maze_matrix(),
             state=self.state,
-            num_characters=2
+            num_characters=2,
+            agent_type=1
         )
