@@ -85,12 +85,12 @@ class TestCompFilledGUIComputer():
         self.enemy_list = []
 
         enemy_pos = [
-            (200, 200),
-            (100, 200),
-            (400, 400)
+            (300, 300),
+            (275, 300),
+            (500, 300)
         ]
 
-        for enemy_index in range(1):
+        for enemy_index in range(3):
             x, y = enemy_pos[enemy_index]
 
             enemy = get_character_types()["enemy"](
@@ -148,8 +148,8 @@ class TestCompFilledGUIComputer():
 
     def testPathFindGUI(self):
         """ This function will run a given path finding algorithm in the
-        given initialized maze environment. The test passes if it can collect
-        two diamonds without errors. """
+        given initialized maze environment. The test passes if the enemy
+        agents are able to catch the main agent. """
 
         # Max time this test will be allocated (in seconds)
         max_time = 250
@@ -157,15 +157,11 @@ class TestCompFilledGUIComputer():
 
         # Start the path finding algorithm
         self.main_computer.start_thread()
-        self.enemy_computer.start_thread()
+        for enemy_computer in self.enemy_computers:
+            enemy_computer.start_thread()
 
         # if time limit exceeds this is set to false
         running = True
-
-        # We will stop once all diamonds have been found
-        score_count = 0
-        # This test maze will only have 5 diamonds
-        TARGET = 3
 
         # We will run a game loop until collision is detected
         while running:
@@ -195,13 +191,15 @@ class TestCompFilledGUIComputer():
                 "diamond_count": 0
             }
 
-            # Moving the enemy
-            self.enemy_computer.move(
-                self.screen,
-                self.tile_data
-            )
+            for enemy_computer in self.enemy_computers:
+                enemy_computer.update_state(new_state)
 
-            self.enemy_computer.update_state(new_state)
+                # Moving the enemy
+                enemy_computer.move(
+                    self.screen,
+                    self.tile_data
+                )
+
             self.main_computer.update_state(new_state)
 
             # Moving the player
@@ -210,7 +208,7 @@ class TestCompFilledGUIComputer():
                 self.tile_data,
                 asset_groups=self.diamond_positions,
                 game_over=self.game_over,
-                enemy_computers=[self.enemy_computer]
+                enemy_computers=self.enemy_computers
             )
 
             # We have found the diamond and can begin to stop the test
@@ -220,12 +218,12 @@ class TestCompFilledGUIComputer():
                 self.player.set_is_diamond_found_to_false()
                 self.diamond_positions = self.world.get_diamond_group()
                 self.main_computer.update_diamond_list(self.diamond_positions)
-                score_count += 1
 
-            # Can end the test once collision is detected
-            if score_count == TARGET:
-                self.assertTrue("Test passed as all diamonds are collected.")
-                self.main_computer.stop_thread = True
+            # End test once enemy collision was detected.
+            if self.game_over:
+                self.assertTrue(
+                    "Test passed as collision with enemy was detected."
+                )
                 break
 
             if time.time() - start_time > max_time:
@@ -241,14 +239,15 @@ class TestCompFilledGUIComputer():
 
     def tearDown(self):
         self.main_computer.stop_thread = True
-        self.enemy_computer.stop_thread = True
+        for enemy_computer in self.enemy_computers:
+            enemy_computer.stop_thread = True
         pygame.quit()
 
 
-class TestMinimaxGUIComputer(TestCompFilledGUIComputer, unittest.TestCase):
-    """ This tests the minimax computer class. It will check the main agent is
-    able to collect all diamonds in the maze, this should be possible as there
-    are no dead ends in the game."""
+class TestMinimaxEnemyGUIComputer(TestCompFilledGUIComputer,
+                                  unittest.TestCase):
+    """ This tests the minimax computer class. It will test game environments
+    with more than one enemy."""
 
     def setUp(self):
         super().setUp(pos_x=350, pos_y=300)
@@ -259,12 +258,19 @@ class TestMinimaxGUIComputer(TestCompFilledGUIComputer, unittest.TestCase):
             is_weighted=True,
             state=self.state,
             is_main=True,
-            num_characters=2
+            num_characters=4,
+            agent_type=0  # 0 = main agent
         )
 
-        self.enemy_computer = MinimaxComputer(
-            self.enemy_list[0],
-            self.world.get_walkable_maze_matrix(),
-            state=self.state,
-            num_characters=2
-        )
+        self.enemy_computers = []
+        for enemy_index in range(3):
+            self.enemy_computers.append(
+                MinimaxComputer(
+                    self.enemy_list[enemy_index],
+                    self.world.get_walkable_maze_matrix(),
+                    state=self.state,
+                    num_characters=4,
+                    # 0 is main agent, 1-3 are enemies
+                    agent_type=enemy_index + 1
+                )
+            )

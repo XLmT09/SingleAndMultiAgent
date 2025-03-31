@@ -2,15 +2,15 @@ import pygame
 import pickle
 import argparse
 import time
+import os
 
 from world import World
 from agent.computer import get_agent_types
 from characters.character import get_character_types
-from constants import (
-    player_sprite_file_paths, game_values, pink_enemy_file_sprite_paths
-)
 from text import Text
 from lock import visited_and_path_data_flag
+
+import constants as C
 
 # Setup some initial pygame logic, which is needed
 # regardless of the options we choose.
@@ -129,6 +129,11 @@ def process_args() -> dict:
             "Minimax algorithm requires at least one enemy to be present."
         )
 
+    if args.enemy_count > C.MAX_ENEMIES:
+        parser.error(
+            f"Enemy count cannot be greater than {C.MAX_ENEMIES}."
+        )
+
     # If we are in a filled maze and using astar then update astar to work in
     # a filled maze context.
     if filled and args.algo == "astar":
@@ -152,8 +157,8 @@ def create_characters(config, maze_array) -> list:
 
     # Initialize the player we or the agent will control
     player = get_character_types()["main"](
-        game_values["character_width"],
-        game_values["character_height"],
+        C.game_values["character_width"],
+        C.game_values["character_height"],
         maze_array,
         is_controlled_by_computer=True if config["algo"] else False,
         x=350, y=300,
@@ -163,56 +168,64 @@ def create_characters(config, maze_array) -> list:
     # Setup the sprite animations for the player
     player.set_char_animation(
         "idle",
-        player_sprite_file_paths["idle"],
+        C.player_sprite_file_paths["idle"],
         animation_steps=4
     )
     player.set_char_animation(
         "jump",
-        player_sprite_file_paths["jump"],
+        C.player_sprite_file_paths["jump"],
         animation_steps=8
     )
     player.set_char_animation(
         "walk",
-        player_sprite_file_paths["walk"],
+        C.player_sprite_file_paths["walk"],
         animation_steps=6
     )
     player.set_char_animation(
         "climb",
-        player_sprite_file_paths["climb"],
+        C.player_sprite_file_paths["climb"],
         animation_steps=4
     )
 
     character_list.append(player)
 
+    enemy_positions = [
+        (500, 100),
+        (700, 200),
+        (100, 300)
+    ]
+
     # Now create the enemies
-    for _ in range(config["enemy_count"]):
+    for enemy_index in range(config["enemy_count"]):
+        x, y = enemy_positions[enemy_index]
+
         enemy = get_character_types()["enemy"](
-            game_values["character_width"],
-            game_values["character_height"],
+            C.game_values["character_width"],
+            C.game_values["character_height"],
             maze_array,
             is_controlled_by_computer=True,
-            x=200, y=200,
+            x=x, y=y,
             in_filled_maze=config["filled"]
         )
 
         enemy.set_char_animation(
             "idle",
-            pink_enemy_file_sprite_paths["idle"],
+            C.pink_enemy_file_sprite_paths["idle"],
             animation_steps=4
         )
         enemy.set_char_animation(
             "walk",
-            pink_enemy_file_sprite_paths["walk"],
+            C.pink_enemy_file_sprite_paths["walk"],
             animation_steps=6
         )
         enemy.set_char_animation(
             "climb",
-            pink_enemy_file_sprite_paths["climb"],
+            C.pink_enemy_file_sprite_paths["climb"],
             animation_steps=4
         )
         enemy.set_char_animation(
             "jump",
-            pink_enemy_file_sprite_paths["jump"],
+            C.pink_enemy_file_sprite_paths["jump"],
             animation_steps=8
         )
 
@@ -247,11 +260,16 @@ def setup_game(config) -> dict:
     state = None
 
     if len(character_list) > 1:
+        enemy_coords = []
+
+        for enemy in character_list[1:]:
+            enemy_coords.append(enemy.get_player_grid_coordinates())
+
         # If both the agent and enemy are intelligent we need to set up a state
         # for both agent types to use.
         state = {
             "main_agent": player.get_player_grid_coordinates(),
-            "enemies": character_list[1].get_player_grid_coordinates(),
+            "enemies": enemy_coords,
             "diamond_positions": [
                 (dmd.grid_y, dmd.grid_x) for dmd in world.get_diamond_group()
             ],
@@ -274,16 +292,19 @@ def setup_game(config) -> dict:
             is_weighted=config["weighted"],
             enemy_list=character_list[1:] if len(character_list) > 1 else [],
             state=state,
-            is_main=True
+            agent_type=0,  # 0 is the main agent
+            num_characters=len(character_list)
         )
 
     enemy_computers = []
 
-    for enemy in character_list[1:]:
+    for enemy_index, enemy in enumerate(character_list[1:]):
         enemy_computer = get_agent_types()[config["algo"]](
             enemy,
             world.get_walkable_maze_matrix(),
-            state=state
+            state=state,
+            agent_type=enemy_index + 1,  # 1 is the first enemy
+            num_characters=len(character_list)
         )
         enemy_computers.append(enemy_computer)
 
@@ -355,13 +376,11 @@ def start_game_agent(
         # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT or game_over:
-                computer.stop_path_find_algo_thread()
+                os._exit(0)
 
-                for enemy_computer in game_data["enemy_computers"]:
-                    enemy_computer.stop_path_find_algo_thread()
-
-                pygame.quit()
-                quit()
+        if game_over:
+            print(C.GAME_OVER)
+            os._exit(0)
 
         # Check for user keyboard input
         key = pygame.key.get_pressed()
@@ -377,10 +396,16 @@ def start_game_agent(
             dmd_list = [
                 (dmd.grid_y, dmd.grid_x) for dmd in world.get_diamond_group()
             ]
+
+            enemy_coords = []
+            # Before updating the state we need to gather all the enemy coords
+            for enemy_computer in enemy_computers:
+                enemy = enemy_computer.character
+                enemy_coords.append(enemy.get_player_grid_coordinates())
+
             state = {
                 "main_agent": player.get_player_grid_coordinates(),
-                "enemies":
-                    enemy_computers[0].character.get_player_grid_coordinates(),
+                "enemies": enemy_coords,
                 "diamond_positions": dmd_list,
                 "score": 0,
                 "win": False,
@@ -389,11 +414,12 @@ def start_game_agent(
             }
 
             for enemy_computer in enemy_computers:
+                enemy_computer.update_state(state)
+
                 enemy_computer.move(
                     screen,
                     tile_data,
                 )
-                enemy_computer.update_state(state)
 
             computer.update_state(state)
 
@@ -442,7 +468,7 @@ def start_game_agent(
         score_text.draw(screen, f"Score {player.get_player_score()}", 20, 20)
 
         # Set the game refresh rate
-        clock.tick(game_values["FPS"])
+        clock.tick(C.game_values["FPS"])
 
         # Now render all changes we made in this loop
         # iteration onto the game screen.
@@ -500,7 +526,7 @@ def start_game_player(screen_width, screen_height, screen, player, world,
         score_text.draw(screen, f"Score {player.get_player_score()}", 20, 20)
 
         # Set the game refresh rate
-        clock.tick(game_values["FPS"])
+        clock.tick(C.game_values["FPS"])
 
         # Now render all changes we made in this loop
         # iteration onto the game screen.

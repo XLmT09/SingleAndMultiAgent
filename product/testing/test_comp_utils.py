@@ -79,38 +79,56 @@ class TestCompetitiveUtils(unittest.TestCase):
             ]
         )
 
-        enemy = get_character_types()["enemy"](
-            CHARACTER_WIDTH,
-            CHARACTER_HEIGHT,
-            self.maze_map if self.maze_map else self.default_maze_map,
-            is_controlled_by_computer=True,
-            x=200, y=200
-        )
+        enemy_list = []
 
-        enemy.set_char_animation(
-            "idle",
-            pink_enemy_file_sprite_paths["idle"],
-            animation_steps=4
-        )
-        enemy.set_char_animation(
-            "walk",
-            pink_enemy_file_sprite_paths["walk"],
-            animation_steps=6
-        )
-        enemy.set_char_animation(
-            "climb",
-            pink_enemy_file_sprite_paths["climb"],
-            animation_steps=4
-        )
-        enemy.set_char_animation(
-            "jump",
-            pink_enemy_file_sprite_paths["jump"],
-            animation_steps=8
-        )
+        enemy_pos = [
+            (200, 200),
+            (100, 200),
+            (400, 400)
+        ]
 
-        state = {
+        for enemy_index in range(3):
+            x, y = enemy_pos[enemy_index]
+
+            enemy = get_character_types()["enemy"](
+                CHARACTER_WIDTH,
+                CHARACTER_HEIGHT,
+                self.maze_map if self.maze_map else self.default_maze_map,
+                is_controlled_by_computer=True,
+                x=x, y=y
+            )
+
+            enemy.set_char_animation(
+                "idle",
+                pink_enemy_file_sprite_paths["idle"],
+                animation_steps=4
+            )
+            enemy.set_char_animation(
+                "walk",
+                pink_enemy_file_sprite_paths["walk"],
+                animation_steps=6
+            )
+            enemy.set_char_animation(
+                "climb",
+                pink_enemy_file_sprite_paths["climb"],
+                animation_steps=4
+            )
+            enemy.set_char_animation(
+                "jump",
+                pink_enemy_file_sprite_paths["jump"],
+                animation_steps=8
+            )
+
+            enemy_list.append(enemy)
+
+        enemy_positions = []
+
+        for enemy in enemy_list:
+            enemy_positions.append(enemy.get_player_grid_coordinates())
+
+        self.state = {
             "main_agent": self.player.get_player_grid_coordinates(),
-            "enemies": enemy.get_player_grid_coordinates(),
+            "enemies": enemy_positions,
             "diamond_positions": diamond_pos,
             "score": 0,
             "win": False,
@@ -122,7 +140,7 @@ class TestCompetitiveUtils(unittest.TestCase):
             self.player,
             self.world.get_walkable_maze_matrix(),
             diamond=self.diamond,
-            state=state
+            state=self.state
         )
 
     #  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -197,6 +215,100 @@ class TestCompetitiveUtils(unittest.TestCase):
         )
 
         self.assertNotIn("DOWN", legal_moves)
+
+    def test_generate_successors_can_be_applied_to_all_agents(self):
+        """Test if the generate_successors function can be applied to all
+        agents."""
+
+        calculated_positions = []
+
+        # Before starting test, ensure initial coordinates are correct
+        self.assertEqual(
+            [(5, 6), (3, 3), (3, 1), (7, 7)],
+            [
+                self.state["main_agent"],
+                self.state["enemies"][0],
+                self.state["enemies"][1],
+                self.state["enemies"][2]
+            ]
+        )
+
+        # Index of each agent
+        main_agent, enemy_one, enemy_two, enemy_three = 0, 1, 2, 3
+
+        # In this test, we will apply a left movement to all agents
+        calculated_positions.append(
+            self.computer.generate_successor(
+                self.state,
+                main_agent,
+                "LEFT"
+            )["main_agent"]
+        )
+
+        calculated_positions.append(
+            self.computer.generate_successor(
+                self.state,
+                enemy_one,
+                "LEFT"
+            )["enemies"][0]
+        )
+
+        calculated_positions.append(
+            self.computer.generate_successor(
+                self.state,
+                enemy_two,
+                "LEFT"
+            )["enemies"][1]
+        )
+
+        calculated_positions.append(
+            self.computer.generate_successor(
+                self.state,
+                enemy_three,
+                "LEFT"
+            )["enemies"][2]
+        )
+
+        self.assertEqual(
+            [(5, 5), (3, 2), (3, 0), (7, 6)],
+            calculated_positions
+        )
+
+    def test_generate_successors_on_one_enemy_does_not_affect_others(self):
+        """Test that when we generate a successor for one enemy, the other
+        agents are not affected."""
+
+        # Before starting test, ensure initial coordinates are correct
+        self.assertEqual(
+            [(5, 6), (3, 3), (3, 1), (7, 7)],
+            [
+                self.state["main_agent"],
+                self.state["enemies"][0],
+                self.state["enemies"][1],
+                self.state["enemies"][2]
+            ]
+        )
+
+        # Index of agent
+        enemy_two = 2
+
+        # In this test, we will apply a left movement to all agents
+
+        new_agent_pos = self.computer.generate_successor(
+            self.state,
+            enemy_two,
+            "LEFT"
+        )["enemies"][1]
+
+        self.assertEqual(
+            [(5, 6), (3, 3), (3, 0), (7, 7)],
+            [
+                self.state["main_agent"],
+                self.state["enemies"][0],
+                new_agent_pos,
+                self.state["enemies"][2]
+            ]
+        )
 
     def tearDown(self):
         pygame.quit()

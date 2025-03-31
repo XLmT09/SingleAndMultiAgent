@@ -3,6 +3,7 @@ import io
 import unittest
 from unittest.mock import patch
 from main import process_args
+import constants as C
 
 
 class TestCli(unittest.TestCase):
@@ -330,3 +331,26 @@ class TestCli(unittest.TestCase):
                     "when using greedy algorithm.",
                     error_output
                 )
+
+    @patch(
+        'sys.argv',
+        ['main', '--size', 'small-filled', '--algo', 'minimax',
+         '--enemy_count', str(C.MAX_ENEMIES + 1)]
+    )
+    def test_cli_fails_on_too_many_enemies(self):
+        """ Test the cli will fail when the user gives a enemy count greater
+        than the max enemies allowed. """
+
+        # Redirect stderr to prevent error message from printing
+        with patch('sys.stderr', new=io.StringIO()) as fake_stderr:
+            # argparse calls sys.exit() on a invalid input
+            with self.assertRaises(SystemExit):
+                process_args()
+
+            error_output = fake_stderr.getvalue()
+
+            # Check if the error message is the expected one
+            self.assertIn(
+                f"Enemy count cannot be greater than {C.MAX_ENEMIES}.",
+                error_output
+            )
