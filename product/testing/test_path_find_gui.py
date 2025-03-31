@@ -15,7 +15,7 @@ CHARACTER_HEIGHT = 32
 
 # Maze map the functions will use
 maze_map = None
-with open('maze/maze_1', 'rb') as file:
+with open('maze/maze_tiny_test', 'rb') as file:
     maze_map = pickle.load(file)
 clock = pygame.time.Clock()
 
@@ -37,7 +37,7 @@ class TestGUIComputer():
         # To avoid frozen screen between tests we will init the display
         # instead of the whole pygame module.
         pygame.display.init()
-        self.screen = pygame.display.set_mode((850, 350))
+        self.screen = pygame.display.set_mode((300, 250))
 
         self.player = get_character_types()["main"](
             CHARACTER_WIDTH,
@@ -134,7 +134,7 @@ class TestGUIComputer():
 
 class TestDFSGUIComputer(TestGUIComputer, unittest.TestCase):
     def setUp(self):
-        super().setUp(pos_x=350, pos_y=300)
+        super().setUp(pos_x=100, pos_y=100)
         self.computer = DFSComputer(
             self.player,
             self.world.get_walkable_maze_matrix()
@@ -143,7 +143,7 @@ class TestDFSGUIComputer(TestGUIComputer, unittest.TestCase):
 
 class TestBFSGUIComputer(TestGUIComputer, unittest.TestCase):
     def setUp(self):
-        super().setUp(pos_x=350, pos_y=300)
+        super().setUp(pos_x=100, pos_y=100)
         self.computer = BFSComputer(
             self.player,
             self.world.get_walkable_maze_matrix()
@@ -152,7 +152,7 @@ class TestBFSGUIComputer(TestGUIComputer, unittest.TestCase):
 
 class TestUCSGUIComputer(TestGUIComputer, unittest.TestCase):
     def setUp(self):
-        super().setUp(pos_x=350, pos_y=300)
+        super().setUp(pos_x=100, pos_y=100)
         self.computer = UCSComputer(
             self.player,
             self.world.get_walkable_maze_matrix(),
@@ -162,7 +162,7 @@ class TestUCSGUIComputer(TestGUIComputer, unittest.TestCase):
 
 class TestAstarGUIComputer(TestGUIComputer, unittest.TestCase):
     def setUp(self):
-        super().setUp(pos_x=350, pos_y=300)
+        super().setUp(pos_x=100, pos_y=100)
         self.computer = AStarComputer(
             self.player,
             self.world.get_walkable_maze_matrix(),
@@ -174,7 +174,7 @@ class TestGUIEnemyCollisionComputer(TestGUIComputer, unittest.TestCase):
     """ This test class will also test the GUI, but this time we will add
     enemies in the game."""
     def setUp(self):
-        super().setUp(pos_x=350, pos_y=300)
+        super().setUp(pos_x=100, pos_y=100)
 
         self.computer = AStarComputer(
             self.player,
@@ -187,7 +187,7 @@ class TestGUIEnemyCollisionComputer(TestGUIComputer, unittest.TestCase):
             game_values["character_height"],
             maze_map,
             is_controlled_by_computer=True,
-            x=450, y=300
+            x=150, y=100
         )
 
         self.enemy.set_char_animation(

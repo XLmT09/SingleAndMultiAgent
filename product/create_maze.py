@@ -136,6 +136,14 @@ test_filled_small_comp_maze = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
+tiny_test_maze = [
+    [1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 3, 0, 1],
+    [1, 1, 1, 3, 1, 1],
+    [1, 0, 2, 3, 0, 1],
+    [1, 1, 1, 1, 1, 1]
+]
+
 # create a maze dir
 os.makedirs('maze', exist_ok=True)
 
@@ -165,3 +173,6 @@ with open('maze/maze_8', 'wb') as file:
 
 with open('maze/maze_8_test', 'wb') as file:
     pickle.dump(test_filled_small_comp_maze, file)
+
+with open('maze/maze_tiny_test', 'wb') as file:
+    pickle.dump(tiny_test_maze, file)
