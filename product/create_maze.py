@@ -163,5 +163,5 @@ with open('maze/maze_7', 'wb') as file:
 with open('maze/maze_8', 'wb') as file:
     pickle.dump(filled_small_comp_maze, file)
 
-with open('maze/test_maze_8', 'wb') as file:
+with open('maze/maze_8_test', 'wb') as file:
     pickle.dump(test_filled_small_comp_maze, file)
