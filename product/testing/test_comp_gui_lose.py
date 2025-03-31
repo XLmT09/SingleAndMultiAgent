@@ -18,7 +18,7 @@ CHARACTER_HEIGHT = 32
 
 # Maze map the functions will use
 maze_map = None
-with open('maze/test_maze_8', 'rb') as file:
+with open('maze/maze_8_test', 'rb') as file:
     maze_map = pickle.load(file)
 clock = pygame.time.Clock()
 
