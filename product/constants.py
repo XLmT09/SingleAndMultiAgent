@@ -11,6 +11,7 @@ game_values = {
     "FPS": 60
 }
 
+# ascii art strings
 GAME_OVER = (
     "  ____                         ___                 \n"        # noqa: E501
     " / ___| __ _ _ __ ___   ___   / _ \\__   _____ _ __ \n"       # noqa: E501
@@ -19,14 +20,16 @@ GAME_OVER = (
     " \\____|\\__,_|_| |_| |_|\\___|  \\___/  \\_/ \\___|_|   \n"  # noqa: E501
 )
 
-
+# Max enemies allowed in the game
 MAX_ENEMIES = 3
+
+# Max time path finding algos in test can run for
+MAX_PATH_TEST_TIME = 20
 
 # grid type
 FREE_GRID = 0
 DIAMOND_GRID = 2
 LADDER_GRID = 3
-
 # Walkable
 NON_WALKABLE_GRID = 0
 
@@ -44,6 +47,9 @@ colour_vals = {
     "red_transparent": RED_TRANSPARENT,
     "blue_transparent": BLUE_TRANSPARENT
 }
+
+
+# ASSET FILE PATHS
 
 player_sprite_file_paths = {
     "idle": "assets/images/characters/Dude_Monster/Dude_Monster_Idle_4.png",

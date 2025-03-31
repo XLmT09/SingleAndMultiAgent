@@ -1,13 +1,15 @@
 import unittest
 import pygame
 import pickle
+import time
 
 from agent.uninformed_computer import BFSComputer, DFSComputer, RandomComputer
 from agent.informed_computer import AStarComputer, UCSComputer
 from characters.character import get_character_types
 from world import World
 from constants import (
-    player_sprite_file_paths, game_values, pink_enemy_file_sprite_paths
+    player_sprite_file_paths, game_values, pink_enemy_file_sprite_paths,
+    MAX_PATH_TEST_TIME
 )
 
 CHARACTER_WIDTH = 32
@@ -83,6 +85,10 @@ class TestGUIComputer():
         given initialized maze environment. The test passes if it can collect
         two diamonds without errors. """
 
+        start_time = time.time()
+
+        running = True
+
         # Start the path finding algorithm
         self.computer.start_thread()
 
@@ -91,7 +97,7 @@ class TestGUIComputer():
         TARGET = 2
 
         # We will run a game loop until collision is detected
-        while score_count != TARGET:
+        while running:
             self.screen.blit(self.bg, (0, 0))
 
             # We have found the diamond and can begin to stop the test
@@ -123,6 +129,11 @@ class TestGUIComputer():
 
             # Set the game refresh rate
             clock.tick(game_values["FPS"])
+
+            if time.time() - start_time > MAX_PATH_TEST_TIME:
+                running = False
+                self.assertFalse(f"Time limit of {MAX_PATH_TEST_TIME} seconds "
+                                 "exceeded.")
 
             # Now render all changes we made in this loop
             # iteration onto the game screen.

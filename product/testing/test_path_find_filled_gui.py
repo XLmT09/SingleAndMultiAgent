@@ -7,7 +7,7 @@ from agent.informed_computer import GreedyComputer, AStarFilledComputer
 from characters.character import get_character_types
 
 from world import World
-from constants import player_sprite_file_paths, game_values
+from constants import player_sprite_file_paths, game_values, MAX_PATH_TEST_TIME
 
 CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32
@@ -83,8 +83,6 @@ class TestFilledGUIComputer():
         given initialized maze environment. The test passes if it can collect
         two diamonds without errors. """
 
-        # Max time this test will be allocated (in seconds)
-        max_time = 250
         start_time = time.time()
 
         # Start the path finding algorithm
@@ -127,9 +125,10 @@ class TestFilledGUIComputer():
                 self.computer.stop_thread = True
                 break
 
-            if time.time() - start_time > max_time:
+            if time.time() - start_time > MAX_PATH_TEST_TIME:
                 running = False
-                self.assertFalse(f"Time limit of {max_time} seconds exceeded.")
+                self.assertFalse(f"Time limit of {MAX_PATH_TEST_TIME} seconds "
+                                 "exceeded.")
 
             # Set the game refresh rate
             clock.tick(game_values["FPS"])
