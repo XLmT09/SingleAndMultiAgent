@@ -258,7 +258,7 @@ class TestMinimaxGUIComputer(TestCompFilledGUIComputer, unittest.TestCase):
             diamond_list=self.world.get_diamond_group(),
             is_weighted=True,
             state=self.state,
-            is_main=True,
+            agent_type=0,
             num_characters=2
         )
 
@@ -266,5 +266,6 @@ class TestMinimaxGUIComputer(TestCompFilledGUIComputer, unittest.TestCase):
             self.enemy_list[0],
             self.world.get_walkable_maze_matrix(),
             state=self.state,
-            num_characters=2
+            num_characters=2,
+            agent_type=1
         )
