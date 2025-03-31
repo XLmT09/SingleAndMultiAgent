@@ -14,7 +14,7 @@ CHARACTER_HEIGHT = 32
 
 # Maze map the functions will use
 maze_map = None
-with open('maze/maze_5', 'rb') as file:
+with open('maze/maze_tiny_test_filled', 'rb') as file:
     maze_map = pickle.load(file)
 clock = pygame.time.Clock()
 
@@ -36,7 +36,7 @@ class TestFilledGUIComputer():
         # To avoid frozen screen between tests we will init the display
         # instead of the whole pygame module.
         pygame.display.init()
-        self.screen = pygame.display.set_mode((850, 350))
+        self.screen = pygame.display.set_mode((300, 250))
 
         self.player = get_character_types()["main"](
             CHARACTER_WIDTH,
@@ -95,7 +95,7 @@ class TestFilledGUIComputer():
 
         # We will stop once all diamonds have been found
         score_count = 0
-        TARGET = 37
+        TARGET = 6
 
         # We will run a game loop until collision is detected
         while running:
@@ -145,7 +145,7 @@ class TestFilledGUIComputer():
 class TestGreedyGUIComputer(TestFilledGUIComputer, unittest.TestCase):
     """ This tests the greedy search algo in a filled maze environment. """
     def setUp(self):
-        super().setUp(pos_x=350, pos_y=300)
+        super().setUp(pos_x=100, pos_y=100)
         self.computer = GreedyComputer(
             self.player,
             self.world.get_walkable_maze_matrix(),
@@ -156,7 +156,7 @@ class TestGreedyGUIComputer(TestFilledGUIComputer, unittest.TestCase):
 class TestAStarFilledGUIComputer(TestFilledGUIComputer, unittest.TestCase):
     """ This tests the A* search algo in a filled maze environment. """
     def setUp(self):
-        super().setUp(pos_x=350, pos_y=300)
+        super().setUp(pos_x=100, pos_y=100)
         self.computer = AStarFilledComputer(
             self.player,
             self.world.get_walkable_maze_matrix(),
