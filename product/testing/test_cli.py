@@ -370,3 +370,21 @@ class TestCli(unittest.TestCase):
 
         self.assertIn("EXPLANATION: Random algorithm chooses a random path to "
                       "take, which may not be optimal.", captured_output)
+
+    @patch(
+        'sys.argv',
+        ['main', '--size', 'small', '--algo', 'dfs', '--explain']
+    )
+    def test_cli_explain_dfs_algo(self):
+        """ Test CLI gives correct explanation for dfs algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: Depth First Search (DFS) explores as far as possible"
+            " along each branch before backtracking.",
+            captured_output
+        )
