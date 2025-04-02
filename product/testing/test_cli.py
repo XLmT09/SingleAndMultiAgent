@@ -1,9 +1,10 @@
 import io
-
 import unittest
-from unittest.mock import patch
-from main import process_args
 import constants as C
+import main
+
+from unittest.mock import patch
+from cli import process_args
 
 
 class TestCli(unittest.TestCase):
@@ -354,3 +355,126 @@ class TestCli(unittest.TestCase):
                 f"Enemy count cannot be greater than {C.MAX_ENEMIES}.",
                 error_output
             )
+
+    @patch(
+        'sys.argv',
+        ['main', '--size', 'small', '--algo', 'random', '--explain']
+    )
+    def test_cli_explain_random_algo(self):
+        """ Test CLI gives correct explanation for random algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn("EXPLANATION: Random algorithm chooses a random path to "
+                      "take, which may not be optimal.", captured_output)
+
+    @patch(
+        'sys.argv',
+        ['main', '--size', 'small', '--algo', 'dfs', '--explain']
+    )
+    def test_cli_explain_dfs_algo(self):
+        """ Test CLI gives correct explanation for dfs algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: Depth First Search (DFS) explores as far as possible"
+            " along each branch before backtracking.",
+            captured_output
+        )
+
+    @patch(
+        'sys.argv',
+        ['main', '--size', 'small', '--algo', 'bfs', '--explain']
+    )
+    def test_cli_explain_bfs_algo(self):
+        """ Test CLI gives correct explanation for bfs algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: Breadth First Search (BFS) explores all neighbors "
+            "at the present depth prior to moving on to nodes at the next "
+            "depth level.",
+            captured_output
+        )
+
+    @patch(
+        'sys.argv',
+        ['main', '--size', 'small', '--algo', 'ucs', '--explain']
+    )
+    def test_cli_explain_ucs_algo(self):
+        """ Test CLI gives correct explanation for ucs algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: Uniform Cost Search (UCS) is a search algorithm "
+            "that expands the least cost node first.",
+            captured_output
+        )
+
+    @patch(
+        'sys.argv',
+        ['main', '--size', 'small', '--algo', 'astar', '--explain']
+    )
+    def test_cli_explain_astar_algo(self):
+        """ Test CLI gives correct explanation for ucs algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: A* is a graph traversal and pathfinding algorithm "
+            "that is efficient and finds the shortest path.",
+            captured_output
+        )
+
+    @patch(
+        'sys.argv',
+        ['main', '--size', 'small', '--algo', 'greedy', '--explain']
+    )
+    def test_cli_explain_greedy_algo(self):
+        """ Test CLI gives correct explanation for greedy algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: Greedy Best-First Search algorithm selects the "
+            "path that appears to be the best at the moment.",
+            captured_output
+        )
+
+    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small',
+           '--enemy_count', '1', '--explain'])
+    def test_cli_explain_minimax_algo(self):
+        """ Test CLI gives correct explanation for minimax algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: Minimax algorithm is used in decision-making and "
+            "game theory, to minimize the possible loss for a worst-case "
+            "scenario.",
+            captured_output
+        )
