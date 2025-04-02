@@ -407,3 +407,21 @@ class TestCli(unittest.TestCase):
             "depth level.",
             captured_output
         )
+
+    @patch(
+        'sys.argv',
+        ['main', '--size', 'small', '--algo', 'ucs', '--explain']
+    )
+    def test_cli_explain_ucs_algo(self):
+        """ Test CLI gives correct explanation for ucs algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: Uniform Cost Search (UCS) is a search algorithm "
+            "that expands the least cost node first.",
+            captured_output
+        )
