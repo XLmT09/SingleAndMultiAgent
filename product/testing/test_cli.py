@@ -443,3 +443,21 @@ class TestCli(unittest.TestCase):
             "that is efficient and finds the shortest path.",
             captured_output
         )
+
+    @patch(
+        'sys.argv',
+        ['main', '--size', 'small', '--algo', 'greedy', '--explain']
+    )
+    def test_cli_explain_greedy_algo(self):
+        """ Test CLI gives correct explanation for greedy algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: Greedy Best-First Search algorithm selects the "
+            "path that appears to be the best at the moment.",
+            captured_output
+        )
