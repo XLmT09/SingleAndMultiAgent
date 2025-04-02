@@ -15,6 +15,12 @@ def explain_algo(algo: str) -> None:
             "EXPLANATION: Depth First Search (DFS) explores as far as "
             "possible along each branch before backtracking."
         )
+    elif algo == "bfs":
+        print(
+            "EXPLANATION: Breadth First Search (BFS) explores all neighbors "
+            "at the present depth prior to moving on to nodes at the next "
+            "depth level."
+        )
 
 
 def process_args() -> dict:
