@@ -461,3 +461,20 @@ class TestCli(unittest.TestCase):
             "path that appears to be the best at the moment.",
             captured_output
         )
+
+    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small',
+           '--enemy_count', '1', '--explain'])
+    def test_cli_explain_minimax_algo(self):
+        """ Test CLI gives correct explanation for minimax algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: Minimax algorithm is used in decision-making and "
+            "game theory, to minimize the possible loss for a worst-case "
+            "scenario.",
+            captured_output
+        )
