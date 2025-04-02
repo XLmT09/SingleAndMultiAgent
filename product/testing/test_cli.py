@@ -425,3 +425,21 @@ class TestCli(unittest.TestCase):
             "that expands the least cost node first.",
             captured_output
         )
+
+    @patch(
+        'sys.argv',
+        ['main', '--size', 'small', '--algo', 'astar', '--explain']
+    )
+    def test_cli_explain_astar_algo(self):
+        """ Test CLI gives correct explanation for ucs algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: A* is a graph traversal and pathfinding algorithm "
+            "that is efficient and finds the shortest path.",
+            captured_output
+        )
