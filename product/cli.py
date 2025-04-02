@@ -10,6 +10,11 @@ def explain_algo(algo: str) -> None:
             "EXPLANATION: Random algorithm chooses a random path to take, "
             "which may not be optimal."
         )
+    elif algo == "dfs":
+        print(
+            "EXPLANATION: Depth First Search (DFS) explores as far as "
+            "possible along each branch before backtracking."
+        )
 
 
 def process_args() -> dict:
