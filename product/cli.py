@@ -36,6 +36,12 @@ def explain_algo(algo: str) -> None:
             "EXPLANATION: Greedy Best-First Search algorithm selects the "
             "path that appears to be the best at the moment."
         )
+    elif algo == "minimax":
+        print(
+            "EXPLANATION: Minimax algorithm is used in decision-making and "
+            "game theory, to minimize the possible loss for a worst-case "
+            "scenario."
+        )
 
 
 def process_args() -> dict:
