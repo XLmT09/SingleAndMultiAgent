@@ -1,9 +1,10 @@
 import io
-
 import unittest
-from unittest.mock import patch
-from main import process_args
 import constants as C
+import main
+
+from unittest.mock import patch
+from cli import process_args
 
 
 class TestCli(unittest.TestCase):
@@ -354,3 +355,18 @@ class TestCli(unittest.TestCase):
                 f"Enemy count cannot be greater than {C.MAX_ENEMIES}.",
                 error_output
             )
+
+    @patch(
+        'sys.argv',
+        ['main', '--size', 'small', '--algo', 'random', '--explain']
+    )
+    def test_cli_explain_random_algo(self):
+        """ Test CLI gives correct explanation for random algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn("EXPLANATION: Random algorithm chooses a random path to "
+                      "take, which may not be optimal.", captured_output)
