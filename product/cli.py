@@ -21,6 +21,11 @@ def explain_algo(algo: str) -> None:
             "at the present depth prior to moving on to nodes at the next "
             "depth level."
         )
+    elif algo == "ucs":
+        print(
+            "EXPLANATION: Uniform Cost Search (UCS) is a search algorithm "
+            "that expands the least cost node first."
+        )
 
 
 def process_args() -> dict:
