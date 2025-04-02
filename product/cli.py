@@ -2,6 +2,16 @@ import argparse
 import constants as C
 
 
+def explain_algo(algo: str) -> None:
+    """ This function will explain the algorithm passed in by the user. """
+
+    if algo == "random":
+        print(
+            "EXPLANATION: Random algorithm chooses a random path to take, "
+            "which may not be optimal."
+        )
+
+
 def process_args() -> dict:
     """ This function takes the flags passed in by the user and
     will process them.
@@ -53,6 +63,13 @@ def process_args() -> dict:
         help="The number of enemies to appear in the game."
     )
 
+    parser.add_argument(
+        "--explain",
+        action="store_true",
+        required=False,
+        help="Gives a brief explanation of an algorithm, set by --algo."
+    )
+
     # parse args from command line
     args = parser.parse_args()
 
@@ -88,6 +105,9 @@ def process_args() -> dict:
             filled = True
         else:
             maze = "maze/maze_3"
+
+    if args.explain:
+        explain_algo(args.algo)
 
     if args.weighted and args.algo != "astar":
         parser.error("--weighted is only applicable when using the "
