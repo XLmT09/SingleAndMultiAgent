@@ -31,6 +31,11 @@ def explain_algo(algo: str) -> None:
             "EXPLANATION: A* is a graph traversal and pathfinding algorithm "
             "that is efficient and finds the shortest path."
         )
+    elif algo == "greedy":
+        print(
+            "EXPLANATION: Greedy Best-First Search algorithm selects the "
+            "path that appears to be the best at the moment."
+        )
 
 
 def process_args() -> dict:
