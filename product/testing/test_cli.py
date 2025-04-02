@@ -388,3 +388,22 @@ class TestCli(unittest.TestCase):
             " along each branch before backtracking.",
             captured_output
         )
+
+    @patch(
+        'sys.argv',
+        ['main', '--size', 'small', '--algo', 'bfs', '--explain']
+    )
+    def test_cli_explain_bfs_algo(self):
+        """ Test CLI gives correct explanation for bfs algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: Breadth First Search (BFS) explores all neighbors "
+            "at the present depth prior to moving on to nodes at the next "
+            "depth level.",
+            captured_output
+        )
