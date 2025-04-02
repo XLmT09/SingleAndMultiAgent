@@ -26,6 +26,11 @@ def explain_algo(algo: str) -> None:
             "EXPLANATION: Uniform Cost Search (UCS) is a search algorithm "
             "that expands the least cost node first."
         )
+    elif algo == "astar":
+        print(
+            "EXPLANATION: A* is a graph traversal and pathfinding algorithm "
+            "that is efficient and finds the shortest path."
+        )
 
 
 def process_args() -> dict:
