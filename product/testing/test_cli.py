@@ -126,7 +126,7 @@ class TestCli(unittest.TestCase):
         result = process_args()
         self.assertEqual(result["screen_width"], 850)
         self.assertEqual(result["screen_height"], 350)
-        self.assertEqual(result["maze_path"], "maze/maze_")
+        self.assertEqual(result["maze_path"], "maze/maze_8")
         self.assertEqual(result["algo"], "alphabeta")
 
     def test_cli_fails_when_weighted_set_on_non_a_star_algo(self):
@@ -285,6 +285,9 @@ class TestCli(unittest.TestCase):
         algorithm not compatible with filled mazes. """
 
         incompatible_algos = ["bfs", "dfs", "ucs"]
+        filled_compatible_algos = [
+            "greedy", "random", "astar", "minimax", "alphabeta"
+        ]
 
         for algo in incompatible_algos:
             with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
@@ -300,8 +303,8 @@ class TestCli(unittest.TestCase):
 
                 # Check if the error message is the expected one
                 self.assertIn(
-                    "error: Filled maze only works when user controlled or "
-                    "when using greedy algorithm.",
+                    f"Filled maze only works when user controlled or when "
+                    f"using the following algos: {filled_compatible_algos}",
                     error_output
                 )
 
@@ -325,6 +328,10 @@ class TestCli(unittest.TestCase):
 
         incompatible_algos = ["bfs", "dfs", "ucs"]
 
+        filled_compatible_algos = [
+            "greedy", "random", "astar", "minimax", "alphabeta"
+        ]
+
         for algo in incompatible_algos:
             with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
                 with patch(
@@ -339,8 +346,8 @@ class TestCli(unittest.TestCase):
 
                 # Check if the error message is the expected one
                 self.assertIn(
-                    "error: Filled maze only works when user controlled or "
-                    "when using greedy algorithm.",
+                    f"Filled maze only works when user controlled or when "
+                    f"using the following algos: {filled_compatible_algos}",
                     error_output
                 )
 

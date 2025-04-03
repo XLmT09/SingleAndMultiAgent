@@ -47,7 +47,37 @@ def explain_algo(algo: str) -> None:
 def process_args() -> dict:
     """ This function takes the flags passed in by the user and
     will process them.
+
+    Returns:
+        dict: data gathered from user CLI input.
     """
+
+    # Some values we will pass into the return dict.
+    screen_width, screen_height, maze, filled = None, None, None, False
+
+    # list of useable algorithms
+    algos = [
+        "random",
+        "dfs",
+        "bfs",
+        "ucs",
+        "astar",
+        "greedy",
+        "minimax",
+        "alphabeta"
+    ]
+
+    # Algorithms which are intended to work with at least one enemy agent
+    # present.
+    competitive_algos = [
+        "minimax",
+        "alphabeta"
+    ]
+
+    # Algorithms that are compatible with diamond filled mazes.
+    filled_compatible_algos = [
+        "greedy", "random", "astar", "minimax", "alphabeta"
+    ]
 
     # This is used to define, manage and parser the command line args.
     parser = argparse.ArgumentParser()
@@ -66,9 +96,9 @@ def process_args() -> dict:
     # define the algo flag
     parser.add_argument(
         "--algo",
-        choices=["random", "dfs", "bfs", "ucs", "astar", "greedy", "minimax"],
+        choices=algos,
         required=False,
-        help="Choose a algorithm: random, dfs, bfs, or ucs"
+        help=f"Choose a algorithm: {algos}"
     )
 
     parser.add_argument(
@@ -105,8 +135,6 @@ def process_args() -> dict:
     # parse args from command line
     args = parser.parse_args()
 
-    screen_width, screen_height, maze, filled = None, None, None, False
-
     # setup the window width and height, depending on
     # the size the user specified.
     if "small" in args.size:
@@ -114,7 +142,7 @@ def process_args() -> dict:
         screen_height = 350
         # retrieve the small maze filled with diamonds
         if "filled" in args.size:
-            if args.algo == "minimax":
+            if args.algo in competitive_algos:
                 maze = "maze/maze_8"
             else:
                 maze = "maze/maze_5"
@@ -141,6 +169,8 @@ def process_args() -> dict:
     if args.explain:
         explain_algo(args.algo)
 
+    # PERFORM VALIDATION ON USER INPUT
+
     if args.weighted and args.algo != "astar":
         parser.error("--weighted is only applicable when using the "
                      "A* algorithm.")
@@ -152,11 +182,10 @@ def process_args() -> dict:
             "random."
         )
 
-    filled_compatible_algos = ["greedy", "random", "astar", "minimax"]
     if (args.algo and filled and not (args.algo in filled_compatible_algos)):
         parser.error(
-            "Filled maze only works when user controlled or when using "
-            "greedy algorithm."
+            f"Filled maze only works when user controlled or when using "
+            f"the following algos: {filled_compatible_algos}"
         )
 
     if args.algo == "minimax" and args.enemy_count == 0:
