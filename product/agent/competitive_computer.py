@@ -5,7 +5,7 @@ import time
 import copy
 
 
-class MinimaxComputer(Computer):
+class CompetitiveComputer(Computer):
     """ This class will represent the agents different pathfinding algos
         available to use.
 
@@ -207,99 +207,6 @@ class MinimaxComputer(Computer):
             legal_movements.append("UP")
 
         return legal_movements
-
-    def minimax(self, state, depth, agent_index, player_action=None,
-                enemy_action=None) -> tuple:
-        """ This function will simulate the minimax algorithm. It will
-        simulate movement with both the agent and enemies and find the best
-        movement for whichever agent called the algo.
-
-        Attributes:
-            state (dict): The current game state.
-            depth (int): Number which indicated how far down the game tree
-                we are.
-            agent_index (int): Indicate which agent is currently running the
-                function. 0 means main agent otherwise its the enemy.
-            visited_sates (set): Avoid going traversing down repeated states
-                by keeping track of states combinations currently visited.
-            player_action (str): The action taken by the player.
-            enemy_action (str): The action taken by the enemy.
-
-        Returns:
-            tuple: A tuple containing the best value and the action to take.
-                The best value is the score of the state, and the action is
-                the movement to take.
-        """
-
-        # end algorithm if we reached max depth or find a terminating state
-        if self.is_terminal(state) or depth <= 0:
-            return (
-                self.evaluation_function(
-                    state, depth, player_action
-                ), None)
-
-        action_to_take = None
-
-        # Check which agent will run the function next.
-        next_agent = (agent_index + 1) % self.num_characters
-
-        # There are two loops we can use to traverse the game tree, one for the
-        # main agent and one for the enemy. Each loop will call the minimax
-        # algo again on the opposite agent.
-        if agent_index == 0:
-            best_value = float("-inf")
-            for action in self.legal_movements(state["main_agent"],
-                                               player_action):
-
-                # Generate the sate for when the action is performed.
-                successor = self.generate_successor(state, agent_index, action)
-
-                current_value = self.minimax(
-                    successor,
-                    depth,
-                    agent_index=next_agent,
-                    player_action=action,
-                    enemy_action=enemy_action
-                )[0]
-
-                if best_value <= current_value:
-                    best_value = current_value
-                    action_to_take = action
-
-            return (best_value, action_to_take)
-        else:
-            best_value = float("inf")
-            if not self.stop_thread:
-
-                # Skip the first enemy agent, because it is the main agent.
-                enemy_pos = state["enemies"][agent_index - 1]
-
-                for action in self.legal_movements(enemy_pos,
-                                                   enemy_action):
-
-                    successor = self.generate_successor(
-                        state,
-                        agent_index,
-                        action
-                    )
-
-                    # we decrease the depth here because we at this point both
-                    # the player and enemy(s) have made there moves.
-                    current_value = self.minimax(
-                        successor,
-                        depth - 1 if next_agent == 0 else depth,
-                        next_agent,
-                        player_action=player_action,
-                        enemy_action=action
-                    )[0]
-
-                    if best_value >= current_value:
-                        best_value = current_value
-                        action_to_take = action
-
-                return (best_value, action_to_take)
-            else:
-                return (0, "None")
 
     def simulate_movement(self, position, action) -> tuple:
         """ This function simulates the movement of the agent.
@@ -509,3 +416,98 @@ class MinimaxComputer(Computer):
 
     def update_state(self, state) -> None:
         self.state = state
+
+
+class MinimaxComputer(CompetitiveComputer):
+    def minimax(self, state, depth, agent_index, player_action=None,
+                enemy_action=None) -> tuple:
+        """ This function will simulate the minimax algorithm. It will
+        simulate movement with both the agent and enemies and find the best
+        movement for whichever agent called the algo.
+
+        Attributes:
+            state (dict): The current game state.
+            depth (int): Number which indicated how far down the game tree
+                we are.
+            agent_index (int): Indicate which agent is currently running the
+                function. 0 means main agent otherwise its the enemy.
+            visited_sates (set): Avoid going traversing down repeated states
+                by keeping track of states combinations currently visited.
+            player_action (str): The action taken by the player.
+            enemy_action (str): The action taken by the enemy.
+
+        Returns:
+            tuple: A tuple containing the best value and the action to take.
+                The best value is the score of the state, and the action is
+                the movement to take.
+        """
+
+        # end algorithm if we reached max depth or find a terminating state
+        if self.is_terminal(state) or depth <= 0:
+            return (
+                self.evaluation_function(
+                    state, depth, player_action
+                ), None)
+
+        action_to_take = None
+
+        # Check which agent will run the function next.
+        next_agent = (agent_index + 1) % self.num_characters
+
+        # There are two loops we can use to traverse the game tree, one for the
+        # main agent and one for the enemy. Each loop will call the minimax
+        # algo again on the opposite agent.
+        if agent_index == 0:
+            best_value = float("-inf")
+            for action in self.legal_movements(state["main_agent"],
+                                               player_action):
+
+                # Generate the sate for when the action is performed.
+                successor = self.generate_successor(state, agent_index, action)
+
+                current_value = self.minimax(
+                    successor,
+                    depth,
+                    agent_index=next_agent,
+                    player_action=action,
+                    enemy_action=enemy_action
+                )[0]
+
+                if best_value <= current_value:
+                    best_value = current_value
+                    action_to_take = action
+
+            return (best_value, action_to_take)
+        else:
+            best_value = float("inf")
+            if not self.stop_thread:
+
+                # Skip the first enemy agent, because it is the main agent.
+                enemy_pos = state["enemies"][agent_index - 1]
+
+                for action in self.legal_movements(enemy_pos,
+                                                   enemy_action):
+
+                    successor = self.generate_successor(
+                        state,
+                        agent_index,
+                        action
+                    )
+
+                    # we decrease the depth here because we at this point both
+                    # the player and enemy(s) have made there moves.
+                    current_value = self.minimax(
+                        successor,
+                        depth - 1 if next_agent == 0 else depth,
+                        next_agent,
+                        player_action=player_action,
+                        enemy_action=action
+                    )[0]
+
+                    if best_value >= current_value:
+                        best_value = current_value
+                        action_to_take = action
+
+                return (best_value, action_to_take)
+            else:
+                return (0, "None")
