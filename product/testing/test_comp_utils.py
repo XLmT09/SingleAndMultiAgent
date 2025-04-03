@@ -1,12 +1,14 @@
 import pygame
 import unittest
 import pickle
+import time
+import copy
 
 from characters.character import get_character_types
 
 from world import World
 from constants import player_sprite_file_paths, pink_enemy_file_sprite_paths
-from agent.competitive_computer import MinimaxComputer
+from agent.competitive_computer import MinimaxComputer, AlphaBetaComputer
 
 CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32
@@ -136,11 +138,20 @@ class TestCompetitiveUtils(unittest.TestCase):
             "diamond_count": 0
         }
 
-        self.computer = MinimaxComputer(
+        self.minimax_computer = MinimaxComputer(
             self.player,
             self.world.get_walkable_maze_matrix(),
             diamond=self.diamond,
-            state=self.state
+            state=self.state,
+            num_characters=4
+        )
+
+        self.alphabeta_computer = AlphaBetaComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.diamond,
+            state=self.state,
+            num_characters=4
         )
 
     #  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -152,7 +163,7 @@ class TestCompetitiveUtils(unittest.TestCase):
         are no walls.
         """
 
-        legal_moves = self.computer.legal_movements(
+        legal_moves = self.minimax_computer.legal_movements(
             pos=(1, 3),
             prev_action=None
         )
@@ -163,7 +174,7 @@ class TestCompetitiveUtils(unittest.TestCase):
         """Test if the computer can ONLY move up and down, when they are on a
         ladder with walls on either side."""
 
-        legal_moves = self.computer.legal_movements(
+        legal_moves = self.minimax_computer.legal_movements(
             pos=(4, 9),
             prev_action=None
         )
@@ -174,7 +185,7 @@ class TestCompetitiveUtils(unittest.TestCase):
         """Test if the agent has reached the top of the ladder they can
         ONLY go down, left and right."""
 
-        legal_moves = self.computer.legal_movements(
+        legal_moves = self.minimax_computer.legal_movements(
             pos=(3, 9),
             prev_action=None
         )
@@ -186,7 +197,7 @@ class TestCompetitiveUtils(unittest.TestCase):
         right, note that they will also be able to go up as this grid is a
         ladder."""
 
-        legal_moves = self.computer.legal_movements(
+        legal_moves = self.minimax_computer.legal_movements(
             pos=(5, 1),
             prev_action=None
         )
@@ -198,7 +209,7 @@ class TestCompetitiveUtils(unittest.TestCase):
         left, note that they will also be able to go up as this grid is a
         ladder."""
 
-        legal_moves = self.computer.legal_movements(
+        legal_moves = self.minimax_computer.legal_movements(
             pos=(5, 15),
             prev_action=None
         )
@@ -209,7 +220,7 @@ class TestCompetitiveUtils(unittest.TestCase):
         """Test the agent cannot go down when they are at the bottom of the
         ladder."""
 
-        legal_moves = self.computer.legal_movements(
+        legal_moves = self.minimax_computer.legal_movements(
             pos=(5, 15),
             prev_action=None
         )
@@ -238,7 +249,7 @@ class TestCompetitiveUtils(unittest.TestCase):
 
         # In this test, we will apply a left movement to all agents
         calculated_positions.append(
-            self.computer.generate_successor(
+            self.minimax_computer.generate_successor(
                 self.state,
                 main_agent,
                 "LEFT"
@@ -246,7 +257,7 @@ class TestCompetitiveUtils(unittest.TestCase):
         )
 
         calculated_positions.append(
-            self.computer.generate_successor(
+            self.minimax_computer.generate_successor(
                 self.state,
                 enemy_one,
                 "LEFT"
@@ -254,7 +265,7 @@ class TestCompetitiveUtils(unittest.TestCase):
         )
 
         calculated_positions.append(
-            self.computer.generate_successor(
+            self.minimax_computer.generate_successor(
                 self.state,
                 enemy_two,
                 "LEFT"
@@ -262,7 +273,7 @@ class TestCompetitiveUtils(unittest.TestCase):
         )
 
         calculated_positions.append(
-            self.computer.generate_successor(
+            self.minimax_computer.generate_successor(
                 self.state,
                 enemy_three,
                 "LEFT"
@@ -294,7 +305,7 @@ class TestCompetitiveUtils(unittest.TestCase):
 
         # In this test, we will apply a left movement to all agents
 
-        new_agent_pos = self.computer.generate_successor(
+        new_agent_pos = self.minimax_computer.generate_successor(
             self.state,
             enemy_two,
             "LEFT"
@@ -309,6 +320,43 @@ class TestCompetitiveUtils(unittest.TestCase):
                 self.state["enemies"][2]
             ]
         )
+
+    def test_alphabeta_faster_execution_than_minimax(self):
+        """Test that the alphabeta algorithm will run faster than the minimax
+        algorithm, on a guaranteed pruning game state."""
+
+        # TODO: The previous enemy positions were out of bounds, so I created
+        # new ones. Changing this in the setup would require updating all
+        #  previous tests, which would take time, so I’ve left it as is for
+        # now.
+        new_enemy_pos = [(5, 1), (3, 5), (1, 8)]
+
+        new_state = copy.deepcopy(self.state)
+
+        new_state["enemies"] = new_enemy_pos
+
+        start = time.time()
+
+        self.minimax_computer.minimax(
+            new_state,
+            depth=2,
+            agent_index=0
+        )
+        end = time.time()
+
+        minimax_time = end - start
+
+        start = time.time()
+        self.alphabeta_computer.minimax(
+            new_state,
+            depth=2,
+            agent_index=0
+        )
+        end = time.time()
+
+        alphabeta_computer = end - start
+
+        self.assertGreater(minimax_time, alphabeta_computer)
 
     def tearDown(self):
         pygame.quit()
