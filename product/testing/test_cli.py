@@ -118,6 +118,17 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["algo"], "astar")
         self.assertEqual(result["weighted"], True)
 
+    @patch('sys.argv',
+           ['main', '--size', 'small-filled', '--algo', 'alphabeta',
+            '--enemy_count', '1'])
+    def test_alphabeta_algo_attribute(self):
+        """ Test alphabeta algo registered after inputting to the cli. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 850)
+        self.assertEqual(result["screen_height"], 350)
+        self.assertEqual(result["maze_path"], "maze/maze_")
+        self.assertEqual(result["algo"], "alphabeta")
+
     def test_cli_fails_when_weighted_set_on_non_a_star_algo(self):
         """ Test the cli will fail when the user inputs a non astar algorithm
         with the weighted flag. """
