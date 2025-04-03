@@ -183,7 +183,7 @@ class CompetitiveComputer(Computer):
         # These values help determine whether a movement is valid or out of
         # bounds.
         LEFT_WALL, RIGHT_WALL = 0, len(self._walkable_maze_matrix[0]) - 1
-        CEILING, FLOOR = 0, len(self._walkable_maze_matrix)
+        CEILING, FLOOR = 0, len(self._walkable_maze_matrix) - 1
 
         if (pos[1] - 1 > LEFT_WALL and
            self._walkable_maze_matrix[pos[0]][pos[1] - 1] !=
@@ -230,7 +230,7 @@ class CompetitiveComputer(Computer):
             return (y, x + 1)
 
         # if action was not given return None
-        return None
+        return position
 
     def is_terminal(self, state) -> bool:
         """ This function checks if the game has reached a terminal state.
