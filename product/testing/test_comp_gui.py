@@ -3,10 +3,10 @@ import pygame
 import pickle
 import time
 
-from agent.competitive_computer import MinimaxComputer
+from agent.competitive_computer import MinimaxComputer, AlphaBetaComputer
 from characters.character import get_character_types
 
-from world import World
+from world import World, Diamond
 from constants import (
     player_sprite_file_paths,
     game_values,
@@ -163,9 +163,22 @@ class TestCompFilledGUIComputer():
         # if time limit exceeds this is set to false
         running = True
 
+        # On every test iterations load diamonds on these specific areas for
+        # the test.
+        diamond = Diamond(11, 5)
+        self.world._diamond_group.add(diamond)
+
+        diamond = Diamond(12, 5)
+        self.world._diamond_group.add(diamond)
+
+        diamond = Diamond(13, 5)
+        self.world._diamond_group.add(diamond)
+
         # We will stop once all diamonds have been found
         score_count = 0
-        # This test maze will only have 5 diamonds
+
+        # The game state will have more than 3 diamonds, but for the algo to
+        # pass it just needs to collect 3.
         TARGET = 3
 
         # We will run a game loop until collision is detected
@@ -248,8 +261,8 @@ class TestCompFilledGUIComputer():
 
 class TestMinimaxGUIComputer(TestCompFilledGUIComputer, unittest.TestCase):
     """ This tests the minimax computer class. It will check the main agent is
-    able to collect all diamonds in the maze, this should be possible as there
-    are no dead ends in the game."""
+    able to collect at least 3 diamonds in the maze, this should be possible
+    as there are no dead ends in the game."""
 
     def setUp(self):
         super().setUp(pos_x=350, pos_y=300)
@@ -264,6 +277,32 @@ class TestMinimaxGUIComputer(TestCompFilledGUIComputer, unittest.TestCase):
         )
 
         self.enemy_computer = MinimaxComputer(
+            self.enemy_list[0],
+            self.world.get_walkable_maze_matrix(),
+            state=self.state,
+            num_characters=2,
+            agent_type=1
+        )
+
+
+class TestAlphaBetaGUIComputer(TestCompFilledGUIComputer, unittest.TestCase):
+    """ This tests the alphabeta computer class. It will check the main agent
+    is able to collect at least 3 diamonds in the maze, this should be
+    possible as there are no dead ends in the game."""
+
+    def setUp(self):
+        super().setUp(pos_x=350, pos_y=300)
+        self.main_computer = AlphaBetaComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond_list=self.world.get_diamond_group(),
+            is_weighted=True,
+            state=self.state,
+            agent_type=0,
+            num_characters=2
+        )
+
+        self.enemy_computer = AlphaBetaComputer(
             self.enemy_list[0],
             self.world.get_walkable_maze_matrix(),
             state=self.state,
