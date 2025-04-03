@@ -224,7 +224,7 @@ def get_agent_types():
         RandomComputer, BFSComputer, DFSComputer
     )
     from agent.competitive_computer import (
-        MinimaxComputer
+        MinimaxComputer, AlphaBetaComputer
     )
 
     return {
@@ -235,5 +235,6 @@ def get_agent_types():
         "astar": AStarComputer,
         "astarFilled": AStarFilledComputer,
         "greedy": GreedyComputer,
-        "minimax": MinimaxComputer
+        "minimax": MinimaxComputer,
+        "alphabeta": AlphaBetaComputer
     }
