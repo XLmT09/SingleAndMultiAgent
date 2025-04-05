@@ -500,3 +500,20 @@ class TestCli(unittest.TestCase):
             "scenario.",
             captured_output
         )
+
+    @patch('sys.argv', ['main', '--algo', 'alphabeta', '--size', 'small',
+           '--enemy_count', '1', '--explain'])
+    def test_cli_explain_alphabeta_algo(self):
+        """ Test CLI gives correct explanation for alphabeta algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: Alpha-Beta pruning is an optimization technique "
+            "for the minimax algorithm that reduces the number of nodes "
+            "evaluated.",
+            captured_output
+        )
