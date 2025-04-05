@@ -64,19 +64,21 @@ def process_args() -> dict:
         "astar",
         "greedy",
         "minimax",
-        "alphabeta"
+        "alphabeta",
+        "expectimax",
     ]
 
     # Algorithms which are intended to work with at least one enemy agent
     # present.
     competitive_algos = [
         "minimax",
-        "alphabeta"
+        "alphabeta",
+        "expectimax",
     ]
 
     # Algorithms that are compatible with diamond filled mazes.
     filled_compatible_algos = [
-        "greedy", "random", "astar", "minimax", "alphabeta"
+        "greedy", "random", "astar", "minimax", "alphabeta", "expectimax"
     ]
 
     # This is used to define, manage and parser the command line args.
