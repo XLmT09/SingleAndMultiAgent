@@ -414,5 +414,30 @@ class TestCompetitiveUtils(unittest.TestCase):
         self.expectimax_computer._walkable_maze_matrix[5][1] = C.LADDER_GRID
         self.expectimax_computer._walkable_maze_matrix[4][1] = C.LADDER_GRID
 
+    def test_expectimax_probability_func_no_move(self):
+        """Test the expectimax probability function will return an empty list
+        when there are no legal moves."""
+
+        # temporarily block enemy path, to restrict movements
+        self.expectimax_computer._walkable_maze_matrix[5][1] = C.WALKABLE_GRID
+        self.expectimax_computer._walkable_maze_matrix[4][1] = C.WALKABLE_GRID
+        self.expectimax_computer._walkable_maze_matrix[5][2] = (
+            C.NON_WALKABLE_GRID
+        )
+
+        # In this position, the enemy can not make a legal move.
+        enemy_pos = (5, 1)
+
+        prob_output = self.expectimax_computer.get_enemy_actions_with_probs(
+            enemy_pos
+        )
+
+        self.assertEqual([], prob_output)
+
+        # restore matrix
+        self.expectimax_computer._walkable_maze_matrix[5][1] = C.LADDER_GRID
+        self.expectimax_computer._walkable_maze_matrix[4][1] = C.LADDER_GRID
+        self.expectimax_computer._walkable_maze_matrix[5][2] = C.WALKABLE_GRID
+
     def tearDown(self):
         pygame.quit()
