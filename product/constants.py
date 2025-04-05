@@ -1,3 +1,6 @@
+##############################################################################
+#                             GENERAL CONSTANTS                              #
+##############################################################################
 # Some global constants to be used
 PASS = 1
 FAIL = 0
@@ -11,7 +14,9 @@ game_values = {
     "FPS": 60
 }
 
-# ascii art strings
+##############################################################################
+#                                 ASCII ART                                  #
+##############################################################################
 GAME_OVER = (
     "  ____                         ___                 \n"        # noqa: E501
     " / ___| __ _ _ __ ___   ___   / _ \\__   _____ _ __ \n"       # noqa: E501
@@ -19,6 +24,10 @@ GAME_OVER = (
     "| |_| | (_| | | | | | |  __/ | |_| |\\ V /  __/ |   \n"       # noqa: E501
     " \\____|\\__,_|_| |_| |_|\\___|  \\___/  \\_/ \\___|_|   \n"  # noqa: E501
 )
+
+##############################################################################
+#                               GAME CONSTANTS                              #
+##############################################################################
 
 # Max enemies allowed in the game
 MAX_ENEMIES = 3
@@ -49,7 +58,9 @@ colour_vals = {
 }
 
 
-# ASSET FILE PATHS
+##############################################################################
+#                                 FILE PATHS                                 #
+##############################################################################
 
 player_sprite_file_paths = {
     "idle": "assets/images/characters/Dude_Monster/Dude_Monster_Idle_4.png",
@@ -74,3 +85,34 @@ diamond_sprite_images = []
 for i in range(1, NUM_DIAMOND_SPRITE_IMAGES + 1):
     diamond_sprite_images.append(
         f"assets/images/pixel-art-diamond/diamond{i}.png")
+
+
+##############################################################################
+#                                  CLI LOGIC                                 #
+##############################################################################
+
+# list of useable algorithms
+ALGOS = [
+    "random",
+    "dfs",
+    "bfs",
+    "ucs",
+    "astar",
+    "greedy",
+    "minimax",
+    "alphabeta",
+    "expectimax",
+]
+
+# Algorithms which are intended to work with at least one enemy agent
+# present.
+COMPETITIVE_ALGOS = [
+    "minimax",
+    "alphabeta",
+    "expectimax",
+]
+
+# Algorithms that are compatible with diamond filled mazes.
+FILLED_COMPETITIVE_ALGOS = [
+    "greedy", "random", "astar", "minimax", "alphabeta", "expectimax"
+]

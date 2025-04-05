@@ -296,9 +296,6 @@ class TestCli(unittest.TestCase):
         algorithm not compatible with filled mazes. """
 
         incompatible_algos = ["bfs", "dfs", "ucs"]
-        filled_compatible_algos = [
-            "greedy", "random", "astar", "minimax", "alphabeta"
-        ]
 
         for algo in incompatible_algos:
             with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
@@ -315,7 +312,7 @@ class TestCli(unittest.TestCase):
                 # Check if the error message is the expected one
                 self.assertIn(
                     f"Filled maze only works when user controlled or when "
-                    f"using the following algos: {filled_compatible_algos}",
+                    f"using the following algos: {C.FILLED_COMPETITIVE_ALGOS}",
                     error_output
                 )
 
@@ -339,10 +336,6 @@ class TestCli(unittest.TestCase):
 
         incompatible_algos = ["bfs", "dfs", "ucs"]
 
-        filled_compatible_algos = [
-            "greedy", "random", "astar", "minimax", "alphabeta"
-        ]
-
         for algo in incompatible_algos:
             with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
                 with patch(
@@ -358,7 +351,7 @@ class TestCli(unittest.TestCase):
                 # Check if the error message is the expected one
                 self.assertIn(
                     f"Filled maze only works when user controlled or when "
-                    f"using the following algos: {filled_compatible_algos}",
+                    f"using the following algos: {C.FILLED_COMPETITIVE_ALGOS}",
                     error_output
                 )
 

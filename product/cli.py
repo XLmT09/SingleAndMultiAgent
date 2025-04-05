@@ -55,32 +55,6 @@ def process_args() -> dict:
     # Some values we will pass into the return dict.
     screen_width, screen_height, maze, filled = None, None, None, False
 
-    # list of useable algorithms
-    algos = [
-        "random",
-        "dfs",
-        "bfs",
-        "ucs",
-        "astar",
-        "greedy",
-        "minimax",
-        "alphabeta",
-        "expectimax",
-    ]
-
-    # Algorithms which are intended to work with at least one enemy agent
-    # present.
-    competitive_algos = [
-        "minimax",
-        "alphabeta",
-        "expectimax",
-    ]
-
-    # Algorithms that are compatible with diamond filled mazes.
-    filled_compatible_algos = [
-        "greedy", "random", "astar", "minimax", "alphabeta", "expectimax"
-    ]
-
     # This is used to define, manage and parser the command line args.
     parser = argparse.ArgumentParser()
 
@@ -98,9 +72,9 @@ def process_args() -> dict:
     # define the algo flag
     parser.add_argument(
         "--algo",
-        choices=algos,
+        choices=C.ALGOS,
         required=False,
-        help=f"Choose a algorithm: {algos}"
+        help=f"Choose a algorithm: {C.ALGOS}"
     )
 
     parser.add_argument(
@@ -144,7 +118,7 @@ def process_args() -> dict:
         screen_height = 350
         # retrieve the small maze filled with diamonds
         if "filled" in args.size:
-            if args.algo in competitive_algos:
+            if args.algo in C.COMPETITIVE_ALGOS:
                 maze = "maze/maze_8"
             else:
                 maze = "maze/maze_5"
@@ -184,10 +158,11 @@ def process_args() -> dict:
             "random."
         )
 
-    if (args.algo and filled and not (args.algo in filled_compatible_algos)):
+    if (args.algo and filled and not
+       (args.algo in C.FILLED_COMPETITIVE_ALGOS)):
         parser.error(
             f"Filled maze only works when user controlled or when using "
-            f"the following algos: {filled_compatible_algos}"
+            f"the following algos: {C.FILLED_COMPETITIVE_ALGOS}"
         )
 
     if args.algo == "minimax" and args.enemy_count == 0:
