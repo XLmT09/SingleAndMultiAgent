@@ -42,6 +42,12 @@ def explain_algo(algo: str) -> None:
             "game theory, to minimize the possible loss for a worst-case "
             "scenario."
         )
+    elif algo == "alphabeta":
+        print(
+            "EXPLANATION: Alpha-Beta pruning is an optimization technique "
+            "for the minimax algorithm that reduces the number of nodes "
+            "evaluated."
+        )
 
 
 def process_args() -> dict:
