@@ -3,6 +3,7 @@ import unittest
 import pickle
 import time
 import copy
+import constants as C
 
 from characters.character import get_character_types
 
@@ -388,6 +389,30 @@ class TestCompetitiveUtils(unittest.TestCase):
             ('RIGHT', 1/3),
             ('UP', 1/3)
         ], prob_output)
+
+    def test_expectimax_probability_func_one_move(self):
+        """Test the expectimax probability function will give probability of 1
+         when it can only move in one direction. This could be because there
+         is a wall to the left or right."""
+
+        # temporarily remove ladders, to restrict movement only right
+        self.expectimax_computer._walkable_maze_matrix[5][1] = C.WALKABLE_GRID
+        self.expectimax_computer._walkable_maze_matrix[4][1] = C.WALKABLE_GRID
+
+        # In this position, the enemy can only move right.
+        enemy_pos = (5, 1)
+
+        prob_output = self.expectimax_computer.get_enemy_actions_with_probs(
+            enemy_pos
+        )
+
+        self.assertEqual([
+            ('RIGHT', 1),
+        ], prob_output)
+
+        # restore ladders
+        self.expectimax_computer._walkable_maze_matrix[5][1] = C.LADDER_GRID
+        self.expectimax_computer._walkable_maze_matrix[4][1] = C.LADDER_GRID
 
     def tearDown(self):
         pygame.quit()
