@@ -631,3 +631,137 @@ class AlphaBetaComputer(CompetitiveComputer):
                 return (best_value, action_to_take)
             else:
                 return (0, "None")
+
+
+class ExpectimaxComputer(CompetitiveComputer):
+    def __init__(self, character, walkable_maze, **kwargs):
+        super().__init__(
+            character,
+            walkable_maze,
+            **kwargs
+        )
+
+    def minimax(self, state, depth, agent_index, player_action=None,
+                enemy_action=None) -> tuple:
+
+        # end algorithm if we reached max depth or find a terminating state
+        if self.is_terminal(state) or depth <= 0:
+            return (
+                self.evaluation_function(
+                    state, depth, player_action
+                ), None)
+
+        action_to_take = None
+
+        # Check which agent will run the function next.
+        next_agent = (agent_index + 1) % self.num_characters
+
+        # There are two loops we can use to traverse the game tree, one for the
+        # main agent and one for the enemy. Each loop will call the minimax
+        # algo again on the opposite agent.
+        if agent_index == 0:
+            best_value = float("-inf")
+            for action in self.legal_movements(state["main_agent"],
+                                               player_action):
+
+                # Generate the sate for when the action is performed.
+                successor = self.generate_successor(state, agent_index, action)
+
+                current_value = self.minimax(
+                    successor,
+                    depth,
+                    agent_index=next_agent,
+                    player_action=action,
+                    enemy_action=enemy_action
+                )[0]
+
+                if best_value <= current_value:
+                    best_value = current_value
+                    action_to_take = action
+
+            return (best_value, action_to_take)
+
+        # --- Enemy turn (Min node or Chance node)
+        else:
+            enemy_id = agent_index - 1
+            enemy_pos = state["enemies"][enemy_id]
+
+            if self.stop_thread:
+                return (0, "None")
+
+            # Check if this enemy is stochastic
+            if agent_index != self._agent_type:
+                # === Chance node
+                expected_value = 0
+                actions_with_probs = self.get_enemy_actions_with_probs(
+                    enemy_pos
+                )
+
+                for action, prob in actions_with_probs:
+                    successor = self.generate_successor(
+                        state,
+                        agent_index,
+                        action
+                    )
+
+                    current_value = self.minimax(
+                        successor,
+                        depth - 1 if next_agent == 0 else depth,
+                        agent_index=next_agent,
+                        player_action=player_action,
+                        enemy_action=action
+                    )[0]
+
+                    expected_value += prob * current_value
+
+                return (expected_value, None)
+            else:
+                # === Min node (smart enemy)
+                best_value = float("inf")
+                for action in self.legal_movements(enemy_pos, enemy_action):
+                    successor = self.generate_successor(
+                        state,
+                        agent_index,
+                        action
+                    )
+
+                    # we decrease the depth here because we at this point both
+                    # the player and enemy(s) have made there moves.
+                    current_value = self.minimax(
+                        successor,
+                        depth - 1 if next_agent == 0 else depth,
+                        agent_index=next_agent,
+                        player_action=player_action,
+                        enemy_action=action
+                    )[0]
+
+                    if current_value <= best_value:
+                        best_value = current_value
+                        action_to_take = action
+
+                return (best_value, action_to_take)
+
+    def get_enemy_actions_with_probs(self, enemy_pos):
+        """ This function will generate the possible actions for the enemy
+        agent and return a list of tuples with the action and its probability.
+
+        Attributes:
+            enemy_pos (tuple): The position of the enemy agent.
+
+        Returns:
+            list: A list of tuples with the action and its probability.
+        """
+        actions_with_probs = []
+
+        # Get all possible actions for the enemy agent
+        possible_actions = self.legal_movements(enemy_pos, None)
+
+        # Calculate the probability for each action based on the number of
+        # possible actions
+        prob = 1 / len(possible_actions)
+
+        # Create a list of tuples with action and its probability
+        for action in possible_actions:
+            actions_with_probs.append((action, prob))
+
+        return actions_with_probs
