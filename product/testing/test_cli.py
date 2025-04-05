@@ -517,3 +517,19 @@ class TestCli(unittest.TestCase):
             "evaluated.",
             captured_output
         )
+
+    @patch('sys.argv', ['main', '--algo', 'expectimax', '--size', 'small',
+           '--enemy_count', '1', '--explain'])
+    def test_cli_explain_expectimax_algo(self):
+        """ Test CLI gives correct explanation for expectimax algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: Expectimax is a decision-making algorithm used in "
+            "game theory that considers the expected utility of actions.",
+            captured_output
+        )
