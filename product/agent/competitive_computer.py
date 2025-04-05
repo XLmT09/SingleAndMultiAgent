@@ -3,6 +3,7 @@ import constants as C
 import numpy as np
 import time
 import copy
+from abc import abstractmethod
 
 
 class CompetitiveComputer(Computer):
@@ -417,10 +418,170 @@ class CompetitiveComputer(Computer):
     def update_state(self, state) -> None:
         self.state = state
 
+    def prune_alpha_beta(self, alpha, beta) -> bool:
+        """ This function checks if the current state should be pruned.
 
-class MinimaxComputer(CompetitiveComputer):
+        Attributes:
+            alpha (float): The value of the alpha parameter.
+            beta (float): The value of the beta parameter.
+
+        Returns:
+            bool: True if the state should be pruned, False otherwise.
+        """
+        return beta <= alpha
+
+    def maximizer(self, state, depth, player_action, enemy_action, next_agent,
+                  agent_index, alpha=None, beta=None) -> tuple:
+        """ This function will simulate the maximizer agent.
+
+        Args:
+            state (dict): The current game state.
+            depth (int): The current depth of the game tree.
+            player_action (str): The action taken by the main player.
+            enemy_action (str): The action taken by the enemy agent.
+            next_agent (int): The index of the next agent to run the function.
+            agent_index (int): The index of the current agent.
+            alpha (float): The alpha value for alpha-beta pruning.
+            beta (float): The beta value for alpha-beta pruning.
+
+        Returns:
+            tuple: A tuple containing the best value and the action to take.
+        """
+        action_to_take, best_value = None, float("-inf")
+
+        for action in self.legal_movements(state["main_agent"], player_action):
+
+            # Generate the sate for when the action is performed.
+            successor = self.generate_successor(state, agent_index, action)
+
+            current_value = self.minimax(
+                successor,
+                depth,
+                agent_index=next_agent,
+                player_action=action,
+                enemy_action=enemy_action
+            )[0]
+
+            # Only prune if we are using alpha beta pruning.
+            if alpha and beta and self.prune_alpha_beta(
+               max(alpha, current_value), beta):
+                break
+
+            if best_value <= current_value:
+                best_value = current_value
+                action_to_take = action
+
+        return (best_value, action_to_take)
+
+    def minimizer(self, state, depth, player_action, enemy_action, next_agent,
+                  agent_index, alpha=None, beta=None) -> tuple:
+        """ This function will simulate the minimizer agent.
+
+        Args:
+            state (dict): The current game state.
+            depth (int): The current depth of the game tree.
+            player_action (str): The action taken by the main player.
+            enemy_action (str): The action taken by the enemy agent.
+            next_agent (int): The index of the next agent to run the function.
+            agent_index (int): The index of the current agent.
+            alpha (float): The alpha value for alpha-beta pruning.
+            beta (float): The beta value for alpha-beta pruning.
+
+        Returns:
+            tuple: A tuple containing the best value and the action to take.
+        """
+
+        action_to_take, best_value = None, float("inf")
+
+        if not self.stop_thread:
+
+            # Skip the first enemy agent, because it is the main agent.
+            enemy_pos = state["enemies"][agent_index - 1]
+
+            for action in self.legal_movements(enemy_pos,
+                                               enemy_action):
+
+                successor = self.generate_successor(
+                    state,
+                    agent_index,
+                    action
+                )
+
+                # We decrease the depth here if we are the point where both
+                # the player and enemy(s) have made there moves.
+                # (A full round has taken place)
+                current_value = self.minimax(
+                    successor,
+                    depth - 1 if next_agent == 0 else depth,
+                    next_agent,
+                    player_action=player_action,
+                    enemy_action=action
+                )[0]
+
+                # Only prune if we are using alpha beta pruning.
+                if alpha and beta and self.prune_alpha_beta(
+                  alpha, min(beta, current_value)):
+                    break
+
+                if best_value >= current_value:
+                    best_value = current_value
+                    action_to_take = action
+
+            return (best_value, action_to_take)
+        else:
+            return (0, "None")
+
+    def chance_node(self, state, depth, player_action, next_agent,
+                    agent_index) -> tuple:
+        """ This handles the chance node logic where the enemy acts randomly.
+        Instead of choosing the best or worst outcome, it calculates the
+        expected value by averaging over all possible enemy actions weighted
+        by their probability.
+
+        Args:
+            state (dict): The current game state.
+            depth (int): The current depth of the game tree.
+            player_action (str): The action taken by the main player.
+            next_agent (int): The index of the next agent to run the function.
+            agent_index (int): The index of the current agent.
+
+        Returns:
+            tuple: A tuple containing the expected value and None as the
+            action. None is returned because the enemy agent's action is not
+            determined in this case. The point of this function is to average
+            all possible actions based on their probabilities.
+        """
+
+        enemy_id = agent_index - 1
+        enemy_pos = state["enemies"][enemy_id]
+
+        expected_value = 0
+        actions_with_probs = self.get_enemy_actions_with_probs(
+            enemy_pos
+        )
+
+        for action, prob in actions_with_probs:
+            successor = self.generate_successor(
+                state,
+                agent_index,
+                action
+            )
+
+            current_value = self.minimax(
+                successor,
+                depth - 1 if next_agent == 0 else depth,
+                agent_index=next_agent,
+                player_action=player_action,
+                enemy_action=action
+            )[0]
+
+            expected_value += prob * current_value
+
+        return (expected_value, None)
+
+    @abstractmethod
     def minimax(self, state, depth, agent_index, player_action=None,
-                enemy_action=None) -> tuple:
+                enemy_action=None, alpha=None, beta=None) -> tuple:
         """ This function will simulate the minimax algorithm. It will
         simulate movement with both the agent and enemies and find the best
         movement for whichever agent called the algo.
@@ -435,6 +596,8 @@ class MinimaxComputer(CompetitiveComputer):
                 by keeping track of states combinations currently visited.
             player_action (str): The action taken by the player.
             enemy_action (str): The action taken by the enemy.
+            alpha (float): The alpha value for alpha-beta pruning.
+            beta (float): The beta value for alpha-beta pruning.
 
         Returns:
             tuple: A tuple containing the best value and the action to take.
@@ -442,304 +605,121 @@ class MinimaxComputer(CompetitiveComputer):
                 the movement to take.
         """
 
+        # Implementations are in child classes.
+        return (None, None)
+
+
+class MinimaxComputer(CompetitiveComputer):
+    def minimax(self, state, depth, agent_index, player_action=None,
+                enemy_action=None, alpha=None, beta=None) -> tuple:
+
         # end algorithm if we reached max depth or find a terminating state
         if self.is_terminal(state) or depth <= 0:
-            return (
-                self.evaluation_function(
-                    state, depth, player_action
-                ), None)
-
-        action_to_take = None
+            return (self.evaluation_function(state, depth, player_action),
+                    None)
 
         # Check which agent will run the function next.
         next_agent = (agent_index + 1) % self.num_characters
 
-        # There are two loops we can use to traverse the game tree, one for the
-        # main agent and one for the enemy. Each loop will call the minimax
-        # algo again on the opposite agent.
         if agent_index == 0:
-            best_value = float("-inf")
-            for action in self.legal_movements(state["main_agent"],
-                                               player_action):
-
-                # Generate the sate for when the action is performed.
-                successor = self.generate_successor(state, agent_index, action)
-
-                current_value = self.minimax(
-                    successor,
-                    depth,
-                    agent_index=next_agent,
-                    player_action=action,
-                    enemy_action=enemy_action
-                )[0]
-
-                if best_value <= current_value:
-                    best_value = current_value
-                    action_to_take = action
-
-            return (best_value, action_to_take)
+            return self.maximizer(
+                state,
+                depth,
+                player_action,
+                enemy_action,
+                next_agent,
+                agent_index
+            )
         else:
-            best_value = float("inf")
-            if not self.stop_thread:
-
-                # Skip the first enemy agent, because it is the main agent.
-                enemy_pos = state["enemies"][agent_index - 1]
-
-                for action in self.legal_movements(enemy_pos,
-                                                   enemy_action):
-
-                    successor = self.generate_successor(
-                        state,
-                        agent_index,
-                        action
-                    )
-
-                    # we decrease the depth here because we at this point both
-                    # the player and enemy(s) have made there moves.
-                    current_value = self.minimax(
-                        successor,
-                        depth - 1 if next_agent == 0 else depth,
-                        next_agent,
-                        player_action=player_action,
-                        enemy_action=action
-                    )[0]
-
-                    if best_value >= current_value:
-                        best_value = current_value
-                        action_to_take = action
-
-                return (best_value, action_to_take)
-            else:
-                return (0, "None")
+            return self.minimizer(
+                state,
+                depth,
+                player_action,
+                enemy_action,
+                next_agent,
+                agent_index
+            )
 
 
 class AlphaBetaComputer(CompetitiveComputer):
     def minimax(self, state, depth, agent_index, player_action=None,
-                enemy_action=None, alpha=float('-inf'), beta=float('inf')
-                ) -> tuple:
-        """ This function will simulate the minimax algorithm. It will
-        simulate movement with both the agent and enemies and find the best
-        movement for whichever agent called the algo.
-
-        Attributes:
-            state (dict): The current game state.
-            depth (int): Number which indicated how far down the game tree
-                we are.
-            agent_index (int): Indicate which agent is currently running the
-                function. 0 means main agent otherwise its the enemy.
-            visited_sates (set): Avoid going traversing down repeated states
-                by keeping track of states combinations currently visited.
-            player_action (str): The action taken by the player.
-            enemy_action (str): The action taken by the enemy.
-            alpha (int): Represents the best value that the main agent
-                can guarantee so far, used to prune branches that cannot
-                improve the result.
-            beta (int): Represents the best value that the enemy agent can
-                guarantee so far, used to prune branches that cannot worsen
-                the result.
-
-        Returns:
-            tuple: A tuple containing the best value and the action to take.
-                The best value is the score of the state, and the action is
-                the movement to take.
-        """
+                enemy_action=None,  alpha=float('-inf'),
+                beta=float('inf')) -> tuple:
 
         # end algorithm if we reached max depth or find a terminating state
         if self.is_terminal(state) or depth <= 0:
-            return (
-                self.evaluation_function(
-                    state, depth, player_action
-                ), None)
-
-        action_to_take = None
+            return (self.evaluation_function(state, depth, player_action),
+                    None)
 
         # Check which agent will run the function next.
         next_agent = (agent_index + 1) % self.num_characters
 
-        # There are two loops we can use to traverse the game tree, one for the
-        # main agent and one for the enemy. Each loop will call the minimax
-        # algo again on the opposite agent.
+        # This minimax function imposes alpha beta pruning.
         if agent_index == 0:
-            best_value = float("-inf")
-            for action in self.legal_movements(state["main_agent"],
-                                               player_action):
-
-                # Generate the sate for when the action is performed.
-                successor = self.generate_successor(state, agent_index, action)
-
-                current_value = self.minimax(
-                    successor,
-                    depth,
-                    agent_index=next_agent,
-                    player_action=action,
-                    enemy_action=enemy_action,
-                    alpha=alpha,
-                    beta=beta
-                )[0]
-
-                alpha = max(alpha, current_value)
-
-                # There is no need to explore further because the enemy agent
-                # will avoid (prune) this branch.
-                if beta <= alpha:
-                    break
-
-                if best_value <= current_value:
-                    best_value = current_value
-                    action_to_take = action
-
-            return (best_value, action_to_take)
+            return self.maximizer(
+                state,
+                depth,
+                player_action,
+                enemy_action,
+                next_agent,
+                agent_index,
+                alpha=alpha,
+                beta=beta
+            )
         else:
-            best_value = float("inf")
-            if not self.stop_thread:
-
-                # Skip the first enemy agent, because it is the main agent.
-                enemy_pos = state["enemies"][agent_index - 1]
-
-                for action in self.legal_movements(enemy_pos,
-                                                   enemy_action):
-
-                    successor = self.generate_successor(
-                        state,
-                        agent_index,
-                        action
-                    )
-
-                    # we decrease the depth here because we at this point both
-                    # the player and enemy(s) have made there moves.
-                    current_value = self.minimax(
-                        successor,
-                        depth - 1 if next_agent == 0 else depth,
-                        next_agent,
-                        player_action=player_action,
-                        enemy_action=action,
-                        alpha=alpha,
-                        beta=beta
-                    )[0]
-
-                    if best_value >= current_value:
-                        best_value = current_value
-                        action_to_take = action
-
-                    beta = min(beta, current_value)
-
-                    # There is no need to explore further because the main
-                    # agent will avoid (prune) this branch.
-                    if beta <= alpha:
-                        break
-
-                return (best_value, action_to_take)
-            else:
-                return (0, "None")
+            return self.minimizer(
+                state,
+                depth,
+                player_action,
+                enemy_action,
+                next_agent,
+                agent_index,
+                alpha=alpha,
+                beta=beta
+            )
 
 
 class ExpectimaxComputer(CompetitiveComputer):
-    def __init__(self, character, walkable_maze, **kwargs):
-        super().__init__(
-            character,
-            walkable_maze,
-            **kwargs
-        )
-
     def minimax(self, state, depth, agent_index, player_action=None,
-                enemy_action=None) -> tuple:
+                enemy_action=None,  alpha=None,
+                beta=None) -> tuple:
 
         # end algorithm if we reached max depth or find a terminating state
         if self.is_terminal(state) or depth <= 0:
-            return (
-                self.evaluation_function(
-                    state, depth, player_action
-                ), None)
-
-        action_to_take = None
+            return (self.evaluation_function(state, depth, player_action),
+                    None)
 
         # Check which agent will run the function next.
         next_agent = (agent_index + 1) % self.num_characters
 
-        # There are two loops we can use to traverse the game tree, one for the
-        # main agent and one for the enemy. Each loop will call the minimax
-        # algo again on the opposite agent.
         if agent_index == 0:
-            best_value = float("-inf")
-            for action in self.legal_movements(state["main_agent"],
-                                               player_action):
-
-                # Generate the sate for when the action is performed.
-                successor = self.generate_successor(state, agent_index, action)
-
-                current_value = self.minimax(
-                    successor,
-                    depth,
-                    agent_index=next_agent,
-                    player_action=action,
-                    enemy_action=enemy_action
-                )[0]
-
-                if best_value <= current_value:
-                    best_value = current_value
-                    action_to_take = action
-
-            return (best_value, action_to_take)
-
-        # --- Enemy turn (Min node or Chance node)
+            return self.maximizer(
+                state,
+                depth,
+                player_action,
+                enemy_action,
+                next_agent,
+                agent_index
+            )
+        # If the agent is not a smart enemy, in other words not the enemy
+        # agent assigned to this class then call chance function.
+        elif agent_index == self._agent_type:
+            return self.chance_node(
+                state,
+                depth,
+                player_action,
+                next_agent,
+                agent_index
+            )
         else:
-            enemy_id = agent_index - 1
-            enemy_pos = state["enemies"][enemy_id]
-
-            if self.stop_thread:
-                return (0, "None")
-
-            # Check if this enemy is stochastic
-            if agent_index != self._agent_type:
-                # === Chance node
-                expected_value = 0
-                actions_with_probs = self.get_enemy_actions_with_probs(
-                    enemy_pos
-                )
-
-                for action, prob in actions_with_probs:
-                    successor = self.generate_successor(
-                        state,
-                        agent_index,
-                        action
-                    )
-
-                    current_value = self.minimax(
-                        successor,
-                        depth - 1 if next_agent == 0 else depth,
-                        agent_index=next_agent,
-                        player_action=player_action,
-                        enemy_action=action
-                    )[0]
-
-                    expected_value += prob * current_value
-
-                return (expected_value, None)
-            else:
-                # === Min node (smart enemy)
-                best_value = float("inf")
-                for action in self.legal_movements(enemy_pos, enemy_action):
-                    successor = self.generate_successor(
-                        state,
-                        agent_index,
-                        action
-                    )
-
-                    # we decrease the depth here because we at this point both
-                    # the player and enemy(s) have made there moves.
-                    current_value = self.minimax(
-                        successor,
-                        depth - 1 if next_agent == 0 else depth,
-                        agent_index=next_agent,
-                        player_action=player_action,
-                        enemy_action=action
-                    )[0]
-
-                    if current_value <= best_value:
-                        best_value = current_value
-                        action_to_take = action
-
-                return (best_value, action_to_take)
+            return self.minimizer(
+                state,
+                depth,
+                player_action,
+                enemy_action,
+                next_agent,
+                agent_index
+            )
 
     def get_enemy_actions_with_probs(self, enemy_pos):
         """ This function will generate the possible actions for the enemy
