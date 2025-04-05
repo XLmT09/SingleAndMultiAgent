@@ -8,7 +8,11 @@ from characters.character import get_character_types
 
 from world import World
 from constants import player_sprite_file_paths, pink_enemy_file_sprite_paths
-from agent.competitive_computer import MinimaxComputer, AlphaBetaComputer
+from agent.competitive_computer import (
+    MinimaxComputer,
+    AlphaBetaComputer,
+    ExpectimaxComputer
+)
 
 CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32
@@ -147,6 +151,14 @@ class TestCompetitiveUtils(unittest.TestCase):
         )
 
         self.alphabeta_computer = AlphaBetaComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.diamond,
+            state=self.state,
+            num_characters=4
+        )
+
+        self.expectimax_computer = ExpectimaxComputer(
             self.player,
             self.world.get_walkable_maze_matrix(),
             diamond=self.diamond,
@@ -357,6 +369,25 @@ class TestCompetitiveUtils(unittest.TestCase):
         alphabeta_computer = end - start
 
         self.assertGreater(minimax_time, alphabeta_computer)
+
+    def test_expectimax_probability_func_normal_movements(self):
+        """Test the expectimax probability function gives the expected
+         probability values for each direction. The function splits the
+         probability equally and there are 3 legal directions in this context.
+         Therefore, the expected probability is 1/3."""
+
+        # In this position, the enemy can move left, right or up.
+        enemy_pos = (5, 9)
+
+        prob_output = self.expectimax_computer.get_enemy_actions_with_probs(
+            enemy_pos
+        )
+
+        self.assertEqual([
+            ('LEFT', 1/3),
+            ('RIGHT', 1/3),
+            ('UP', 1/3)
+        ], prob_output)
 
     def tearDown(self):
         pygame.quit()
