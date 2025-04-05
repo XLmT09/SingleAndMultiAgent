@@ -758,7 +758,10 @@ class ExpectimaxComputer(CompetitiveComputer):
 
         # Calculate the probability for each action based on the number of
         # possible actions
-        prob = 1 / len(possible_actions)
+        if not possible_actions:
+            return []
+        else:
+            prob = 1 / len(possible_actions)
 
         # Create a list of tuples with action and its probability
         for action in possible_actions:
