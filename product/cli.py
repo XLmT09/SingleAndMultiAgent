@@ -48,6 +48,11 @@ def explain_algo(algo: str) -> None:
             "for the minimax algorithm that reduces the number of nodes "
             "evaluated."
         )
+    elif algo == "expectimax":
+        print(
+            "EXPLANATION: Expectimax is a decision-making algorithm used in "
+            "game theory that considers the expected utility of actions."
+        )
 
 
 def process_args() -> dict:
