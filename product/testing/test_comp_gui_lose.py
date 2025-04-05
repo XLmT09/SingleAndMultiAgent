@@ -3,7 +3,11 @@ import pygame
 import pickle
 import time
 
-from agent.competitive_computer import MinimaxComputer, AlphaBetaComputer
+from agent.competitive_computer import (
+    MinimaxComputer,
+    AlphaBetaComputer,
+    ExpectimaxComputer
+)
 from characters.character import get_character_types
 
 from world import World
@@ -88,7 +92,7 @@ class TestCompFilledGUIComputer():
         enemy_pos = [
             (300, 300),
             (275, 300),
-            (500, 300)
+            (450, 300)
         ]
 
         for enemy_index in range(3):
@@ -299,6 +303,41 @@ class TestAlphaBetaEnemyGUIComputer(TestCompFilledGUIComputer,
         for enemy_index in range(3):
             self.enemy_computers.append(
                 AlphaBetaComputer(
+                    self.enemy_list[enemy_index],
+                    self.world.get_walkable_maze_matrix(),
+                    state=self.state,
+                    num_characters=4,
+                    # 0 is main agent, 1-3 are enemies
+                    agent_type=enemy_index + 1
+                )
+            )
+
+
+class TestExpectimaxEnemyGUIComputer(TestCompFilledGUIComputer,
+                                     unittest.TestCase):
+    """ This tests the expectimax computer class. It will test game
+     environment with more than one enemy. This should be 100% guarantee as
+     the main agent is cornered. The only way this fails if the enemy agents
+     make a bad mistake, like walking away from the main agent. Meaning there
+     is something wrong with the algorithm."""
+
+    def setUp(self):
+        super().setUp(pos_x=350, pos_y=300)
+        self.main_computer = ExpectimaxComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond_list=self.world.get_diamond_group(),
+            is_weighted=True,
+            state=self.state,
+            is_main=True,
+            num_characters=4,
+            agent_type=0  # 0 = main agent
+        )
+
+        self.enemy_computers = []
+        for enemy_index in range(3):
+            self.enemy_computers.append(
+                ExpectimaxComputer(
                     self.enemy_list[enemy_index],
                     self.world.get_walkable_maze_matrix(),
                     state=self.state,
