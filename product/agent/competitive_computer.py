@@ -400,13 +400,6 @@ class CompetitiveComputer(Computer):
             # update the player position value
             player_position = self.character.get_player_grid_coordinates()
 
-        # Sometimes the player will continue climbing down and out of the maze
-        # causing an error. This happens when the requested movement stays as
-        # DOWN after leaving the loop. To fix this will force requested
-        # movement to be NONE instead.
-        if self.requested_movement == "DOWN":
-            self.requested_movement = "None"
-
         return 0
 
     def perform_path_find(self) -> None:
