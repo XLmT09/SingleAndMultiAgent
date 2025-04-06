@@ -149,6 +149,11 @@ class Computer:
             if self.stop_thread:
                 print("STOPPING THE COMPUTER THREAD.")
                 break
+
+            if self.enemy_in_way:
+                self.path_to_follow = self.generate_path()
+                continue
+
             if instruction_number == len(path_to_follow):
                 return
 
