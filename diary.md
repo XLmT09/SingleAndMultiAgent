@@ -1,3 +1,28 @@
+### Week 19 - 20
+<ins>**IMPORTANT NOTE**</ins>
+- I spent these two weeks ( plus week 18) trying to implement the minimax algorithm. I managed to do it in the end, but I ran into many errors, which took me significant time to solve.
+
+- I will not go over all the different approaches I took. However, I will mention how I solved the problem.
+
+- The culprit was this piece of code here:
+```python
+        if (pos[1] - 1 > 1 and
+            self._walkable_maze_matrix[pos[0]][pos[1] - 1] !=
+            C.NON_WALKABLE_GRID):
+            legal_movements.append("LEFT")
+```
+- I should have used `>=` instead of `>`. By using > 1, I unintentionally excluded valid walkable areas, which caused the algorithm to behave incorrectly. Although it was a minor fix, the program's complexity made it difficult to identify the root cause.
+
+<ins>**Updates on Algorithm**</ins>
+- The `minimax` algorithm is still causing problems, though I have made some new modifications. 
+- First, instead of calculating the manhattan distance to diamonds and other players, it will do a BFS search instead. I believe this is the right choice to make because the Manhattan distance does not consider the walls, floors and ceilings, but BFS does.
+
+- I also changed when the depth should be decremented. Instead of decreasing on each player, it will decrease after a round is complete; in other words, all players have made one move.
+
+<ins>**Updates on Game**</ins>
+- I noticed that the current small maze isn't very good for the minimax algorithm, as there are dead ends. So, once the minimax algo works appropriately, the enemy agent will have a significant advantage. I implemented a special small maze for competitive algorithms with no dead ends to fix this.
+
+
 ### Week 18
 <ins>**New Algorithm**</ins>
 - Implementation of the minimax algorithm has begun. Although many issues arose, I had to fix them this week. The algorithm is incomplete as there are still many bugs.
