@@ -136,7 +136,7 @@ class TestCompetitiveUtils(unittest.TestCase):
         self.state = {
             "main_agent": self.player.get_player_grid_coordinates(),
             "enemies": enemy_positions,
-            "diamond_positions": diamond_pos,
+            "diamond_coords": diamond_pos,
             "score": 0,
             "win": False,
             "lose": False,

@@ -68,7 +68,7 @@ class CompetitiveComputer(Computer):
 
         # For the second set of calculations we will need information about
         # the diamonds, so we will store all there coords in a list.
-        diamond_positions = state["diamond_positions"]
+        diamond_positions = state["diamond_coords"]
 
         # from all the diamonds in the game, find the closet one.
         closest_diamond = float("inf")
@@ -243,7 +243,7 @@ class CompetitiveComputer(Computer):
             bool: True if the game has reached a terminal state, otherwise
                 False.
         """
-        if len(state["diamond_positions"]) == 0:
+        if len(state["diamond_coords"]) == 0:
             state["win"] = True
         elif state["main_agent"] in state["enemies"]:
             state["lose"] = True
@@ -280,7 +280,7 @@ class CompetitiveComputer(Computer):
             # If the action leads to diamond overlap, then increment the
             # diamond count. This will be useful a useful heuristic to
             # consider for the evaluation function.
-            for dmd in state["diamond_positions"]:
+            for dmd in state["diamond_coords"]:
                 if dmd == new_state["main_agent"]:
                     new_state["diamond_count"] += 1
         else:
@@ -309,7 +309,7 @@ class CompetitiveComputer(Computer):
 
         cost, action = self.minimax(
             state_copy,
-            depth=2,
+            depth=1,
             agent_index=self._agent_type
         )
 
