@@ -1,3 +1,17 @@
+### Week 22
+<ins>**New Algorithms**</ins>
+- The Expectimax algorithm has now been implemented.
+- The Alpha-Beta algorithm has now been implemented.
+
+<ins>**CLI Updates**</ins>
+- I have implemented an `explain` flag for every algorithm. This briefly explains how each algorithm works to give the user some context.
+
+<ins>**Updates on Game**</ins>
+- I have implemented non-dead filled mazes for the medium and large-sized mazes.
+
+<ins>**Refactor**</ins>
+- `Minimax`, `Expectimax`, and `Alpha-Beta` are all extended from the `CompetitiveComputer` class. While they share most of their underlying logic, each implements its own version of the minimax function. It behaves slightly differently based on the algorithm's specific behavior. This led to a significant amount of duplicated code. To address this, I refactored the structure to combine the shared logic.
+
 ### Week 21
 <ins>**Updates on Algorithm**</ins>
 - The `minimax` algorithm can now work with more than one enemy. However, the game can only take up to three enemies. This is because the game gets too laggy.
