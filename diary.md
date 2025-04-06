@@ -1,3 +1,13 @@
+### Week 21
+<ins>**Updates on Algorithm**</ins>
+- The `minimax` algorithm can now work with more than one enemy. However, the game can only take up to three enemies. This is because the game gets too laggy.
+
+<ins>**Updates on Game**</ins>
+- Instead of jumping down a ladder, the player will climb for competitive algorithms. I'm doing this to ensure constant speed on all movements and avoid confusion for the `minimax` algorithm.
+
+<ins>**Final Report**</ins>
+- The professional issues section of the report is now complete.
+
 ### Week 19 - 20
 <ins>**IMPORTANT NOTE**</ins>
 - I spent these two weeks ( plus week 18) trying to implement the minimax algorithm. I managed to do it in the end, but I ran into many errors, which took me significant time to solve.
