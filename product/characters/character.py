@@ -446,7 +446,7 @@ class CharacterAnimationManager:
     def _on_a_slow_block(self) -> bool:
         """ Check the player is moving over a slow block """
         return self._maze_data[self.grid_y + 1][self.grid_x] == (
-            C.LADDER_GRID
+            C.SLOW_GRID
         )
 
     def get_is_diamond_found(self) -> bool:
