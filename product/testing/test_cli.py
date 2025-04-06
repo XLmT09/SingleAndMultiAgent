@@ -179,14 +179,14 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_1")
         self.assertEqual(result["algo"], "random")
 
-    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small',
+    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small-filled',
            '--enemy_count', '1'])
     def test_cli_minimax_algo(self):
         """ Test cli with minimax as algo value. """
         result = process_args()
         self.assertEqual(result["screen_width"], 850)
         self.assertEqual(result["screen_height"], 350)
-        self.assertEqual(result["maze_path"], "maze/maze_1")
+        self.assertEqual(result["maze_path"], "maze/maze_8")
         self.assertEqual(result["algo"], "minimax")
 
     @patch('sys.argv', ['main', '--size', 'bogus', '--algo', 'BFS'])
@@ -355,6 +355,30 @@ class TestCli(unittest.TestCase):
                     error_output
                 )
 
+    def test_cli_fail_when_comp_uses_non_filled_maze(self):
+        """ Test the cli fails when a competitive algo is used in a non filled
+        maze. """
+
+        non_filled_mazes = ["small", "medium", "large"]
+
+        for maze in non_filled_mazes:
+            with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
+                with patch(
+                    'sys.argv',
+                    ['main', '--size', maze, '--algo', 'alphabeta']
+                ):
+                    with self.assertRaises(SystemExit):
+                        process_args()
+
+                # Capture the error message printed to stderr
+                error_output = fake_stderr.getvalue()
+
+                # Check if the error message is the expected one
+                self.assertIn(
+                    C.ERROR_COMP_NON_FILLED,
+                    error_output
+                )
+
     @patch(
         'sys.argv',
         ['main', '--size', 'small-filled', '--algo', 'minimax',
@@ -484,7 +508,7 @@ class TestCli(unittest.TestCase):
             captured_output
         )
 
-    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small',
+    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small-filled',
            '--enemy_count', '1', '--explain'])
     def test_cli_explain_minimax_algo(self):
         """ Test CLI gives correct explanation for minimax algo. It is vital
@@ -501,8 +525,8 @@ class TestCli(unittest.TestCase):
             captured_output
         )
 
-    @patch('sys.argv', ['main', '--algo', 'alphabeta', '--size', 'small',
-           '--enemy_count', '1', '--explain'])
+    @patch('sys.argv', ['main', '--algo', 'alphabeta', '--size',
+           'small-filled', '--enemy_count', '1', '--explain'])
     def test_cli_explain_alphabeta_algo(self):
         """ Test CLI gives correct explanation for alphabeta algo. It is vital
         that we do not mislead the user of how an algorithm works. """
@@ -518,8 +542,8 @@ class TestCli(unittest.TestCase):
             captured_output
         )
 
-    @patch('sys.argv', ['main', '--algo', 'expectimax', '--size', 'small',
-           '--enemy_count', '1', '--explain'])
+    @patch('sys.argv', ['main', '--algo', 'expectimax', '--size',
+           'small-filled', '--enemy_count', '1', '--explain'])
     def test_cli_explain_expectimax_algo(self):
         """ Test CLI gives correct explanation for expectimax algo. It is vital
         that we do not mislead the user of how an algorithm works. """
