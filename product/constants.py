@@ -115,6 +115,14 @@ COMPETITIVE_ALGOS = [
     "expectimax",
 ]
 
+HIGHLIGHT_ALGOS = [
+    "dfs",
+    "bfs",
+    "ucs",
+    "astar",
+    "greedy"
+]
+
 # Algorithms that are compatible with diamond filled mazes.
 FILLED_COMPETITIVE_ALGOS = [
     "greedy", "random", "astar", "minimax", "alphabeta", "expectimax"
@@ -123,4 +131,8 @@ FILLED_COMPETITIVE_ALGOS = [
 ERROR_COMP_NON_FILLED = (
     f"Cannot use competitive algos ({COMPETITIVE_ALGOS}) in a non filled"
     " maze. Please enter a maze size in this format <maze_size>-filled."
+)
+
+ERROR_HIGHLIGHT_COMPATIBILITY = (
+    f"highlight flag will only work for these algos: {HIGHLIGHT_ALGOS}"
 )

@@ -289,8 +289,10 @@ class TestCli(unittest.TestCase):
 
             error_output = fake_stderr.getvalue()
 
-            self.assertIn("--highlight is only applicable when using any "
-                          "algorithm but random.", error_output)
+            self.assertIn(
+                C.ERROR_HIGHLIGHT_COMPATIBILITY,
+                error_output
+            )
 
     @patch(
         'sys.argv',
@@ -308,8 +310,35 @@ class TestCli(unittest.TestCase):
 
             error_output = fake_stderr.getvalue()
 
-            self.assertIn("--highlight is only applicable when using any "
-                          "algorithm but random.", error_output)
+            self.assertIn(
+                C.ERROR_HIGHLIGHT_COMPATIBILITY,
+                error_output
+            )
+
+    def test_cli_fails_when_highlight_and_non_highlight_algo_given(self):
+        """ Test the cli will fail when highlight flag is enabled, with a non
+        compatible highlight algos. """
+
+        non_compatible_highlight = set(C.ALGOS) - set(C.HIGHLIGHT_ALGOS)
+
+        for algo in non_compatible_highlight:
+            with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
+                with patch(
+                    'sys.argv',
+                    ['main', '--size', 'small-filled', '--algo', algo,
+                     '--enemy_count', '1', '--highlight']
+                ):
+                    with self.assertRaises(SystemExit):
+                        process_args()
+
+                # Capture the error message printed to stderr
+                error_output = fake_stderr.getvalue()
+
+                # Check if the error message is the expected one
+                self.assertIn(
+                    C.ERROR_HIGHLIGHT_COMPATIBILITY,
+                    error_output
+                )
 
     def test_cli_fails_when_filled_maze_and_not_using_filled_algo(self):
         """ Test the cli will fail when we are in a filled maze but using an

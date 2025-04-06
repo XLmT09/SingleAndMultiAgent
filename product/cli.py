@@ -174,12 +174,8 @@ def process_args() -> dict:
         parser.error("--weighted is only applicable when using the "
                      "A* algorithm.")
 
-    if ((not args.algo and args.highlight) or
-       (args.algo == "random" and args.highlight)):
-        parser.error(
-            "--highlight is only applicable when using any algorithm but "
-            "random."
-        )
+    if args.algo not in C.HIGHLIGHT_ALGOS and args.highlight:
+        parser.error(C.ERROR_HIGHLIGHT_COMPATIBILITY)
 
     if (args.algo and filled and not
        (args.algo in C.FILLED_COMPETITIVE_ALGOS)):
