@@ -125,9 +125,14 @@ def setup_game(config) -> dict:
 
     player = character_list[0]
 
+    enemy_list = []
+
+    is_comp = config["is_comp"]
+
     state = None
 
     if len(character_list) > 1:
+        enemy_list = character_list[1:]
         enemy_coords = []
 
         for enemy in character_list[1:]:
@@ -138,7 +143,7 @@ def setup_game(config) -> dict:
         state = {
             "main_agent": player.get_player_grid_coordinates(),
             "enemies": enemy_coords,
-            "diamond_positions": [
+            "diamond_coords": [
                 (dmd.grid_y, dmd.grid_x) for dmd in world.get_diamond_group()
             ],
             "score": 0,
@@ -166,8 +171,12 @@ def setup_game(config) -> dict:
 
     enemy_computers = []
 
+    enemy_algo = "random"
+    if is_comp:
+        enemy_algo = config["algo"]
+
     for enemy_index, enemy in enumerate(character_list[1:]):
-        enemy_computer = get_agent_types()[config["algo"]](
+        enemy_computer = get_agent_types()[enemy_algo](
             enemy,
             world.get_walkable_maze_matrix(),
             state=state,
@@ -189,7 +198,9 @@ def setup_game(config) -> dict:
         "cave_bg": pygame.image.load(
             "assets/images/background/cave.png"
         ).convert_alpha(),
-        "enemy_computers": enemy_computers
+        "enemy_computers": enemy_computers,
+        "enemy_list": enemy_list,
+        "is_comp": is_comp
     }
 
 
@@ -215,7 +226,7 @@ def highlight_visited_and_final_path(enable_highlight, world, screen,
 def start_game_agent(
         screen_width, screen_height, enable_highlighter,
         screen, player, world, computer, game_over, score_text,
-        cave_bg, enemy_computers) -> None:
+        cave_bg, enemy_computers, enemy_list, is_comp) -> None:
     """ This is the main game function when the computer controls the player,
     the game loop resides in here. """
 
@@ -261,35 +272,33 @@ def start_game_agent(
         world.draw_grid(screen, screen_height, screen_width)
 
         if enemy_computers:
-            dmd_list = [
-                (dmd.grid_y, dmd.grid_x) for dmd in world.get_diamond_group()
-            ]
+            if is_comp:
+                enemy_coords = []
+                # Before updating the state we need to gather all the enemy
+                # coords
+                for enemy in enemy_list:
+                    enemy_coords.append(enemy.get_player_grid_coordinates())
 
-            enemy_coords = []
-            # Before updating the state we need to gather all the enemy coords
+                state = {
+                    "main_agent": player.get_player_grid_coordinates(),
+                    "enemies": enemy_coords,
+                    "diamond_coords": world.get_diamond_coords(),
+                    "score": 0,
+                    "win": False,
+                    "lose": False,
+                    "diamond_count": 0
+                }
+
+                computer.update_state(state)
+
             for enemy_computer in enemy_computers:
-                enemy = enemy_computer.character
-                enemy_coords.append(enemy.get_player_grid_coordinates())
-
-            state = {
-                "main_agent": player.get_player_grid_coordinates(),
-                "enemies": enemy_coords,
-                "diamond_positions": dmd_list,
-                "score": 0,
-                "win": False,
-                "lose": False,
-                "diamond_count": 0
-            }
-
-            for enemy_computer in enemy_computers:
-                enemy_computer.update_state(state)
+                if is_comp:
+                    enemy_computer.update_state(state)
 
                 enemy_computer.move(
                     screen,
                     tile_data,
                 )
-
-            computer.update_state(state)
 
         # Move and draw the agent
         game_over, remove_diamond_pos = computer.move(

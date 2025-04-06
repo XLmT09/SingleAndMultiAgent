@@ -3,7 +3,11 @@ import pygame
 import pickle
 import time
 
-from agent.competitive_computer import MinimaxComputer, AlphaBetaComputer
+from agent.competitive_computer import (
+    MinimaxComputer,
+    AlphaBetaComputer,
+    ExpectimaxComputer
+)
 from characters.character import get_character_types
 
 from world import World, Diamond
@@ -140,7 +144,7 @@ class TestCompFilledGUIComputer():
         self.state = {
             "main_agent": self.player.get_player_grid_coordinates(),
             "enemies": enemy_positions,
-            "diamond_positions": diamond_pos,
+            "diamond_coords": diamond_pos,
             "score": 0,
             "win": False,
             "lose": False,
@@ -202,7 +206,7 @@ class TestCompFilledGUIComputer():
             new_state = {
                 "main_agent": self.player.get_player_grid_coordinates(),
                 "enemies": enemy_positions,
-                "diamond_positions": dmd_list,
+                "diamond_coords": dmd_list,
                 "score": 0,
                 "win": False,
                 "lose": False,
@@ -303,6 +307,32 @@ class TestAlphaBetaGUIComputer(TestCompFilledGUIComputer, unittest.TestCase):
         )
 
         self.enemy_computer = AlphaBetaComputer(
+            self.enemy_list[0],
+            self.world.get_walkable_maze_matrix(),
+            state=self.state,
+            num_characters=2,
+            agent_type=1
+        )
+
+
+class TestExpectimaxGUIComputer(TestCompFilledGUIComputer, unittest.TestCase):
+    """ This tests the expectimax computer class. It will check the main agent
+    is able to collect at least 3 diamonds in the maze, this should be
+    possible as there are no dead ends in the game."""
+
+    def setUp(self):
+        super().setUp(pos_x=350, pos_y=300)
+        self.main_computer = ExpectimaxComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond_list=self.world.get_diamond_group(),
+            is_weighted=True,
+            state=self.state,
+            agent_type=0,
+            num_characters=2
+        )
+
+        self.enemy_computer = ExpectimaxComputer(
             self.enemy_list[0],
             self.world.get_walkable_maze_matrix(),
             state=self.state,

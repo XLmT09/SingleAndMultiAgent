@@ -3,12 +3,17 @@ import unittest
 import pickle
 import time
 import copy
+import constants as C
 
 from characters.character import get_character_types
 
 from world import World
 from constants import player_sprite_file_paths, pink_enemy_file_sprite_paths
-from agent.competitive_computer import MinimaxComputer, AlphaBetaComputer
+from agent.competitive_computer import (
+    MinimaxComputer,
+    AlphaBetaComputer,
+    ExpectimaxComputer
+)
 
 CHARACTER_WIDTH = 32
 CHARACTER_HEIGHT = 32
@@ -131,7 +136,7 @@ class TestCompetitiveUtils(unittest.TestCase):
         self.state = {
             "main_agent": self.player.get_player_grid_coordinates(),
             "enemies": enemy_positions,
-            "diamond_positions": diamond_pos,
+            "diamond_coords": diamond_pos,
             "score": 0,
             "win": False,
             "lose": False,
@@ -147,6 +152,14 @@ class TestCompetitiveUtils(unittest.TestCase):
         )
 
         self.alphabeta_computer = AlphaBetaComputer(
+            self.player,
+            self.world.get_walkable_maze_matrix(),
+            diamond=self.diamond,
+            state=self.state,
+            num_characters=4
+        )
+
+        self.expectimax_computer = ExpectimaxComputer(
             self.player,
             self.world.get_walkable_maze_matrix(),
             diamond=self.diamond,
@@ -357,6 +370,74 @@ class TestCompetitiveUtils(unittest.TestCase):
         alphabeta_computer = end - start
 
         self.assertGreater(minimax_time, alphabeta_computer)
+
+    def test_expectimax_probability_func_normal_movements(self):
+        """Test the expectimax probability function gives the expected
+         probability values for each direction. The function splits the
+         probability equally and there are 3 legal directions in this context.
+         Therefore, the expected probability is 1/3."""
+
+        # In this position, the enemy can move left, right or up.
+        enemy_pos = (5, 9)
+
+        prob_output = self.expectimax_computer.get_enemy_actions_with_probs(
+            enemy_pos
+        )
+
+        self.assertEqual([
+            ('LEFT', 1/3),
+            ('RIGHT', 1/3),
+            ('UP', 1/3)
+        ], prob_output)
+
+    def test_expectimax_probability_func_one_move(self):
+        """Test the expectimax probability function will give probability of 1
+         when it can only move in one direction. This could be because there
+         is a wall to the left or right."""
+
+        # temporarily remove ladders, to restrict movement only right
+        self.expectimax_computer._walkable_maze_matrix[5][1] = C.WALKABLE_GRID
+        self.expectimax_computer._walkable_maze_matrix[4][1] = C.WALKABLE_GRID
+
+        # In this position, the enemy can only move right.
+        enemy_pos = (5, 1)
+
+        prob_output = self.expectimax_computer.get_enemy_actions_with_probs(
+            enemy_pos
+        )
+
+        self.assertEqual([
+            ('RIGHT', 1),
+        ], prob_output)
+
+        # restore ladders
+        self.expectimax_computer._walkable_maze_matrix[5][1] = C.LADDER_GRID
+        self.expectimax_computer._walkable_maze_matrix[4][1] = C.LADDER_GRID
+
+    def test_expectimax_probability_func_no_move(self):
+        """Test the expectimax probability function will return an empty list
+        when there are no legal moves."""
+
+        # temporarily block enemy path, to restrict movements
+        self.expectimax_computer._walkable_maze_matrix[5][1] = C.WALKABLE_GRID
+        self.expectimax_computer._walkable_maze_matrix[4][1] = C.WALKABLE_GRID
+        self.expectimax_computer._walkable_maze_matrix[5][2] = (
+            C.NON_WALKABLE_GRID
+        )
+
+        # In this position, the enemy can not make a legal move.
+        enemy_pos = (5, 1)
+
+        prob_output = self.expectimax_computer.get_enemy_actions_with_probs(
+            enemy_pos
+        )
+
+        self.assertEqual([], prob_output)
+
+        # restore matrix
+        self.expectimax_computer._walkable_maze_matrix[5][1] = C.LADDER_GRID
+        self.expectimax_computer._walkable_maze_matrix[4][1] = C.LADDER_GRID
+        self.expectimax_computer._walkable_maze_matrix[5][2] = C.WALKABLE_GRID
 
     def tearDown(self):
         pygame.quit()

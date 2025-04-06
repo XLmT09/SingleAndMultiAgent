@@ -42,6 +42,17 @@ def explain_algo(algo: str) -> None:
             "game theory, to minimize the possible loss for a worst-case "
             "scenario."
         )
+    elif algo == "alphabeta":
+        print(
+            "EXPLANATION: Alpha-Beta pruning is an optimization technique "
+            "for the minimax algorithm that reduces the number of nodes "
+            "evaluated."
+        )
+    elif algo == "expectimax":
+        print(
+            "EXPLANATION: Expectimax is a decision-making algorithm used in "
+            "game theory that considers the expected utility of actions."
+        )
 
 
 def process_args() -> dict:
@@ -54,30 +65,7 @@ def process_args() -> dict:
 
     # Some values we will pass into the return dict.
     screen_width, screen_height, maze, filled = None, None, None, False
-
-    # list of useable algorithms
-    algos = [
-        "random",
-        "dfs",
-        "bfs",
-        "ucs",
-        "astar",
-        "greedy",
-        "minimax",
-        "alphabeta"
-    ]
-
-    # Algorithms which are intended to work with at least one enemy agent
-    # present.
-    competitive_algos = [
-        "minimax",
-        "alphabeta"
-    ]
-
-    # Algorithms that are compatible with diamond filled mazes.
-    filled_compatible_algos = [
-        "greedy", "random", "astar", "minimax", "alphabeta"
-    ]
+    is_competitive = False
 
     # This is used to define, manage and parser the command line args.
     parser = argparse.ArgumentParser()
@@ -96,9 +84,9 @@ def process_args() -> dict:
     # define the algo flag
     parser.add_argument(
         "--algo",
-        choices=algos,
+        choices=C.ALGOS,
         required=False,
-        help=f"Choose a algorithm: {algos}"
+        help=f"Choose a algorithm: {C.ALGOS}"
     )
 
     parser.add_argument(
@@ -135,6 +123,12 @@ def process_args() -> dict:
     # parse args from command line
     args = parser.parse_args()
 
+    # TODO: Currently competitive algorithms do not work with non-filled mazes,
+    # due to logic behind the diamond_group variable in world.py. So for now
+    # throw an error if the user tries to input this combination in the cli.
+    if "filled" not in args.size and args.algo in C.COMPETITIVE_ALGOS:
+        parser.error(C.ERROR_COMP_NON_FILLED)
+
     # setup the window width and height, depending on
     # the size the user specified.
     if "small" in args.size:
@@ -142,7 +136,7 @@ def process_args() -> dict:
         screen_height = 350
         # retrieve the small maze filled with diamonds
         if "filled" in args.size:
-            if args.algo in competitive_algos:
+            if args.algo in C.COMPETITIVE_ALGOS:
                 maze = "maze/maze_8"
             else:
                 maze = "maze/maze_5"
@@ -153,7 +147,10 @@ def process_args() -> dict:
         screen_width = 1000
         screen_height = 750
         if "filled" in args.size:
-            maze = "maze/maze_6"
+            if args.algo in C.COMPETITIVE_ALGOS:
+                maze = "maze/maze_9"
+            else:
+                maze = "maze/maze_6"
             filled = True
         else:
             maze = "maze/maze_2"
@@ -161,7 +158,10 @@ def process_args() -> dict:
         screen_width = 1400
         screen_height = 750
         if "filled" in args.size:
-            maze = "maze/maze_7"
+            if args.algo in C.COMPETITIVE_ALGOS:
+                maze = "maze/maze_10"
+            else:
+                maze = "maze/maze_7"
             filled = True
         else:
             maze = "maze/maze_3"
@@ -169,29 +169,27 @@ def process_args() -> dict:
     if args.explain:
         explain_algo(args.algo)
 
+    if args.algo in C.COMPETITIVE_ALGOS:
+        is_competitive = True
+
     # PERFORM VALIDATION ON USER INPUT
 
     if args.weighted and args.algo != "astar":
         parser.error("--weighted is only applicable when using the "
                      "A* algorithm.")
 
-    if ((not args.algo and args.highlight) or
-       (args.algo == "random" and args.highlight)):
-        parser.error(
-            "--highlight is only applicable when using any algorithm but "
-            "random."
-        )
+    if args.algo not in C.HIGHLIGHT_ALGOS and args.highlight:
+        parser.error(C.ERROR_HIGHLIGHT_COMPATIBILITY)
 
-    if (args.algo and filled and not (args.algo in filled_compatible_algos)):
+    if (args.algo and filled and not
+       (args.algo in C.FILLED_COMPETITIVE_ALGOS)):
         parser.error(
             f"Filled maze only works when user controlled or when using "
-            f"the following algos: {filled_compatible_algos}"
+            f"the following algos: {C.FILLED_COMPETITIVE_ALGOS}"
         )
 
-    if args.algo == "minimax" and args.enemy_count == 0:
-        parser.error(
-            "Minimax algorithm requires at least one enemy to be present."
-        )
+    if args.algo in C.COMPETITIVE_ALGOS and args.enemy_count <= 0:
+        parser.error(C.ERROR_0_LESS_ENEMY)
 
     if args.enemy_count > C.MAX_ENEMIES:
         parser.error(
@@ -211,5 +209,6 @@ def process_args() -> dict:
         "enable_highlighter": args.highlight,
         "weighted": args.weighted,
         "filled": filled,
-        "enemy_count": args.enemy_count
+        "enemy_count": args.enemy_count,
+        "is_comp": is_competitive
     }

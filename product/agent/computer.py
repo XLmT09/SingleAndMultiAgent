@@ -149,6 +149,11 @@ class Computer:
             if self.stop_thread:
                 print("STOPPING THE COMPUTER THREAD.")
                 break
+
+            if self.enemy_in_way:
+                self.path_to_follow = self.generate_path()
+                continue
+
             if instruction_number == len(path_to_follow):
                 return
 
@@ -224,7 +229,7 @@ def get_agent_types():
         RandomComputer, BFSComputer, DFSComputer
     )
     from agent.competitive_computer import (
-        MinimaxComputer, AlphaBetaComputer
+        MinimaxComputer, AlphaBetaComputer, ExpectimaxComputer
     )
 
     return {
@@ -236,5 +241,6 @@ def get_agent_types():
         "astarFilled": AStarFilledComputer,
         "greedy": GreedyComputer,
         "minimax": MinimaxComputer,
-        "alphabeta": AlphaBetaComputer
+        "alphabeta": AlphaBetaComputer,
+        "expectimax": ExpectimaxComputer,
     }

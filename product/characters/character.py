@@ -305,7 +305,7 @@ class CharacterAnimationManager:
             self._dx += 1
         elif direction == "UP LEFT":
             self._requested_animation = "climb"
-            self._dy -= 1
+            self._dy -= 2
             self._dx -= 1
         elif direction == "DOWN":
             self._requested_animation = "climb"
@@ -407,11 +407,13 @@ class CharacterAnimationManager:
                                    self.hitbox_rect.y + self._dy,
                                    self.hitbox_width, self.hitbox_height):
                 # Check if below the ground
-                if self._vel_y < 0 or self._requested_animation == "climb":
+                if self._vel_y < 0 or (
+                   self._requested_animation == "climb" and self._dy < 0):
                     self._dy = tile[1].bottom - self.hitbox_rect.top
                     self._vel_y = 0
                 # Check if above the ground
-                elif self._vel_y >= 0:
+                elif self._vel_y >= 0 or (
+                     self._requested_animation == "climb" and self._dy > 0):
                     self._dy = tile[1].top - self.hitbox_rect.bottom
                     self._vel_y = 0
 
@@ -444,7 +446,7 @@ class CharacterAnimationManager:
     def _on_a_slow_block(self) -> bool:
         """ Check the player is moving over a slow block """
         return self._maze_data[self.grid_y + 1][self.grid_x] == (
-            C.LADDER_GRID
+            C.SLOW_GRID
         )
 
     def get_is_diamond_found(self) -> bool:

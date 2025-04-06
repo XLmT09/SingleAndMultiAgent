@@ -76,13 +76,19 @@ python .\create_maze.py
 
 To run the application you can use the following command format:
 ```bash
-python main.py [-h] --size {small,medium,large} --algo {random,dfs,bfs,ucs} [--highlight]
+python main.py [-h] --size {small,medium,large,small-filled,medium-filled,large-filled} [--algo {random,dfs,bfs,ucs,astar,greedy,minimax,alphabeta,expectimax}] [--weighted] [--highlight][--enemy_count ENEMY_COUNT] [--explain]
 ```
 
-An example command below where I would like to the application on a small maze using the dfs algorithm:
+An example command below where I would like the application on a small maze using the dfs algorithm:
 ```bash
 # Example Command
 python main.py --size small --algo dfs
+```
+
+Another example would be running the Alpha-Beta algorithm on a medium maze with one enemy:
+```bash
+# Example command
+python main.py --size medium-filled --algo alphabeta --enemy_count 1 
 ```
 
 ## 3 Analysis Tools
@@ -142,11 +148,17 @@ But an explanation will be given for the `product` directory:
 
 - `assets\images` : This contains all the images and sprites used within the game.
 - `testing` : This contains all the python test files.
-- `*.py` : All the python files used in the for the application are directly under product. Here are some points on the key files:
-  - `main.py` : This is the file that starts the application, hence why we when running in steps **_2.2_** we use this file.
-  - `computer.py` : All the different path finding algorithms are stored under here.
+- `agents\*`: This directory contains logic for every computer or agent type.
+  - `computer.py`: The parent class for all computer types is stored in the file.
+  - `uninformed_computer.py`: All uninformed computer classes are stored here. These are: `random`, `dfs` and `bfs`.
+  - `informed_computer.py`: All informed computer classes are stored here. These are: `greedy`, `ucs` and `astar`.
+  - `competitive_computer.py`: All competitive computer classes are stored here. These are `minimax`, `alphabeta` and `expectimax`.
+- `characters\*`: This directory contains the different character types. There are only two types of characters: the main player or the enemy player. This manages player animations, movement, collisions, and related functionalities.
+- `*.py` : All the python files used for the application are directly under `\product`. Here are some points on the key files:
+  - `main.py` : This is the file contains the main game loops.
   - `world.py` : This file contains the data for the maze object and is primarily responsible for rendering the maze onto the Pygame screen.
-  - `character.py` : This file manages player animations, movement, collisions, and related functionalities.
+  - `cli.py`: This file hold the cli logic.
+  - `constants.py`: Most constants used in this programme originate from this file.
 - `requirements.txt` : This file contains the dependencies needed fot this application.
 - `maze\` : This directory gets generated after running `python .\create_maze.py`, and stores all the mazes to be used for the game.
 

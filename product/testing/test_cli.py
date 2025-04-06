@@ -98,6 +98,26 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_8")
         self.assertEqual(result["algo"], "minimax")
 
+    @patch('sys.argv', ['main', '--size', 'medium-filled', '--algo', 'minimax',
+           '--enemy_count', '1'])
+    def test_mid_filled_maze_comp_algo(self):
+        """ Test that for a comp algo, it will output maze 9 instead of 6. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 1000)
+        self.assertEqual(result["screen_height"], 750)
+        self.assertEqual(result["maze_path"], "maze/maze_9")
+        self.assertEqual(result["algo"], "minimax")
+
+    @patch('sys.argv', ['main', '--size', 'large-filled', '--algo', 'minimax',
+           '--enemy_count', '1'])
+    def test_large_filled_maze_comp_algo(self):
+        """ Test that for a comp algo, it will output maze 10 instead of 7. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 1400)
+        self.assertEqual(result["screen_height"], 750)
+        self.assertEqual(result["maze_path"], "maze/maze_10")
+        self.assertEqual(result["algo"], "minimax")
+
     @patch('sys.argv', ['main', '--size', 'large-filled', '--algo', 'astar'])
     def test_large_size_and_a_star_filled_algo(self):
         """ Test a star filled algo is registered. """
@@ -128,6 +148,17 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["screen_height"], 350)
         self.assertEqual(result["maze_path"], "maze/maze_8")
         self.assertEqual(result["algo"], "alphabeta")
+
+    @patch('sys.argv',
+           ['main', '--size', 'small-filled', '--algo', 'expectimax',
+            '--enemy_count', '1'])
+    def test_expectimax_algo_attribute(self):
+        """ Test expectimax algo registered after inputting to the cli. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 850)
+        self.assertEqual(result["screen_height"], 350)
+        self.assertEqual(result["maze_path"], "maze/maze_8")
+        self.assertEqual(result["algo"], "expectimax")
 
     def test_cli_fails_when_weighted_set_on_non_a_star_algo(self):
         """ Test the cli will fail when the user inputs a non astar algorithm
@@ -168,14 +199,14 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_1")
         self.assertEqual(result["algo"], "random")
 
-    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small',
+    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small-filled',
            '--enemy_count', '1'])
     def test_cli_minimax_algo(self):
         """ Test cli with minimax as algo value. """
         result = process_args()
         self.assertEqual(result["screen_width"], 850)
         self.assertEqual(result["screen_height"], 350)
-        self.assertEqual(result["maze_path"], "maze/maze_1")
+        self.assertEqual(result["maze_path"], "maze/maze_8")
         self.assertEqual(result["algo"], "minimax")
 
     @patch('sys.argv', ['main', '--size', 'bogus', '--algo', 'BFS'])
@@ -258,8 +289,10 @@ class TestCli(unittest.TestCase):
 
             error_output = fake_stderr.getvalue()
 
-            self.assertIn("--highlight is only applicable when using any "
-                          "algorithm but random.", error_output)
+            self.assertIn(
+                C.ERROR_HIGHLIGHT_COMPATIBILITY,
+                error_output
+            )
 
     @patch(
         'sys.argv',
@@ -277,17 +310,41 @@ class TestCli(unittest.TestCase):
 
             error_output = fake_stderr.getvalue()
 
-            self.assertIn("--highlight is only applicable when using any "
-                          "algorithm but random.", error_output)
+            self.assertIn(
+                C.ERROR_HIGHLIGHT_COMPATIBILITY,
+                error_output
+            )
+
+    def test_cli_fails_when_highlight_and_non_highlight_algo_given(self):
+        """ Test the cli will fail when highlight flag is enabled, with a non
+        compatible highlight algos. """
+
+        non_compatible_highlight = set(C.ALGOS) - set(C.HIGHLIGHT_ALGOS)
+
+        for algo in non_compatible_highlight:
+            with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
+                with patch(
+                    'sys.argv',
+                    ['main', '--size', 'small-filled', '--algo', algo,
+                     '--enemy_count', '1', '--highlight']
+                ):
+                    with self.assertRaises(SystemExit):
+                        process_args()
+
+                # Capture the error message printed to stderr
+                error_output = fake_stderr.getvalue()
+
+                # Check if the error message is the expected one
+                self.assertIn(
+                    C.ERROR_HIGHLIGHT_COMPATIBILITY,
+                    error_output
+                )
 
     def test_cli_fails_when_filled_maze_and_not_using_filled_algo(self):
         """ Test the cli will fail when we are in a filled maze but using an
         algorithm not compatible with filled mazes. """
 
         incompatible_algos = ["bfs", "dfs", "ucs"]
-        filled_compatible_algos = [
-            "greedy", "random", "astar", "minimax", "alphabeta"
-        ]
 
         for algo in incompatible_algos:
             with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
@@ -304,7 +361,7 @@ class TestCli(unittest.TestCase):
                 # Check if the error message is the expected one
                 self.assertIn(
                     f"Filled maze only works when user controlled or when "
-                    f"using the following algos: {filled_compatible_algos}",
+                    f"using the following algos: {C.FILLED_COMPETITIVE_ALGOS}",
                     error_output
                 )
 
@@ -328,10 +385,6 @@ class TestCli(unittest.TestCase):
 
         incompatible_algos = ["bfs", "dfs", "ucs"]
 
-        filled_compatible_algos = [
-            "greedy", "random", "astar", "minimax", "alphabeta"
-        ]
-
         for algo in incompatible_algos:
             with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
                 with patch(
@@ -347,7 +400,31 @@ class TestCli(unittest.TestCase):
                 # Check if the error message is the expected one
                 self.assertIn(
                     f"Filled maze only works when user controlled or when "
-                    f"using the following algos: {filled_compatible_algos}",
+                    f"using the following algos: {C.FILLED_COMPETITIVE_ALGOS}",
+                    error_output
+                )
+
+    def test_cli_fail_when_comp_uses_non_filled_maze(self):
+        """ Test the cli fails when a competitive algo is used in a non filled
+        maze. """
+
+        non_filled_mazes = ["small", "medium", "large"]
+
+        for maze in non_filled_mazes:
+            with patch('sys.stderr', new_callable=io.StringIO) as fake_stderr:
+                with patch(
+                    'sys.argv',
+                    ['main', '--size', maze, '--algo', 'alphabeta']
+                ):
+                    with self.assertRaises(SystemExit):
+                        process_args()
+
+                # Capture the error message printed to stderr
+                error_output = fake_stderr.getvalue()
+
+                # Check if the error message is the expected one
+                self.assertIn(
+                    C.ERROR_COMP_NON_FILLED,
                     error_output
                 )
 
@@ -480,7 +557,7 @@ class TestCli(unittest.TestCase):
             captured_output
         )
 
-    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small',
+    @patch('sys.argv', ['main', '--algo', 'minimax', '--size', 'small-filled',
            '--enemy_count', '1', '--explain'])
     def test_cli_explain_minimax_algo(self):
         """ Test CLI gives correct explanation for minimax algo. It is vital
@@ -494,5 +571,38 @@ class TestCli(unittest.TestCase):
             "EXPLANATION: Minimax algorithm is used in decision-making and "
             "game theory, to minimize the possible loss for a worst-case "
             "scenario.",
+            captured_output
+        )
+
+    @patch('sys.argv', ['main', '--algo', 'alphabeta', '--size',
+           'small-filled', '--enemy_count', '1', '--explain'])
+    def test_cli_explain_alphabeta_algo(self):
+        """ Test CLI gives correct explanation for alphabeta algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: Alpha-Beta pruning is an optimization technique "
+            "for the minimax algorithm that reduces the number of nodes "
+            "evaluated.",
+            captured_output
+        )
+
+    @patch('sys.argv', ['main', '--algo', 'expectimax', '--size',
+           'small-filled', '--enemy_count', '1', '--explain'])
+    def test_cli_explain_expectimax_algo(self):
+        """ Test CLI gives correct explanation for expectimax algo. It is vital
+        that we do not mislead the user of how an algorithm works. """
+
+        with patch('sys.stdout', new=io.StringIO()) as fake_stdout:
+            main.process_args()
+            captured_output = fake_stdout.getvalue()
+
+        self.assertIn(
+            "EXPLANATION: Expectimax is a decision-making algorithm used in "
+            "game theory that considers the expected utility of actions.",
             captured_output
         )
