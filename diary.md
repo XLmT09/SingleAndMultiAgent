@@ -1,3 +1,11 @@
+### Week 18
+<ins>**New Algorithm**</ins>
+- Implementation of the minimax algorithm has begun. Although many issues arose, I had to fix them this week. The algorithm is incomplete as there are still many bugs.
+- **This minimax algorithm is not complete.**
+
+<ins>**CLI Logic**</ins>
+- The user now has the option to use the minimax algorithm. If the minimax algorithm is passed with no enemy count, it will throw an error.
+
 ### Week 17
 <ins>**Updates on Algorithm**</ins>
 - When the agent encounters an enemy which is at most 3 blocks away, it will move away and re-calculate a new path to the diamond.
