@@ -184,10 +184,8 @@ def process_args() -> dict:
             f"the following algos: {C.FILLED_COMPETITIVE_ALGOS}"
         )
 
-    if args.algo == "minimax" and args.enemy_count == 0:
-        parser.error(
-            "Minimax algorithm requires at least one enemy to be present."
-        )
+    if args.algo in C.COMPETITIVE_ALGOS and args.enemy_count <= 0:
+        parser.error(C.ERROR_0_LESS_ENEMY)
 
     if args.enemy_count > C.MAX_ENEMIES:
         parser.error(

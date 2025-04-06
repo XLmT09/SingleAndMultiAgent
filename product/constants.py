@@ -136,3 +136,8 @@ ERROR_COMP_NON_FILLED = (
 ERROR_HIGHLIGHT_COMPATIBILITY = (
     f"highlight flag will only work for these algos: {HIGHLIGHT_ALGOS}"
 )
+
+ERROR_0_LESS_ENEMY = {
+    f"enemy count cannot be zero or less for the following algos: "
+    f"{COMPETITIVE_ALGOS}"
+}
