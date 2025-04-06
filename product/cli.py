@@ -157,7 +157,10 @@ def process_args() -> dict:
         screen_width = 1400
         screen_height = 750
         if "filled" in args.size:
-            maze = "maze/maze_7"
+            if args.algo in C.COMPETITIVE_ALGOS:
+                maze = "maze/maze_10"
+            else:
+                maze = "maze/maze_7"
             filled = True
         else:
             maze = "maze/maze_3"
