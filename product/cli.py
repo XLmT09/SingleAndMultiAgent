@@ -65,6 +65,7 @@ def process_args() -> dict:
 
     # Some values we will pass into the return dict.
     screen_width, screen_height, maze, filled = None, None, None, False
+    is_competitive = False
 
     # This is used to define, manage and parser the command line args.
     parser = argparse.ArgumentParser()
@@ -168,6 +169,9 @@ def process_args() -> dict:
     if args.explain:
         explain_algo(args.algo)
 
+    if args.algo in C.COMPETITIVE_ALGOS:
+        is_competitive = True
+
     # PERFORM VALIDATION ON USER INPUT
 
     if args.weighted and args.algo != "astar":
@@ -205,5 +209,6 @@ def process_args() -> dict:
         "enable_highlighter": args.highlight,
         "weighted": args.weighted,
         "filled": filled,
-        "enemy_count": args.enemy_count
+        "enemy_count": args.enemy_count,
+        "is_comp": is_competitive
     }
