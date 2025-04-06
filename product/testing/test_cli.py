@@ -98,6 +98,16 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result["maze_path"], "maze/maze_8")
         self.assertEqual(result["algo"], "minimax")
 
+    @patch('sys.argv', ['main', '--size', 'medium-filled', '--algo', 'minimax',
+           '--enemy_count', '1'])
+    def test_mid_filled_maze_comp_algo(self):
+        """ Test that for a comp algo, it will output maze 9 instead of 6. """
+        result = process_args()
+        self.assertEqual(result["screen_width"], 850)
+        self.assertEqual(result["screen_height"], 350)
+        self.assertEqual(result["maze_path"], "maze/maze_9")
+        self.assertEqual(result["algo"], "minimax")
+
     @patch('sys.argv', ['main', '--size', 'large-filled', '--algo', 'astar'])
     def test_large_size_and_a_star_filled_algo(self):
         """ Test a star filled algo is registered. """
