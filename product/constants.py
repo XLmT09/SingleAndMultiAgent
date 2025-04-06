@@ -118,3 +118,8 @@ COMPETITIVE_ALGOS = [
 FILLED_COMPETITIVE_ALGOS = [
     "greedy", "random", "astar", "minimax", "alphabeta", "expectimax"
 ]
+
+ERROR_COMP_NON_FILLED = (
+    f"Cannot use competitive algos ({COMPETITIVE_ALGOS}) in a non filled"
+    " maze. Please enter a maze size in this format <maze_size>-filled."
+)

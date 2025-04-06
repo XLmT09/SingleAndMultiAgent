@@ -122,6 +122,12 @@ def process_args() -> dict:
     # parse args from command line
     args = parser.parse_args()
 
+    # TODO: Currently competitive algorithms do not work with non-filled mazes,
+    # due to logic behind the diamond_group variable in world.py. So for now
+    # throw an error if the user tries to input this combination in the cli.
+    if "filled" not in args.size and args.algo in C.COMPETITIVE_ALGOS:
+        parser.error(C.ERROR_COMP_NON_FILLED)
+
     # setup the window width and height, depending on
     # the size the user specified.
     if "small" in args.size:
