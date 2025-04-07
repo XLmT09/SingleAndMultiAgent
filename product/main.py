@@ -370,9 +370,12 @@ def start_game_player(screen_width, screen_height,
 
         # Event handling
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+            if event.type == pygame.QUIT or game_over:
+                os._exit(0)
+
+        if game_over:
+            print(C.GAME_OVER)
+            os._exit(0)
 
         # Draw the maze on the screen
         world.load_world(screen)
