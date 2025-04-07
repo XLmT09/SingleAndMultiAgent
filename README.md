@@ -72,7 +72,7 @@ First we need to build the mazes by doing:
 python .\create_maze.py
 ```
 
-### 2.2 Executing
+### 2.2 Executing Game Agent
 
 To run the application you can use the following command format:
 ```bash
@@ -89,6 +89,13 @@ Another example would be running the Alpha-Beta algorithm on a medium maze with 
 ```bash
 # Example command
 python main.py --size medium-filled --algo alphabeta --enemy_count 1 
+```
+
+### 2.3 Executing Game no Agent
+If you want to control the player and not have an agent, then leave the algo flag out:
+```bash
+# Example command
+python main.py --size small 
 ```
 
 ## 3 Analysis Tools
