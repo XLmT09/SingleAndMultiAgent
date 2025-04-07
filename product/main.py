@@ -381,12 +381,19 @@ def start_game_player(screen_width, screen_height,
 
         # Move and draw the agent
         game_over, remove_diamond_pos = player.draw_animation(
-            screen,
-            tile_data,
-            None,
-            diamond_positions,
-            game_over
+            screen=screen,
+            world_tile_data=tile_data,
+            direction=None,
+            asset_groups=diamond_positions,
+            game_over=game_over,
+            enemy_computers=enemy_computers
         )
+
+        for enemy_computer in enemy_computers:
+            enemy_computer.move(
+                screen,
+                tile_data,
+            )
 
         # When the diamond is found we will call to regenerate
         # at a new position.
