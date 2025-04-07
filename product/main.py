@@ -255,10 +255,13 @@ def start_game_agent(
         # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT or game_over:
+                print(C.GAME_OVER)
+                print(f"Score: {player.get_player_score()}")
                 os._exit(0)
 
         if game_over:
             print(C.GAME_OVER)
+            print(f"Score: {player.get_player_score()}")
             os._exit(0)
 
         # Check for user keyboard input
@@ -371,10 +374,13 @@ def start_game_player(screen_width, screen_height,
         # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT or game_over:
+                print(C.GAME_OVER)
+                print(f"Score: {player.get_player_score()}")
                 os._exit(0)
 
         if game_over:
             print(C.GAME_OVER)
+            print(f"Score: {player.get_player_score()}")
             os._exit(0)
 
         # Draw the maze on the screen
