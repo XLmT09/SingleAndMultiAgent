@@ -352,8 +352,9 @@ def start_game_agent(
         pygame.display.update()
 
 
-def start_game_player(screen_width, screen_height, screen, player, world,
-                      computer, game_over, score_text, cave_bg) -> None:
+def start_game_player(screen_width, screen_height,
+                      screen, player, world, computer, game_over, score_text,
+                      cave_bg, enemy_computers, enemy_list, is_comp) -> None:
     """ This is the main game function when the user controls the player, the
     game loop resides in here. """
 
@@ -382,6 +383,7 @@ def start_game_player(screen_width, screen_height, screen, player, world,
         game_over, remove_diamond_pos = player.draw_animation(
             screen,
             tile_data,
+            None,
             diamond_positions,
             game_over
         )
