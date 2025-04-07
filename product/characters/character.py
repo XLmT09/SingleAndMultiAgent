@@ -270,12 +270,6 @@ class CharacterAnimationManager:
         if key[pygame.K_UP] and self._maze_data[self.grid_y][self.grid_x] == 3:
             self._requested_animation = "climb"
             self._dy -= 1
-        if key[pygame.K_SPACE] and not self._jumped:
-            self._requested_animation = "jump"
-            self._vel_y = -15
-            self._jumped = True
-        if not key[pygame.K_SPACE]:
-            self._jumped = False
 
     def computer_player_movement(self, direction) -> None:
         """ This function handles player movement based on instructions by
