@@ -386,7 +386,6 @@ def start_game_player(screen_width, screen_height,
         game_over, remove_diamond_pos = player.draw_animation(
             screen=screen,
             world_tile_data=tile_data,
-            direction=None,
             asset_groups=diamond_positions,
             game_over=game_over,
             enemy_computers=enemy_computers
@@ -426,12 +425,13 @@ if __name__ == "__main__":
     config = process_args()
     game_data = setup_game(config)
 
+    # start enemy agents if they exist
+    for enemy_computer in game_data["enemy_computers"]:
+        enemy_computer.start_thread()
+
     if config["algo"]:
         # Start the agent thread
         game_data["computer"].start_thread()
-
-        for enemy_computer in game_data["enemy_computers"]:
-            enemy_computer.start_thread()
 
         start_game_agent(
             config["screen_width"],
