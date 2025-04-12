@@ -86,32 +86,6 @@ class CompetitiveComputer(Computer):
 
         return score
 
-    def get_manhattan_distance_filled(self, pos1, pos2) -> int:
-        """ This function generates the manhattan distance between two coords
-        we pass it.
-
-        Attributes:
-            pos1 (tuple): The first position to start the search from. It is
-                of the form (grid_y, grid_x).
-            pos2 (tuple): The goal position.
-
-        Returns:
-            int: The manhattan distance between two points.
-        """
-        horizontal_diff = abs(pos1[1] - pos2[1])
-        vertical_diff = abs(pos1[0] - pos2[0])
-
-        offset = 0
-
-        # Update offset value to the heuristic if there is a height difference,
-        # to account for the ladder climbing time.
-        # In other words, give more priority to positions which are on the
-        # same or neighboring levels.
-        if vertical_diff:
-            offset += vertical_diff * 10
-
-        return vertical_diff + horizontal_diff + offset
-
     def generate_bfs_dist(self, pos1, pos2) -> int:
         """ This function uses bfs search to find the closest path between two
         positions.
@@ -150,18 +124,6 @@ class CompetitiveComputer(Computer):
                     queue.append((next_grid, dist + 1))
 
         return float("-inf")
-
-    def manhattan_distance(self, pos1, pos2) -> int:
-        """Computes manhattan distance between two points.
-
-        Attributes:
-            pos1 (tuple): Represents the first coordinates.
-            pos2 (tuple): Represents the second coordinates.
-
-        Returns:
-            int: The manhattan distance between two points.
-        """
-        return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
     def legal_movements(self, pos, prev_action) -> list:
         """Determine the legal movements that the agent can perform.
@@ -524,54 +486,6 @@ class CompetitiveComputer(Computer):
         else:
             return (0, "None")
 
-    def chance_node(self, state, depth, player_action, next_agent,
-                    agent_index) -> tuple:
-        """ This handles the chance node logic where the enemy acts randomly.
-        Instead of choosing the best or worst outcome, it calculates the
-        expected value by averaging over all possible enemy actions weighted
-        by their probability.
-
-        Args:
-            state (dict): The current game state.
-            depth (int): The current depth of the game tree.
-            player_action (str): The action taken by the main player.
-            next_agent (int): The index of the next agent to run the function.
-            agent_index (int): The index of the current agent.
-
-        Returns:
-            tuple: A tuple containing the expected value and None as the
-            action. None is returned because the enemy agent's action is not
-            determined in this case. The point of this function is to average
-            all possible actions based on their probabilities.
-        """
-
-        enemy_id = agent_index - 1
-        enemy_pos = state["enemies"][enemy_id]
-
-        expected_value = 0
-        actions_with_probs = self.get_enemy_actions_with_probs(
-            enemy_pos
-        )
-
-        for action, prob in actions_with_probs:
-            successor = self.generate_successor(
-                state,
-                agent_index,
-                action
-            )
-
-            current_value = self.minimax(
-                successor,
-                depth - 1 if next_agent == 0 else depth,
-                agent_index=next_agent,
-                player_action=player_action,
-                enemy_action=action
-            )[0]
-
-            expected_value += prob * current_value
-
-        return (expected_value, None)
-
     @abstractmethod
     def minimax(self, state, depth, agent_index, player_action=None,
                 enemy_action=None, alpha=None, beta=None) -> tuple:
@@ -713,6 +627,54 @@ class ExpectimaxComputer(CompetitiveComputer):
                 next_agent,
                 agent_index
             )
+
+    def chance_node(self, state, depth, player_action, next_agent,
+                    agent_index) -> tuple:
+        """ This handles the chance node logic where the enemy acts randomly.
+        Instead of choosing the best or worst outcome, it calculates the
+        expected value by averaging over all possible enemy actions weighted
+        by their probability.
+
+        Args:
+            state (dict): The current game state.
+            depth (int): The current depth of the game tree.
+            player_action (str): The action taken by the main player.
+            next_agent (int): The index of the next agent to run the function.
+            agent_index (int): The index of the current agent.
+
+        Returns:
+            tuple: A tuple containing the expected value and None as the
+            action. None is returned because the enemy agent's action is not
+            determined in this case. The point of this function is to average
+            all possible actions based on their probabilities.
+        """
+
+        enemy_id = agent_index - 1
+        enemy_pos = state["enemies"][enemy_id]
+
+        expected_value = 0
+        actions_with_probs = self.get_enemy_actions_with_probs(
+            enemy_pos
+        )
+
+        for action, prob in actions_with_probs:
+            successor = self.generate_successor(
+                state,
+                agent_index,
+                action
+            )
+
+            current_value = self.minimax(
+                successor,
+                depth - 1 if next_agent == 0 else depth,
+                agent_index=next_agent,
+                player_action=player_action,
+                enemy_action=action
+            )[0]
+
+            expected_value += prob * current_value
+
+        return (expected_value, None)
 
     def get_enemy_actions_with_probs(self, enemy_pos):
         """ This function will generate the possible actions for the enemy

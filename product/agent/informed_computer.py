@@ -246,7 +246,6 @@ class AStarComputer(InformedComputer):
         )
 
         self.MANHATTAN_WEIGHT = 2
-        self.mst_edges = []
 
         diamond = kwargs.get("diamond")
         self.diamond_grid_x = diamond.grid_x
