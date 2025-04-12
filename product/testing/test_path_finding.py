@@ -2,8 +2,8 @@ import unittest
 import pygame
 import pickle
 
-from agent.uninformed_computer import DFSComputer, BFSComputer
-from agent.informed_computer import UCSComputer, AStarComputer
+from agent.uninformed_computer import DFSComputer, BFSComputer, UCSComputer
+from agent.informed_computer import AStarComputer
 from characters.character import get_character_types
 
 from world import World

@@ -3,8 +3,13 @@ import pygame
 import pickle
 import time
 
-from agent.uninformed_computer import BFSComputer, DFSComputer, RandomComputer
-from agent.informed_computer import AStarComputer, UCSComputer
+from agent.uninformed_computer import (
+    BFSComputer,
+    DFSComputer,
+    RandomComputer,
+    UCSComputer
+)
+from agent.informed_computer import AStarComputer
 from characters.character import get_character_types
 from world import World
 from constants import (
