@@ -297,15 +297,21 @@ class CharacterAnimationManager:
         elif direction == "UP":
             self._requested_animation = "climb"
             self._dy -= 1
+            # algin the player to the center of the ladder
+            self._pos_x = self.grid_x * C.TILE_SIZE + 25
         elif direction == "UP RIGHT":
             self._requested_animation = "climb"
-            self._dy -= 1
+            self._dy -= 2
             self._dx += 1
         elif direction == "UP LEFT":
             self._requested_animation = "climb"
-            self._dy -= 1
+            self._dy -= 2
             self._dx -= 1
-        elif direction == "None":
+        elif direction == "DOWN":
+            self._requested_animation = "climb"
+            self._dy += 1
+            self._pos_x = self.grid_x * C.TILE_SIZE + 25
+        else:
             self._dx, self._dy = 0, 0
             self._requested_animation = "idle"
 
@@ -337,8 +343,7 @@ class CharacterAnimationManager:
 
         return diamond_removal_coord
 
-    def draw_animation(self, screen, world_tile_data, world_assets,
-                       game_over, direction=None) -> int:
+    def draw_animation(self, screen, world_tile_data, direction=None) -> int:
         """ This function handles the logic of drawing the player onto the
         screen. It also updates the movement speed and detects collisions.
 
@@ -364,14 +369,6 @@ class CharacterAnimationManager:
         current_time = pygame.time.get_ticks()
         self._dx = 0
         self._dy = 0
-        remove_diamond_pos = None
-
-        # If game_over flag is set, then we will halt character movement
-        if game_over != 0:
-            self._animation_actions[self._requested_animation].draw_animation(
-                screen, self.rect, update_frame, self.look_left
-            )
-            return game_over
 
         # Update the animation if the current one is past cool down limit.
         # Animation cool down is used to make sure transition between the
@@ -410,21 +407,15 @@ class CharacterAnimationManager:
                                    self.hitbox_rect.y + self._dy,
                                    self.hitbox_width, self.hitbox_height):
                 # Check if below the ground
-                if self._vel_y < 0 or self._requested_animation == "climb":
+                if self._vel_y < 0 or (
+                   self._requested_animation == "climb" and self._dy < 0):
                     self._dy = tile[1].bottom - self.hitbox_rect.top
                     self._vel_y = 0
                 # Check if above the ground
-                elif self._vel_y >= 0:
+                elif self._vel_y >= 0 or (
+                     self._requested_animation == "climb" and self._dy > 0):
                     self._dy = tile[1].top - self.hitbox_rect.bottom
                     self._vel_y = 0
-
-        # Do diamond collision logic based on whether the maze is filled or not
-        if self.in_filled_maze:
-            remove_diamond_pos = (
-                self.diamond_collision_in_filled_maze(world_assets)
-            )
-        else:
-            self.diamond_collision_in_non_filled_maze(world_assets)
 
         # Update the character x and y positions using the delta values
         self._pos_x += self._dx
@@ -452,12 +443,10 @@ class CharacterAnimationManager:
             screen, self.rect, update_frame, self.look_left
         )
 
-        return game_over, remove_diamond_pos
-
     def _on_a_slow_block(self) -> bool:
         """ Check the player is moving over a slow block """
         return self._maze_data[self.grid_y + 1][self.grid_x] == (
-            C.LADDER_GRID
+            C.SLOW_GRID
         )
 
     def get_is_diamond_found(self) -> bool:
@@ -471,3 +460,17 @@ class CharacterAnimationManager:
 
     def get_player_grid_coordinates(self) -> int:
         return (self.grid_y, self.grid_x)
+
+
+def get_character_types():
+    from characters.enemy_character import (
+        EnemyAnimationManager
+    )
+    from characters.main_character import (
+        MainAnimationManager
+    )
+
+    return {
+        "main": MainAnimationManager,
+        "enemy": EnemyAnimationManager,
+    }

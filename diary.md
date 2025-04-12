@@ -1,4 +1,78 @@
-###  Week 15
+### Week 22
+<ins>**New Algorithms**</ins>
+- The Expectimax algorithm has now been implemented.
+- The Alpha-Beta algorithm has now been implemented.
+
+<ins>**CLI Updates**</ins>
+- I have implemented an `explain` flag for every algorithm. This briefly explains how each algorithm works to give the user some context.
+
+<ins>**Updates on Game**</ins>
+- I have implemented non-dead filled mazes for the medium and large-sized mazes.
+
+<ins>**Refactor**</ins>
+- `Minimax`, `Expectimax`, and `Alpha-Beta` are all extended from the `CompetitiveComputer` class. While they share most of their underlying logic, each implements its own version of the minimax function. It behaves slightly differently based on the algorithm's specific behavior. This led to a significant amount of duplicated code. To address this, I refactored the structure to combine the shared logic.
+
+### Week 21
+<ins>**Updates on Algorithm**</ins>
+- The `minimax` algorithm can now work with more than one enemy. However, the game can only take up to three enemies. This is because the game gets too laggy.
+
+<ins>**Updates on Game**</ins>
+- Instead of jumping down a ladder, the player will climb for competitive algorithms. I'm doing this to ensure constant speed on all movements and avoid confusion for the `minimax` algorithm.
+
+<ins>**Final Report**</ins>
+- The professional issues section of the report is now complete.
+
+### Week 19 - 20
+<ins>**IMPORTANT NOTE**</ins>
+- I spent these two weeks ( plus week 18) trying to implement the minimax algorithm. I managed to do it in the end, but I ran into many errors, which took me significant time to solve.
+
+- I will not go over all the different approaches I took. However, I will mention how I solved the problem.
+
+- The culprit was this piece of code here:
+```python
+        if (pos[1] - 1 > 1 and
+            self._walkable_maze_matrix[pos[0]][pos[1] - 1] !=
+            C.NON_WALKABLE_GRID):
+            legal_movements.append("LEFT")
+```
+- I should have used `>=` instead of `>`. By using > 1, I unintentionally excluded valid walkable areas, which caused the algorithm to behave incorrectly. Although it was a minor fix, the program's complexity made it difficult to identify the root cause.
+
+<ins>**Updates on Algorithm**</ins>
+- The `minimax` algorithm is still causing problems, though I have made some new modifications. 
+- First, instead of calculating the manhattan distance to diamonds and other players, it will do a BFS search instead. I believe this is the right choice to make because the Manhattan distance does not consider the walls, floors and ceilings, but BFS does.
+
+- I also changed when the depth should be decremented. Instead of decreasing on each player, it will decrease after a round is complete; in other words, all players have made one move.
+
+<ins>**Updates on Game**</ins>
+- I noticed that the current small maze isn't very good for the minimax algorithm, as there are dead ends. So, once the minimax algo works appropriately, the enemy agent will have a significant advantage. I implemented a special small maze for competitive algorithms with no dead ends to fix this.
+
+
+### Week 18
+<ins>**New Algorithm**</ins>
+- Implementation of the minimax algorithm has begun. Although many issues arose, I had to fix them this week. The algorithm is incomplete as there are still many bugs.
+- **This minimax algorithm is not complete.**
+
+<ins>**CLI Logic**</ins>
+- The user now has the option to use the minimax algorithm. If the minimax algorithm is passed with no enemy count, it will throw an error.
+
+### Week 17
+<ins>**Updates on Algorithm**</ins>
+- When the agent encounters an enemy which is at most 3 blocks away, it will move away and re-calculate a new path to the diamond.
+
+### Week 16
+<ins>**Updates on Game**</ins>
+- Add enemy agents to the game.
+- The enemy agent will move around the map randomly.
+- If the main player collides with an enemy, then the game ends.
+- The cli takes a flag `enemy_count`, which is the number of enemies to produce in the game. By default no enemies are generated if the flag is not passed.
+
+<ins>**Refactoring**</ins>
+- The character file, is now split into 3 files:
+  - `character.py` - attributes and functions all character types share are in here.
+  - `enemy_character.py`
+  - `main_character.py`
+
+### Week 15
 <ins>**Updates on Algorithm**</ins>
 
 - Implemented A star-filled algorithm; it uses the min spanning tree as a heuristic to calculate the path to collect all the diamonds.

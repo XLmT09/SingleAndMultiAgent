@@ -1,14 +1,16 @@
 import pygame
 import pickle
-import argparse
 import time
+import os
 
-from characters import CharacterAnimationManager
 from world import World
 from agent.computer import get_agent_types
-from constants import player_sprite_file_paths, game_values
+from characters.character import get_character_types
 from text import Text
 from lock import visited_and_path_data_flag
+from cli import process_args
+
+import constants as C
 
 # Setup some initial pygame logic, which is needed
 # regardless of the options we choose.
@@ -17,114 +19,87 @@ clock = pygame.time.Clock()
 pygame.display.set_caption("Maze Game")
 
 
-def process_args() -> dict:
-    """ This function takes the flags passed in by the user and
-    will process them.
-    """
+def create_characters(config, maze_array) -> list:
+    """ Initialise all the characters that will be used in the game """
+    character_list = []
 
-    # This is used to define, manage and parser the command line args.
-    parser = argparse.ArgumentParser()
-
-    # define the size flag
-    parser.add_argument(
-        "--size",
-        choices=[
-            "small", "medium", "large",
-            "small-filled", "medium-filled", "large-filled"
-        ],
-        required=True,
-        help="Choose a size: small, medium, or large"
+    # Initialize the player we or the agent will control
+    player = get_character_types()["main"](
+        C.game_values["character_width"],
+        C.game_values["character_height"],
+        maze_array,
+        is_controlled_by_computer=True if config["algo"] else False,
+        x=350, y=300,
+        in_filled_maze=config["filled"]
     )
 
-    # define the algo flag
-    parser.add_argument(
-        "--algo",
-        choices=["random", "dfs", "bfs", "ucs", "astar", "greedy"],
-        required=False,
-        help="Choose a algorithm: random, dfs, bfs, or ucs"
+    # Setup the sprite animations for the player
+    player.set_char_animation(
+        "idle",
+        C.player_sprite_file_paths["idle"],
+        animation_steps=4
+    )
+    player.set_char_animation(
+        "jump",
+        C.player_sprite_file_paths["jump"],
+        animation_steps=8
+    )
+    player.set_char_animation(
+        "walk",
+        C.player_sprite_file_paths["walk"],
+        animation_steps=6
+    )
+    player.set_char_animation(
+        "climb",
+        C.player_sprite_file_paths["climb"],
+        animation_steps=4
     )
 
-    parser.add_argument(
-        "--weighted",
-        action="store_true",
-        help="Use a weighted manhattan (x2) to influence the "
-             "pathfinding (only applicable to A*)."
-    )
+    character_list.append(player)
 
-    # define the algo flag
-    parser.add_argument(
-        "--highlight",
-        action="store_true",
-        required=False,
-        help="Highlights the visited grids and final path before moving the"
-             " agent"
-    )
+    enemy_positions = [
+        (500, 100),
+        (700, 200),
+        (100, 300)
+    ]
 
-    # parse args from command line
-    args = parser.parse_args()
+    # Now create the enemies
+    for enemy_index in range(config["enemy_count"]):
+        x, y = enemy_positions[enemy_index]
 
-    screen_width, screen_height, maze, filled = None, None, None, False
-
-    # setup the window width and height, depending on
-    # the size the user specified.
-    if "small" in args.size:
-        screen_width = 850
-        screen_height = 350
-        # retrieve the small maze filled with diamonds
-        if "filled" in args.size:
-            maze = "maze/maze_5"
-            filled = True
-        else:
-            maze = "maze/maze_1"
-    elif "medium" in args.size:
-        screen_width = 1000
-        screen_height = 750
-        if "filled" in args.size:
-            maze = "maze/maze_6"
-            filled = True
-        else:
-            maze = "maze/maze_2"
-    elif "large" in args.size:
-        screen_width = 1400
-        screen_height = 750
-        if "filled" in args.size:
-            maze = "maze/maze_7"
-            filled = True
-        else:
-            maze = "maze/maze_3"
-
-    if args.weighted and args.algo != "astar":
-        parser.error("--weighted is only applicable when using the "
-                     "A* algorithm.")
-
-    if ((not args.algo and args.highlight) or
-       (args.algo == "random" and args.highlight)):
-        parser.error(
-            "--highlight is only applicable when using any algorithm but "
-            "random."
+        enemy = get_character_types()["enemy"](
+            C.game_values["character_width"],
+            C.game_values["character_height"],
+            maze_array,
+            is_controlled_by_computer=True,
+            x=x, y=y,
+            in_filled_maze=config["filled"]
         )
 
-    filled_compatible_algos = ["greedy", "random", "astar"]
-    if (args.algo and filled and not (args.algo in filled_compatible_algos)):
-        parser.error(
-            "Filled maze only works when user controlled or when using "
-            "greedy algorithm."
+        enemy.set_char_animation(
+            "idle",
+            C.pink_enemy_file_sprite_paths["idle"],
+            animation_steps=4
+        )
+        enemy.set_char_animation(
+            "walk",
+            C.pink_enemy_file_sprite_paths["walk"],
+            animation_steps=6
+        )
+        enemy.set_char_animation(
+            "climb",
+            C.pink_enemy_file_sprite_paths["climb"],
+            animation_steps=4
+        )
+        enemy.set_char_animation(
+            "jump",
+            C.pink_enemy_file_sprite_paths["jump"],
+            animation_steps=8
         )
 
-    # If we are in a filled maze and using astar then update astar to work in
-    # a filled maze context.
-    if filled and args.algo == "astar":
-        args.algo = "astarFilled"
+        character_list.append(enemy)
 
-    return {
-        "maze_path": maze,
-        "screen_width": screen_width,
-        "screen_height": screen_height,
-        "algo": args.algo,
-        "enable_highlighter": args.highlight,
-        "weighted": args.weighted,
-        "filled": filled
-    }
+    return character_list
 
 
 def setup_game(config) -> dict:
@@ -143,40 +118,39 @@ def setup_game(config) -> dict:
     with open(config["maze_path"], 'rb') as file:
         maze_array = pickle.load(file)
 
-    # Initialize the player we or the agent will control
-    player = CharacterAnimationManager(
-        game_values["character_width"],
-        game_values["character_height"],
-        maze_array,
-        is_controlled_by_computer=True if config["algo"] else False,
-        x=350, y=300,
-        in_filled_maze=config["filled"]
-    )
-
-    # Setup the sprite animations for the player
-    player.set_char_animation(
-        "idle",
-        player_sprite_file_paths["idle"],
-        animation_steps=4
-    )
-    player.set_char_animation(
-        "jump",
-        player_sprite_file_paths["jump"],
-        animation_steps=8
-    )
-    player.set_char_animation(
-        "walk",
-        player_sprite_file_paths["walk"],
-        animation_steps=6
-    )
-    player.set_char_animation(
-        "climb",
-        player_sprite_file_paths["climb"],
-        animation_steps=4
-    )
-
     # Generate the maze
     world = World(maze_array)
+
+    character_list = create_characters(config, maze_array)
+
+    player = character_list[0]
+
+    enemy_list = []
+
+    is_comp = config["is_comp"]
+
+    state = None
+
+    if len(character_list) > 1:
+        enemy_list = character_list[1:]
+        enemy_coords = []
+
+        for enemy in character_list[1:]:
+            enemy_coords.append(enemy.get_player_grid_coordinates())
+
+        # If both the agent and enemy are intelligent we need to set up a state
+        # for both agent types to use.
+        state = {
+            "main_agent": player.get_player_grid_coordinates(),
+            "enemies": enemy_coords,
+            "diamond_coords": [
+                (dmd.grid_y, dmd.grid_x) for dmd in world.get_diamond_group()
+            ],
+            "score": 0,
+            "win": False,
+            "lose": False,
+            "diamond_count": 0
+        }
 
     # If algo was specified, initialize a specific computer class and pass
     # arguments to constructor. Else, dont initialize and the user will
@@ -188,8 +162,28 @@ def setup_game(config) -> dict:
             perform_analysis=False,
             diamond=world.get_diamond_group().sprites()[0],
             diamond_list=world.get_diamond_group(),
-            is_weighted=config["weighted"]
+            is_weighted=config["weighted"],
+            enemy_list=character_list[1:] if len(character_list) > 1 else [],
+            state=state,
+            agent_type=0,  # 0 is the main agent
+            num_characters=len(character_list)
         )
+
+    enemy_computers = []
+
+    enemy_algo = "random"
+    if is_comp:
+        enemy_algo = config["algo"]
+
+    for enemy_index, enemy in enumerate(character_list[1:]):
+        enemy_computer = get_agent_types()[enemy_algo](
+            enemy,
+            world.get_walkable_maze_matrix(),
+            state=state,
+            agent_type=enemy_index + 1,  # 1 is the first enemy
+            num_characters=len(character_list)
+        )
+        enemy_computers.append(enemy_computer)
 
     return {
         "screen": screen,
@@ -203,7 +197,10 @@ def setup_game(config) -> dict:
         # Background image for the game
         "cave_bg": pygame.image.load(
             "assets/images/background/cave.png"
-        ).convert_alpha()
+        ).convert_alpha(),
+        "enemy_computers": enemy_computers,
+        "enemy_list": enemy_list,
+        "is_comp": is_comp
     }
 
 
@@ -229,7 +226,7 @@ def highlight_visited_and_final_path(enable_highlight, world, screen,
 def start_game_agent(
         screen_width, screen_height, enable_highlighter,
         screen, player, world, computer, game_over, score_text,
-        cave_bg) -> None:
+        cave_bg, enemy_computers, enemy_list, is_comp) -> None:
     """ This is the main game function when the computer controls the player,
     the game loop resides in here. """
 
@@ -247,6 +244,8 @@ def start_game_agent(
     # Measure run time of the application
     start = time.time()
 
+    state = None
+
     # Game loop logic
     while True:
         # We want to draw the background first, then
@@ -255,10 +254,12 @@ def start_game_agent(
 
         # Event handling
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                computer.stop_path_find_algo_thread()
-                pygame.quit()
-                quit()
+            if event.type == pygame.QUIT or game_over:
+                os._exit(0)
+
+        if game_over:
+            print(C.GAME_OVER)
+            os._exit(0)
 
         # Check for user keyboard input
         key = pygame.key.get_pressed()
@@ -270,13 +271,45 @@ def start_game_agent(
 
         world.draw_grid(screen, screen_height, screen_width)
 
+        if enemy_computers:
+            if is_comp:
+                enemy_coords = []
+                # Before updating the state we need to gather all the enemy
+                # coords
+                for enemy in enemy_list:
+                    enemy_coords.append(enemy.get_player_grid_coordinates())
+
+                state = {
+                    "main_agent": player.get_player_grid_coordinates(),
+                    "enemies": enemy_coords,
+                    "diamond_coords": world.get_diamond_coords(),
+                    "score": 0,
+                    "win": False,
+                    "lose": False,
+                    "diamond_count": 0
+                }
+
+                computer.update_state(state)
+
+            for enemy_computer in enemy_computers:
+                if is_comp:
+                    enemy_computer.update_state(state)
+
+                enemy_computer.move(
+                    screen,
+                    tile_data,
+                )
+
         # Move and draw the agent
         game_over, remove_diamond_pos = computer.move(
             screen,
             tile_data,
-            diamond_positions,
-            game_over
+            asset_groups=diamond_positions,
+            game_over=game_over,
+            enemy_computers=enemy_computers
         )
+
+        player.draw_outline(screen)
 
         # When the diamond is found we will call to regenerate
         # at a new position.
@@ -288,16 +321,16 @@ def start_game_agent(
 
             if not player.in_filled_maze:
                 if world.update_diamond_position(
-                   are_locations_defined=True) == 2:
+                   are_locations_defined=False) == 2:
                     game_over = 1
                     computer.stop_path_find_algo_thread()
             else:
                 world.clear_diamond(remove_diamond_pos[0],
                                     remove_diamond_pos[1])
-                computer.update_diamond_list(diamond_positions)
 
             player.set_is_diamond_found_to_false()
             diamond_positions = world.get_diamond_group()
+            computer.update_diamond_list(diamond_positions)
             enable_highlight = True
 
         if enable_highlighter:
@@ -312,7 +345,7 @@ def start_game_agent(
         score_text.draw(screen, f"Score {player.get_player_score()}", 20, 20)
 
         # Set the game refresh rate
-        clock.tick(game_values["FPS"])
+        clock.tick(C.game_values["FPS"])
 
         # Now render all changes we made in this loop
         # iteration onto the game screen.
@@ -358,7 +391,7 @@ def start_game_player(screen_width, screen_height, screen, player, world,
         if player.get_is_diamond_found():
             if not player.in_filled_maze:
                 if world.update_diamond_position(
-                   are_locations_defined=True) == 2:
+                   are_locations_defined=False) == 2:
                     game_over = 1
             else:
                 world.clear_diamond(remove_diamond_pos[0],
@@ -370,7 +403,7 @@ def start_game_player(screen_width, screen_height, screen, player, world,
         score_text.draw(screen, f"Score {player.get_player_score()}", 20, 20)
 
         # Set the game refresh rate
-        clock.tick(game_values["FPS"])
+        clock.tick(C.game_values["FPS"])
 
         # Now render all changes we made in this loop
         # iteration onto the game screen.
@@ -384,6 +417,9 @@ if __name__ == "__main__":
     if config["algo"]:
         # Start the agent thread
         game_data["computer"].start_thread()
+
+        for enemy_computer in game_data["enemy_computers"]:
+            enemy_computer.start_thread()
 
         start_game_agent(
             config["screen_width"],

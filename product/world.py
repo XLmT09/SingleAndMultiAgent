@@ -443,6 +443,14 @@ class World:
     def get_diamond_group(self) -> list:
         return self._diamond_group
 
+    def get_diamond_coords(self) -> list:
+        dmd_coords = []
+
+        for dmd in self._diamond_group:
+            dmd_coords.append((dmd.grid_y, dmd.grid_x))
+
+        return dmd_coords
+
     def get_maze_size(self) -> str:
         """ This function determines the size of a maze based on its matrix
          data"""

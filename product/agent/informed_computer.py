@@ -9,22 +9,8 @@ class InformedComputer(Computer):
     """ This computer class will hold similar characteristics between different
     informed search algorithms. """
 
-    def __init__(self, character, walkable_maze, perform_analysis):
-        super().__init__(character, walkable_maze, perform_analysis)
-
-    def move(self, screen, world_data, asset_groups, game_over):
-        """ Move the character based on the requested movement. """
-
-        # This logic can be improved:
-        # I need to optimize this by updating the diamond coords outside
-        # the move function.
-        if hasattr(self, "diamond_list"):
-            self.diamond_list = asset_groups
-        else:
-            self.diamond_grid_x = asset_groups.sprites()[0].grid_x
-            self.diamond_grid_y = asset_groups.sprites()[0].grid_y
-
-        return super().move(screen, world_data, asset_groups, game_over)
+    def __init__(self, character, walkable_maze, **kwargs):
+        super().__init__(character, walkable_maze, **kwargs)
 
     def generate_path(self) -> list:
         """ This function generates a path leading to the diamond. """
@@ -145,7 +131,7 @@ class AStarFilledComputer(InformedComputer):
         super().__init__(
             character,
             walkable_maze,
-            kwargs.get("perform_analysis", False)
+            **kwargs
         )
 
         self.MANHATTAN_WEIGHT = 2
@@ -256,7 +242,7 @@ class AStarComputer(InformedComputer):
         super().__init__(
             character,
             walkable_maze,
-            kwargs.get("perform_analysis", False)
+            **kwargs
         )
 
         self.MANHATTAN_WEIGHT = 2
@@ -277,7 +263,7 @@ class GreedyComputer(InformedComputer):
         super().__init__(
             character,
             walkable_maze,
-            kwargs.get("perform_analysis", False),
+            **kwargs,
         )
         self.heuristic = None
         self.diamond_list = kwargs.get("diamond_list")
