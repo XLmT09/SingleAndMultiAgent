@@ -255,10 +255,13 @@ def start_game_agent(
         # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT or game_over:
+                print(C.GAME_OVER)
+                print(f"Score: {player.get_player_score()}")
                 os._exit(0)
 
         if game_over:
             print(C.GAME_OVER)
+            print(f"Score: {player.get_player_score()}")
             os._exit(0)
 
         # Check for user keyboard input
@@ -352,8 +355,9 @@ def start_game_agent(
         pygame.display.update()
 
 
-def start_game_player(screen_width, screen_height, screen, player, world,
-                      computer, game_over, score_text, cave_bg) -> None:
+def start_game_player(screen_width, screen_height,
+                      screen, player, world, computer, game_over, score_text,
+                      cave_bg, enemy_computers, enemy_list, is_comp) -> None:
     """ This is the main game function when the user controls the player, the
     game loop resides in here. """
 
@@ -369,9 +373,15 @@ def start_game_player(screen_width, screen_height, screen, player, world,
 
         # Event handling
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+            if event.type == pygame.QUIT or game_over:
+                print(C.GAME_OVER)
+                print(f"Score: {player.get_player_score()}")
+                os._exit(0)
+
+        if game_over:
+            print(C.GAME_OVER)
+            print(f"Score: {player.get_player_score()}")
+            os._exit(0)
 
         # Draw the maze on the screen
         world.load_world(screen)
@@ -380,11 +390,18 @@ def start_game_player(screen_width, screen_height, screen, player, world,
 
         # Move and draw the agent
         game_over, remove_diamond_pos = player.draw_animation(
-            screen,
-            tile_data,
-            diamond_positions,
-            game_over
+            screen=screen,
+            world_tile_data=tile_data,
+            asset_groups=diamond_positions,
+            game_over=game_over,
+            enemy_computers=enemy_computers
         )
+
+        for enemy_computer in enemy_computers:
+            enemy_computer.move(
+                screen,
+                tile_data,
+            )
 
         # When the diamond is found we will call to regenerate
         # at a new position.
@@ -414,12 +431,13 @@ if __name__ == "__main__":
     config = process_args()
     game_data = setup_game(config)
 
+    # start enemy agents if they exist
+    for enemy_computer in game_data["enemy_computers"]:
+        enemy_computer.start_thread()
+
     if config["algo"]:
         # Start the agent thread
         game_data["computer"].start_thread()
-
-        for enemy_computer in game_data["enemy_computers"]:
-            enemy_computer.start_thread()
 
         start_game_agent(
             config["screen_width"],
