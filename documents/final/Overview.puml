@@ -1,0 +1,27 @@
+@startuml Maze
+class Diamond {
+}
+
+class World {
+}
+
+class Computer {
+}
+
+class Player {
+}
+
+class CharacterAnimationManager {
+}
+
+class Text {
+}
+
+World *-- Diamond
+CharacterAnimationManager *-- Player
+Computer --> CharacterAnimationManager
+CharacterAnimationManager ..> World
+Text ..> CharacterAnimationManager
+World ..> Computer
+Computer ..> World
+@enduml
