@@ -170,13 +170,15 @@ class Computer:
 
 def get_agent_types():
     from agent.informed_computer import (
-        UCSComputer,
         AStarComputer,
         AStarFilledComputer,
         GreedyComputer
     )
     from agent.uninformed_computer import (
-        RandomComputer, BFSComputer, DFSComputer
+        RandomComputer,
+        BFSComputer,
+        DFSComputer,
+        UCSComputer
     )
 
     return {

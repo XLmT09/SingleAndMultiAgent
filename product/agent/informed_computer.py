@@ -27,7 +27,7 @@ class InformedComputer(Computer):
         return super().move(screen, world_data, asset_groups, game_over)
 
     def generate_path(self) -> list:
-        """ This function uses ucs search to find the path to the diamond. """
+        """ This function generates a path leading to the diamond. """
 
         start = self.character.get_player_grid_coordinates()
         fringe = PriorityQueue()
@@ -138,19 +138,6 @@ class InformedComputer(Computer):
             offset += vertical_diff * 5
 
         return vertical_diff + horizontal_diff + offset
-
-
-class UCSComputer(InformedComputer):
-    def __init__(self, character, walkable_maze, **kwargs):
-        super().__init__(
-            character,
-            walkable_maze,
-            kwargs.get("perform_analysis", False),
-        )
-        self.heuristic = None
-        diamond = kwargs.get("diamond")
-        self.diamond_grid_x = diamond.grid_x
-        self.diamond_grid_y = diamond.grid_y
 
 
 class AStarFilledComputer(InformedComputer):
