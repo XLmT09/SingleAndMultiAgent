@@ -252,22 +252,24 @@ class CharacterAnimationManager:
         if key[pygame.K_RIGHT]:
             self._requested_animation = "walk"
             self.look_left = False
-            self._dx += 1
+            # If the player is on a slow block then decrease the movement
+            if self._on_a_slow_block():
+                self._dx += 0.5
+            else:
+                self._dx += 1
         if key[pygame.K_LEFT]:
             self._requested_animation = "walk"
             self.look_left = True
-            self._dx -= 1
+            # If the player is on a slow block then decrease the movement
+            if self._on_a_slow_block():
+                self._dx -= 0.5
+            else:
+                self._dx -= 1
         # If the user uses the up key and is on a grid which has a ladder
         # we will climb.
         if key[pygame.K_UP] and self._maze_data[self.grid_y][self.grid_x] == 3:
             self._requested_animation = "climb"
             self._dy -= 1
-        if key[pygame.K_SPACE] and not self._jumped:
-            self._requested_animation = "jump"
-            self._vel_y = -15
-            self._jumped = True
-        if not key[pygame.K_SPACE]:
-            self._jumped = False
 
     def computer_player_movement(self, direction) -> None:
         """ This function handles player movement based on instructions by
