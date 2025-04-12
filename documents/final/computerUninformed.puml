@@ -1,0 +1,44 @@
+@startuml Maze
+class Computer {
+    + character : CharacterAnimationManager
+    + requested_movement : str
+    + walkable_maze_matrix : List<List<int>>
+    + stop_thread : bool
+    + perform_analysis : bool
+    + visited_grids : List<tuples>
+    + path_generated : List<tuples>
+    - th : Thread
+    - directions : List<tuples>
+
+    + start_thread() : None
+    + stop_path_find_algo_thread() : None
+    + move(screen : Surface, world_data : List<Rect>, asset_groups : Group, game_over : int) : None
+    + reconstruct_path(search_path_histroy : List<tuples>, end : tuple)
+    + move_based_on_path_instructions() : None
+    + get_visited_grids_and_path_to_goal() : list
+    + perform_path_find() : None
+}
+
+class RandomComputer {
+    + perform_path_find() : None <<override>>
+}
+
+class BFSComputer {
+    + generate_path(): List<tuples>
+}
+
+class DFSComputer {
+    + generate_path(): List<tuples>
+}
+
+class UCSComputer {
+    + generate_path(): List<tuples>
+    + get_neighbour(current : tuple, cost : int) : List<tuples>
+}
+
+
+RandomComputer --|> Computer
+BFSComputer --|> Computer
+DFSComputer --|> Computer
+UCSComputer --|> Computer
+@enduml

@@ -1,0 +1,115 @@
+@startuml Maze
+class Computer {
+    + character : CharacterAnimationManager
+    + requested_movement : str
+    + walkable_maze_matrix : List<List<int>>
+    + stop_thread : bool
+    + perform_analysis : bool
+    + visited_grids : List<tuples>
+    + path_generated : List<tuples>
+    - th : Thread
+    - directions : List<tuples>
+
+    + start_thread() : None
+    + stop_path_find_algo_thread() : None
+    + move(screen : Surface, world_data : List<Rect>, asset_groups : Group, game_over : int) : None
+    + reconstruct_path(search_path_histroy : List<tuples>, end : tuple)
+    + move_based_on_path_instructions() : None
+    + get_visited_grids_and_path_to_goal() : list
+    + perform_path_find() : None
+}
+
+class InformedComputer {
+    + get_manhattan_distance(neighbour: tuple) : int
+    + get_weighted_manhattan_distance(neighbour) : int
+    + get_manhattan_distance_filled(pos1 : tuple, pos2 : tuple) : int
+    + get_neighbour(current : tuple, cost : int)
+    + generate_path() : List<tuple>
+}
+
+class CompetitiveComputer {
+    + state: dict
+    - _agent_type: int
+    - _prev_action: str
+    + num_characters: int
+
+    + evaluation_function(state: dict, depth: int, player_action: str) : int
+    + generate_bfs_dist(pos1: tuple, pos2: tuple) : int
+    + legal_movements(pos: tuple, prev_action: str): List<str>
+    + simulate_movement(position : tuple, action : str) : tuple
+    + is_terminal(state : dict) : bool
+    + generate_successor(state: dict, agent_index: int, action: str) : dict
+    + generate_path() : List<tuple>
+    + prune_alpha_beta(alpha: int, beta: int) : bool 
+    + maximizer(state: dict, depth : int, player_action: str, enemy_action: str, next_agent: int, agent_index: int, alpha: int, beta: int) : tuple
+    + minimizer(state: dict, depth : int, player_action: str, enemy_action: str, next_agent: int, agent_index: int, alpha: int, beta: int) : None
+    + chance_node(state: dict, depth : int, player_action: str, next_agent: int, agent_index: int) : tuple
+    + minimax(state: dict, depth : int, player_action: str, enemy_action: str, agent_index: int, alpha: int, beta: int) : tuple <<abstract>>
+
+}
+
+class RandomComputer {
+    + perform_path_find() : None <<override>>
+}
+
+class BFSComputer {
+    + generate_path(): List<tuples>
+}
+
+class DFSComputer {
+    + generate_path(): List<tuples>
+}
+
+class UCSComputer {
+    + generate_path(): List<tuples>
+    + get_neighbour(current : tuple, cost : int) : List<tuples>
+}
+
+class AStarFilledComputer {
+    + mst_edges: List<tuple>
+    + heuristic: str
+    + MANHATTAN_WEIGHT: int
+    + diamond_list: List<tuple>
+
+    + generate_mst() : None
+    + generate_path(): List<tuples> <<override>>
+}
+
+class AStarComputer {
+    + heuristic: str
+    + MANHATTAN_WEIGHT: int
+}
+
+class GreedyComputer {
+    + heuristic: str
+    + diamond_list: List<tuple>
+    
+    + generate_path(): List<tuple <<override>>
+    + get_manhattan_distance_of_all_diamonds(): tuple
+}
+
+class MinimaxComputer {
+    + minimax() : tuple <<override>>
+}
+
+class AlphaBetaComputer {
+    + minimax() : tuple <<override>>
+}
+
+class ExpectimaxComputer {
+    + minimax() : tuple <<override>>
+}
+
+RandomComputer --|> Computer
+BFSComputer --|> Computer
+DFSComputer --|> Computer
+UCSComputer --|> Computer
+InformedComputer --|> Computer
+CompetitiveComputer --|> Computer
+AStarComputer --|> InformedComputer
+AStarFilledComputer --|> InformedComputer
+GreedyComputer --|> InformedComputer
+MinimaxComputer --|> CompetitiveComputer
+AlphaBetaComputer --|> CompetitiveComputer
+ExpectimaxComputer --|> CompetitiveComputer
+@enduml
