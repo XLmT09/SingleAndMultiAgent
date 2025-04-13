@@ -481,7 +481,7 @@ class CompetitiveComputer(Computer):
 
                 # Only prune if we are using alpha beta pruning.
                 if alpha and beta:
-                    alpha = min(beta, current_value)
+                    beta = min(beta, current_value)
 
                     if self.prune_alpha_beta(alpha, beta):
                         break
@@ -607,22 +607,22 @@ class ExpectimaxComputer(CompetitiveComputer):
         # Check which agent will run the function next.
         next_agent = (agent_index + 1) % self.num_characters
 
-        if agent_index == 0:
-            return self.maximizer(
+        if agent_index != self._agent_type:
+            return self.chance_node(
                 state,
                 depth,
                 player_action,
-                enemy_action,
                 next_agent,
                 agent_index
             )
         # If the agent is not a smart enemy, in other words not the enemy
         # agent assigned to this class then call chance function.
-        elif agent_index == self._agent_type:
-            return self.chance_node(
+        elif agent_index == 0:
+            return self.maximizer(
                 state,
                 depth,
                 player_action,
+                enemy_action,
                 next_agent,
                 agent_index
             )
