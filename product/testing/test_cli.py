@@ -269,6 +269,14 @@ class TestCli(unittest.TestCase):
         result = process_args()
         self.assertEqual(result["enable_highlighter"], True)
 
+    @patch('sys.argv', ['main', '--algo', 'ucs', '--size', 'small',
+                        '--analysis'])
+    def test_cli_analysis_flag_input(self):
+        """ Test checks that when analysis flag is given it is registered as
+        True in the config dict. """
+        result = process_args()
+        self.assertEqual(result["enable_analysis"], True)
+
     @patch('sys.argv', ['main', '--algo', 'ucs', '--size', 'small'])
     def test_cli_highlight_flag_no_given(self):
         """ Test checks that when highlight flag is not given it is registered
