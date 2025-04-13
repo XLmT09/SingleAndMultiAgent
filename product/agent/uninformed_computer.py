@@ -175,9 +175,8 @@ class UCSComputer(Computer):
         super().__init__(
             character,
             walkable_maze,
-            kwargs.get("perform_analysis", False),
+            **kwargs,
         )
-        self.heuristic = None
         diamond = kwargs.get("diamond")
         self.diamond_grid_x = diamond.grid_x
         self.diamond_grid_y = diamond.grid_y
