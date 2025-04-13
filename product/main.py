@@ -159,7 +159,7 @@ def setup_game(config) -> dict:
         computer = get_agent_types()[config["algo"]](
             player,
             world.get_walkable_maze_matrix(),
-            perform_analysis=False,
+            perform_analysis=config["enable_analysis"],
             diamond=world.get_diamond_group().sprites()[0],
             diamond_list=world.get_diamond_group(),
             is_weighted=config["weighted"],
@@ -319,12 +319,12 @@ def start_game_agent(
         if player.get_is_diamond_found():
             if computer.perform_analysis:
                 end = time.time()
-                print(f"Time ran is: {abs(start - end)}")
+                print(f"Time ran is: {abs(start - end)}\n")
                 start = end
 
             if not player.in_filled_maze:
                 if world.update_diamond_position(
-                   are_locations_defined=False) == 2:
+                   are_locations_defined=computer.perform_analysis) == 2:
                     game_over = 1
                     computer.stop_path_find_algo_thread()
             else:

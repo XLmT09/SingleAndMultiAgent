@@ -120,6 +120,13 @@ def process_args() -> dict:
         help="Gives a brief explanation of an algorithm, set by --algo."
     )
 
+    parser.add_argument(
+        "--analysis",
+        action="store_true",
+        required=False,
+        help="Output's further metrics on the algorithm being executed."
+    )
+
     # parse args from command line
     args = parser.parse_args()
 
@@ -210,5 +217,6 @@ def process_args() -> dict:
         "weighted": args.weighted,
         "filled": filled,
         "enemy_count": args.enemy_count,
-        "is_comp": is_competitive
+        "is_comp": is_competitive,
+        "enable_analysis": args.analysis
     }
