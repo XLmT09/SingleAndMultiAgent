@@ -414,13 +414,17 @@ class CompetitiveComputer(Computer):
                 depth,
                 agent_index=next_agent,
                 player_action=action,
-                enemy_action=enemy_action
+                enemy_action=enemy_action,
+                alpha=alpha,
+                beta=beta
             )[0]
 
             # Only prune if we are using alpha beta pruning.
-            if alpha and beta and self.prune_alpha_beta(
-               max(alpha, current_value), beta):
-                break
+            if alpha and beta:
+                alpha = max(alpha, current_value)
+
+                if self.prune_alpha_beta(alpha, beta):
+                    break
 
             if best_value <= current_value:
                 best_value = current_value
@@ -470,13 +474,17 @@ class CompetitiveComputer(Computer):
                     depth - 1 if next_agent == 0 else depth,
                     next_agent,
                     player_action=player_action,
-                    enemy_action=action
+                    enemy_action=action,
+                    alpha=alpha,
+                    beta=beta
                 )[0]
 
                 # Only prune if we are using alpha beta pruning.
-                if alpha and beta and self.prune_alpha_beta(
-                  alpha, min(beta, current_value)):
-                    break
+                if alpha and beta:
+                    alpha = min(beta, current_value)
+
+                    if self.prune_alpha_beta(alpha, beta):
+                        break
 
                 if best_value >= current_value:
                     best_value = current_value
