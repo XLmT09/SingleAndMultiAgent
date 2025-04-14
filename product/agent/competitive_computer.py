@@ -34,6 +34,7 @@ class CompetitiveComputer(Computer):
 
         self._prev_action = None
         self.num_characters = kwargs.get("num_characters")
+        self.nodes_expanded = 0
 
     def evaluation_function(self, state, depth, player_action):
         """The function is used to calculate the cost of a game state.
@@ -267,11 +268,12 @@ class CompetitiveComputer(Computer):
             list: A list with one coord representing the next grid to
                 traverse to.
         """
+
         state_copy = copy.deepcopy(self.state)
 
         cost, action = self.minimax(
             state_copy,
-            depth=1,
+            depth=2,
             agent_index=self._agent_type
         )
 
@@ -283,6 +285,11 @@ class CompetitiveComputer(Computer):
         )
 
         self._prev_action = action
+
+        # For analysis we will keep track of nodes expanded on main agent
+        if self.perform_analysis and self._agent_type == 0:
+            print(f"Nodes expanded: {self.nodes_expanded}")
+            self.nodes_expanded = 0
 
         return [next_grid]
 
@@ -404,6 +411,8 @@ class CompetitiveComputer(Computer):
         """
         action_to_take, best_value = None, float("-inf")
 
+        self.nodes_expanded += 0
+
         for action in self.legal_movements(state["main_agent"], player_action):
 
             # Generate the sate for when the action is performed.
@@ -450,6 +459,8 @@ class CompetitiveComputer(Computer):
             tuple: A tuple containing the best value and the action to take.
         """
 
+        self.nodes_expanded += 1
+
         action_to_take, best_value = None, float("inf")
 
         if not self.stop_thread:
@@ -481,7 +492,7 @@ class CompetitiveComputer(Computer):
 
                 # Only prune if we are using alpha beta pruning.
                 if alpha and beta:
-                    alpha = min(beta, current_value)
+                    beta = min(beta, current_value)
 
                     if self.prune_alpha_beta(alpha, beta):
                         break
@@ -607,22 +618,22 @@ class ExpectimaxComputer(CompetitiveComputer):
         # Check which agent will run the function next.
         next_agent = (agent_index + 1) % self.num_characters
 
-        if agent_index == 0:
-            return self.maximizer(
+        if agent_index != self._agent_type:
+            return self.chance_node(
                 state,
                 depth,
                 player_action,
-                enemy_action,
                 next_agent,
                 agent_index
             )
         # If the agent is not a smart enemy, in other words not the enemy
         # agent assigned to this class then call chance function.
-        elif agent_index == self._agent_type:
-            return self.chance_node(
+        elif agent_index == 0:
+            return self.maximizer(
                 state,
                 depth,
                 player_action,
+                enemy_action,
                 next_agent,
                 agent_index
             )
@@ -664,6 +675,8 @@ class ExpectimaxComputer(CompetitiveComputer):
         actions_with_probs = self.get_enemy_actions_with_probs(
             enemy_pos
         )
+
+        self.nodes_expanded += 0
 
         for action, prob in actions_with_probs:
             successor = self.generate_successor(

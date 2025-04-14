@@ -115,10 +115,11 @@ class World:
         self._find_walkable_areas_in_the_maze()
         self.was_highlight_ran = False
         self.diamond_regeneration_positions = {
-            "small": [(1, 13), (5, 11), (1, 6), (5, 2)],
-            "medium": [(3, 7), (13, 18), (7, 8), (1, 18)],
-            "large": [(4, 2), (13, 17), (11, 21), (1, 15)]
+            "small": C.small_regeneration,
+            "medium": C.mid_regeneration,
+            "large": C.large_regeneration
         }
+        self.diamond_filled_regeneration_count = 0
 
     def _load_asset_and_tile_images(self) -> None:
         """ Load and store all images/sprites of sprites/assets to be used in
@@ -249,6 +250,7 @@ class World:
         self._walkable_maze_matrix[grid_y][grid_x] = 1
 
         if len(self._diamond_group) == 0:
+            self.diamond_filled_regeneration_count += 1
             self.fill_maze_with_diamonds()
 
     def fill_maze_with_diamonds(self):
