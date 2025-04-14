@@ -242,7 +242,9 @@ def start_game_agent(
             print("waiting")
 
     # Measure run time of the application
-    start = time.time()
+    # I want to keep track of when the programme first began (start) and start
+    # time of every algo execution (curr_start).
+    start = curr_start = time.time()
 
     state = None
 
@@ -319,12 +321,16 @@ def start_game_agent(
         if player.get_is_diamond_found():
             if computer.perform_analysis:
                 end = time.time()
-                print(f"Time ran is: {abs(start - end)}\n")
-                start = end
+                time_diff = end - curr_start
+
+                print(f"Time ran is: {time_diff}\n")
+                curr_start = end
 
             if not player.in_filled_maze:
                 if world.update_diamond_position(
                    are_locations_defined=computer.perform_analysis) == 2:
+                    computer.tracker.total_time = end - start
+                    computer.tracker.print_analytics()
                     game_over = 1
                     computer.stop_path_find_algo_thread()
             else:
