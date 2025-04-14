@@ -38,7 +38,8 @@ class InformedComputer(Computer):
             # When we found the diamond we can stop the algorithm
             if current == (self.diamond_grid_y, self.diamond_grid_x):
                 self._visited_grids = visited
-                if self.perform_analysis:
+
+                if self.perform_analysis and not self.character.in_filled_maze:
                     self.tracker.total_nodes_visited += len(visited)
                     print(f"The number of visited nodes is: {len(came_from)}")
 
@@ -293,7 +294,7 @@ class GreedyComputer(InformedComputer):
             if current == goal:
                 self._visited_grids = visited
 
-                if self.perform_analysis:
+                if self.perform_analysis and not self.character.in_filled_maze:
                     self.tracker.total_nodes_visited += len(visited)
                     print(f"The number of visited nodes is: {len(visited)}")
 

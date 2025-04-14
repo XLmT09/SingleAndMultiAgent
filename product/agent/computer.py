@@ -145,7 +145,7 @@ class Computer:
 
         final_path.reverse()
 
-        if self.perform_analysis:
+        if self.perform_analysis and not self.character.in_filled_maze:
             self.tracker.total_path_length += len(final_path)
             print(f"The path is: {final_path}")
             print(f"Path length is: {len(final_path)}")
