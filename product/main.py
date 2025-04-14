@@ -319,14 +319,13 @@ def start_game_agent(
         # When the diamond is found we will call to regenerate
         # at a new position.
         if player.get_is_diamond_found():
-            if computer.perform_analysis:
-                end = time.time()
-                time_diff = end - curr_start
-
-                print(f"Time ran is: {time_diff}\n")
-                curr_start = end
+            end = time.time()
 
             if not player.in_filled_maze:
+                if computer.perform_analysis:
+                    time_diff = end - curr_start
+                    print(f"Time ran is: {time_diff}\n")
+                    curr_start = end
                 if world.update_diamond_position(
                    are_locations_defined=computer.perform_analysis) == 2:
                     computer.tracker.total_time = end - start
@@ -336,6 +335,13 @@ def start_game_agent(
             else:
                 world.clear_diamond(remove_diamond_pos[0],
                                     remove_diamond_pos[1])
+                # all diamonds have been found, now we calculate how long it
+                # took.
+                if world.diamond_filled_regeneration_count > 0:
+                    computer.tracker.total_time = end - start
+                    computer.tracker.print_analytics()
+                    game_over = 1
+                    computer.stop_path_find_algo_thread()
 
             player.set_is_diamond_found_to_false()
             diamond_positions = world.get_diamond_group()
