@@ -116,8 +116,8 @@ class World:
         self.was_highlight_ran = False
         self.diamond_regeneration_positions = {
             "small": C.small_regeneration,
-            "medium": [(3, 7), (13, 18), (7, 8), (1, 18)],
-            "large": [(4, 2), (13, 17), (11, 21), (1, 15)]
+            "medium": C.mid_regeneration,
+            "large": C.large_regeneration
         }
 
     def _load_asset_and_tile_images(self) -> None:

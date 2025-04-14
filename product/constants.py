@@ -65,14 +65,21 @@ colour_vals = {
 ##############################################################################
 
 # fix positions where diamonds get regenerated
-# There are 24 positions + 1 more that automatically gets generated in maze
+# There are 9 positions + 1 more that automatically gets generated in maze
 # initialization.
 small_regeneration = [
-    (1, 2), (3, 13), (3, 0), (1, 9), (1, 6),
-    (3, 2), (5, 2), (5, 10), (5, 12), (5, 1),
-    (1, 1), (3, 10), (5, 3), (5, 5), (3, 11),
-    (1, 5), (3, 6), (1, 10), (5, 6), (3, 3),
-    (5, 0), (3, 1), (5, 13), (3, 12)
+    (1, 2), (3, 13), (3, 1), (1, 9), (1, 6),
+    (3, 2), (5, 2), (5, 10), (5, 12)
+]
+
+mid_regeneration = [
+    (5, 15), (11, 17), (13, 13), (5, 1), (1, 14),
+    (3, 6), (7, 10), (9, 6), (11, 7)
+]
+
+large_regeneration = [
+    (1, 5), (11, 12), (13, 10), (13, 2), (5, 25), (9, 20), (7, 6), (9, 13),
+    (13, 11)
 ]
 
 
