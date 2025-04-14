@@ -115,7 +115,7 @@ class World:
         self._find_walkable_areas_in_the_maze()
         self.was_highlight_ran = False
         self.diamond_regeneration_positions = {
-            "small": [(1, 13), (5, 11), (1, 6), (5, 2)],
+            "small": C.small_regeneration,
             "medium": [(3, 7), (13, 18), (7, 8), (1, 18)],
             "large": [(4, 2), (13, 17), (11, 21), (1, 15)]
         }
