@@ -39,6 +39,7 @@ class InformedComputer(Computer):
             if current == (self.diamond_grid_y, self.diamond_grid_x):
                 self._visited_grids = visited
                 if self.perform_analysis:
+                    self.tracker.total_nodes_visited += len(visited)
                     print(f"The number of visited nodes is: {len(came_from)}")
 
                 return self.reconstruct_path(came_from, current)
@@ -286,6 +287,7 @@ class GreedyComputer(InformedComputer):
                 self._visited_grids = visited
 
                 if self.perform_analysis:
+                    self.tracker.total_nodes_visited += len(visited)
                     print(f"The number of visited nodes is: {len(visited)}")
 
                 return self.reconstruct_path(search_path_history, current)
