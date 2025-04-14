@@ -160,7 +160,7 @@ def process_args() -> dict:
                 maze = "maze/maze_6"
             filled = True
         else:
-            maze = "maze/maze_2"
+            maze = "maze/maze_11"
     elif "large" in args.size:
         screen_width = 1400
         screen_height = 750
@@ -171,7 +171,7 @@ def process_args() -> dict:
                 maze = "maze/maze_7"
             filled = True
         else:
-            maze = "maze/maze_3"
+            maze = "maze/maze_12"
 
     if args.explain:
         explain_algo(args.algo)
