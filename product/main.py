@@ -337,7 +337,8 @@ def start_game_agent(
                                     remove_diamond_pos[1])
                 # all diamonds have been found, now we calculate how long it
                 # took.
-                if world.diamond_filled_regeneration_count > 0:
+                if (computer.perform_analysis and
+                   world.diamond_filled_regeneration_count > 0):
                     computer.tracker.total_time = end - start
                     computer.tracker.print_analytics()
                     game_over = 1
