@@ -149,11 +149,6 @@ class CompetitiveComputer(Computer):
         LEFT_WALL, RIGHT_WALL = 0, len(self._walkable_maze_matrix[0]) - 1
         CEILING, FLOOR = 0, len(self._walkable_maze_matrix) - 1
 
-        # Check if out of bounds
-        if (pos[0] + 1 <= LEFT_WALL or pos[0] + 1 >= RIGHT_WALL or
-           pos[1] + 1 <= CEILING or pos[1] + 1 >= FLOOR):
-            return legal_movements
-
         if (pos[1] - 1 > LEFT_WALL and
            self._walkable_maze_matrix[pos[0]][pos[1] - 1] !=
            C.NON_WALKABLE_GRID):
@@ -278,7 +273,7 @@ class CompetitiveComputer(Computer):
 
         cost, action = self.minimax(
             state_copy,
-            depth=2,
+            depth=3,
             agent_index=self._agent_type
         )
 
@@ -416,7 +411,7 @@ class CompetitiveComputer(Computer):
         """
         action_to_take, best_value = None, float("-inf")
 
-        self.nodes_expanded += 0
+        self.nodes_expanded += 1
 
         for action in self.legal_movements(state["main_agent"], player_action):
 
@@ -425,7 +420,7 @@ class CompetitiveComputer(Computer):
 
             current_value = self.minimax(
                 successor,
-                depth,
+                depth - 1,
                 agent_index=next_agent,
                 player_action=action,
                 enemy_action=enemy_action,
@@ -487,7 +482,7 @@ class CompetitiveComputer(Computer):
                 # (A full round has taken place)
                 current_value = self.minimax(
                     successor,
-                    depth - 1 if next_agent == 0 else depth,
+                    depth - 1,
                     next_agent,
                     player_action=player_action,
                     enemy_action=action,
@@ -623,22 +618,22 @@ class ExpectimaxComputer(CompetitiveComputer):
         # Check which agent will run the function next.
         next_agent = (agent_index + 1) % self.num_characters
 
-        if agent_index != self._agent_type:
-            return self.chance_node(
-                state,
-                depth,
-                player_action,
-                next_agent,
-                agent_index
-            )
-        # If the agent is not a smart enemy, in other words not the enemy
-        # agent assigned to this class then call chance function.
-        elif agent_index == 0:
+        if agent_index == 0:
             return self.maximizer(
                 state,
                 depth,
                 player_action,
                 enemy_action,
+                next_agent,
+                agent_index
+            )
+        # If the agent is not a smart enemy, in other words not the enemy
+        # agent assigned to this class then call chance function.
+        elif agent_index != self._agent_type:
+            return self.chance_node(
+                state,
+                depth,
+                player_action,
                 next_agent,
                 agent_index
             )
@@ -673,6 +668,8 @@ class ExpectimaxComputer(CompetitiveComputer):
             all possible actions based on their probabilities.
         """
 
+        self.nodes_expanded += 1
+
         enemy_id = agent_index - 1
         enemy_pos = state["enemies"][enemy_id]
 
@@ -680,8 +677,6 @@ class ExpectimaxComputer(CompetitiveComputer):
         actions_with_probs = self.get_enemy_actions_with_probs(
             enemy_pos
         )
-
-        self.nodes_expanded += 0
 
         for action, prob in actions_with_probs:
             successor = self.generate_successor(
@@ -692,7 +687,7 @@ class ExpectimaxComputer(CompetitiveComputer):
 
             current_value = self.minimax(
                 successor,
-                depth - 1 if next_agent == 0 else depth,
+                depth - 1,
                 agent_index=next_agent,
                 player_action=player_action,
                 enemy_action=action
