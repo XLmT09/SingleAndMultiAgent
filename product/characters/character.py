@@ -255,6 +255,7 @@ class CharacterAnimationManager:
             # If the player is on a slow block then decrease the movement
             if self._on_a_slow_block():
                 self._dx += 0.1
+            else:
                 self._dx += 1
         if key[pygame.K_LEFT]:
             self._requested_animation = "walk"

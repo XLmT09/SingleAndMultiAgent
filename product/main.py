@@ -395,8 +395,6 @@ def start_game_player(screen_width, screen_height,
         # Draw the maze on the screen
         world.load_world(screen)
 
-        world.draw_grid(screen, screen_height, screen_width)
-
         # Move and draw the agent
         game_over, remove_diamond_pos = player.draw_animation(
             screen=screen,
