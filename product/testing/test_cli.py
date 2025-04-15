@@ -38,7 +38,7 @@ class TestCli(unittest.TestCase):
         result = process_args()
         self.assertEqual(result["screen_width"], 1000)
         self.assertEqual(result["screen_height"], 750)
-        self.assertEqual(result["maze_path"], "maze/maze_2")
+        self.assertEqual(result["maze_path"], "maze/maze_11")
         self.assertEqual(result["algo"], "dfs")
 
     @patch('sys.argv', ['main', '--size', 'medium-filled'])
@@ -58,7 +58,7 @@ class TestCli(unittest.TestCase):
         result = process_args()
         self.assertEqual(result["screen_width"], 1400)
         self.assertEqual(result["screen_height"], 750)
-        self.assertEqual(result["maze_path"], "maze/maze_3")
+        self.assertEqual(result["maze_path"], "maze/maze_12")
         self.assertEqual(result["algo"], "ucs")
 
     @patch('sys.argv', ['main', '--size', 'large-filled'])
@@ -68,7 +68,7 @@ class TestCli(unittest.TestCase):
         result = process_args()
         self.assertEqual(result["screen_width"], 1400)
         self.assertEqual(result["screen_height"], 750)
-        self.assertEqual(result["maze_path"], "maze/maze_7")
+        self.assertEqual(result["maze_path"], "maze/maze_10")
 
     @patch('sys.argv', ['main', '--size', 'large', '--algo', 'astar'])
     def test_large_size_and_a_star(self):
@@ -76,7 +76,7 @@ class TestCli(unittest.TestCase):
         result = process_args()
         self.assertEqual(result["screen_width"], 1400)
         self.assertEqual(result["screen_height"], 750)
-        self.assertEqual(result["maze_path"], "maze/maze_3")
+        self.assertEqual(result["maze_path"], "maze/maze_12")
         self.assertEqual(result["algo"], "astar")
 
     @patch('sys.argv', ['main', '--size', 'large-filled', '--algo', 'greedy'])
@@ -85,7 +85,7 @@ class TestCli(unittest.TestCase):
         result = process_args()
         self.assertEqual(result["screen_width"], 1400)
         self.assertEqual(result["screen_height"], 750)
-        self.assertEqual(result["maze_path"], "maze/maze_7")
+        self.assertEqual(result["maze_path"], "maze/maze_10")
         self.assertEqual(result["algo"], "greedy")
 
     @patch('sys.argv', ['main', '--size', 'small-filled', '--algo', 'minimax',
@@ -124,7 +124,7 @@ class TestCli(unittest.TestCase):
         result = process_args()
         self.assertEqual(result["screen_width"], 1400)
         self.assertEqual(result["screen_height"], 750)
-        self.assertEqual(result["maze_path"], "maze/maze_7")
+        self.assertEqual(result["maze_path"], "maze/maze_10")
         self.assertEqual(result["algo"], "astarFilled")
 
     @patch('sys.argv',
@@ -134,7 +134,7 @@ class TestCli(unittest.TestCase):
         result = process_args()
         self.assertEqual(result["screen_width"], 1400)
         self.assertEqual(result["screen_height"], 750)
-        self.assertEqual(result["maze_path"], "maze/maze_3")
+        self.assertEqual(result["maze_path"], "maze/maze_12")
         self.assertEqual(result["algo"], "astar")
         self.assertEqual(result["weighted"], True)
 
