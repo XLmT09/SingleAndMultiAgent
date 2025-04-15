@@ -274,8 +274,6 @@ def start_game_agent(
         # Draw the maze on the screen
         world.load_world(screen)
 
-        world.draw_grid(screen, screen_height, screen_width)
-
         if enemy_computers:
             if is_comp:
                 enemy_coords = []
@@ -313,8 +311,6 @@ def start_game_agent(
             game_over=game_over,
             enemy_computers=enemy_computers
         )
-
-        player.draw_outline(screen)
 
         # When the diamond is found we will call to regenerate
         # at a new position.
