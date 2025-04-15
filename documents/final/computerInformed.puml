@@ -1,0 +1,37 @@
+@startuml Maze
+class InformedComputer {
+    + get_manhattan_distance(neighbour: tuple) : int
+    + get_weighted_manhattan_distance(neighbour) : int
+    + get_manhattan_distance_filled(pos1 : tuple, pos2 : tuple) : int
+    + get_neighbour(current : tuple, cost : int)
+    + generate_path() : List<tuple>
+}
+
+
+class AStarFilledComputer {
+    + mst_edges: List<tuple>
+    + heuristic: str
+    + MANHATTAN_WEIGHT: int
+    + diamond_list: List<tuple>
+
+    + generate_mst() : None
+    + generate_path(): List<tuples> <<override>>
+}
+
+class AStarComputer {
+    + heuristic: str
+    + MANHATTAN_WEIGHT: int
+}
+
+class GreedyComputer {
+    + heuristic: str
+    + diamond_list: List<tuple>
+    
+    + generate_path(): List<tuple <<override>>
+    + get_manhattan_distance_of_all_diamonds(): tuple
+}
+
+AStarComputer --|> InformedComputer
+AStarFilledComputer --|> InformedComputer
+GreedyComputer --|> InformedComputer
+@enduml

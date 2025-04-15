@@ -76,7 +76,7 @@ python .\create_maze.py
 
 To run the application you can use the following command format:
 ```bash
-python main.py [-h] --size {small,medium,large,small-filled,medium-filled,large-filled} [--algo {random,dfs,bfs,ucs,astar,greedy,minimax,alphabeta,expectimax}] [--weighted] [--highlight][--enemy_count ENEMY_COUNT] [--explain]
+python main.py [-h] --size {small,medium,large,small-filled,medium-filled,large-filled} [--algo {random,dfs,bfs,ucs,astar,greedy,minimax,alphabeta,expectimax}] [--weighted] [--highlight][--enemy_count ENEMY_COUNT] [--explain] [--analysis]
 ```
 
 An example command below where I would like the application on a small maze using the dfs algorithm:
@@ -99,23 +99,12 @@ python main.py --size small
 ```
 
 ## 3 Analysis Tools
-Currently the only way to use analysis tools is to, change the source code.
-
-Open the source code under `main.py`.
+Use the `--analysis` flag to enable the analysis tool:
 
 Then locate this block of code:
 ```python
-# Initialize a specific computer class and pass arguments to constructor
-computer = agent_types[config["algo"]](player,
-                                        world.get_walkable_maze_matrix())
-```
-
-Then you just have to enable analysis mode by doing the following:
-```python
-# Initialize a specific computer class and pass arguments to constructor
-computer = agent_types[config["algo"]](player,
-                                        world.get_walkable_maze_matrix(),
-                                        True)
+# Example Command
+python main.py --size medium --algo astar --analysis
 ```
 
 This will print information of the algorithms onto the terminal.

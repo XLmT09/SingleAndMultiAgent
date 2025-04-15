@@ -13,7 +13,7 @@ class InformedComputer(Computer):
         super().__init__(character, walkable_maze, **kwargs)
 
     def generate_path(self) -> list:
-        """ This function uses ucs search to find the path to the diamond. """
+        """ This function generates a path leading to the diamond. """
 
         start = self.character.get_player_grid_coordinates()
         fringe = PriorityQueue()
@@ -38,8 +38,13 @@ class InformedComputer(Computer):
             # When we found the diamond we can stop the algorithm
             if current == (self.diamond_grid_y, self.diamond_grid_x):
                 self._visited_grids = visited
+
                 if self.perform_analysis:
-                    print(f"The number of visited nodes is: {len(came_from)}")
+                    self.tracker.total_nodes_visited += len(visited)
+                    if not self.character.in_filled_maze:
+                        print(
+                            f"The number of visited nodes is: {len(came_from)}"
+                        )
 
                 return self.reconstruct_path(came_from, current)
 
@@ -98,8 +103,15 @@ class InformedComputer(Computer):
     def get_manhattan_distance(self, neighbour) -> int:
         """ This function gets the manhattan distance between player
         current pos and goal. """
-        return (abs(neighbour[1] - self.diamond_grid_x) +
-                abs(neighbour[0] - self.diamond_grid_y))
+        horizontal_diff = abs(neighbour[1] - self.diamond_grid_x)
+        vertical_diff = abs(neighbour[0] - self.diamond_grid_y)
+
+        offset = 0
+
+        if vertical_diff:
+            offset += vertical_diff * 4
+
+        return vertical_diff + horizontal_diff + offset
 
     def get_weighted_manhattan_distance(self, neighbour) -> int:
         """ This function gets the manhattan distance between player
@@ -108,7 +120,7 @@ class InformedComputer(Computer):
                 abs(neighbour[0] - self.diamond_grid_y)) *
                 self.MANHATTAN_WEIGHT)
 
-    def get_manhattan_distance_filled(self, pos1, pos2) -> int:
+    def get_manhattan_distance_filled(self, pos1=None, pos2=None) -> int:
         """ This function generates the manhattan distance between two coords
         we pass it. """
         horizontal_diff = abs(pos1[1] - pos2[1])
@@ -124,19 +136,6 @@ class InformedComputer(Computer):
             offset += vertical_diff * 5
 
         return vertical_diff + horizontal_diff + offset
-
-
-class UCSComputer(InformedComputer):
-    def __init__(self, character, walkable_maze, **kwargs):
-        super().__init__(
-            character,
-            walkable_maze,
-            **kwargs
-        )
-        self.heuristic = None
-        diamond = kwargs.get("diamond")
-        self.diamond_grid_x = diamond.grid_x
-        self.diamond_grid_y = diamond.grid_y
 
 
 class AStarFilledComputer(InformedComputer):
@@ -259,7 +258,6 @@ class AStarComputer(InformedComputer):
         )
 
         self.MANHATTAN_WEIGHT = 2
-        self.mst_edges = []
 
         diamond = kwargs.get("diamond")
         self.diamond_grid_x = diamond.grid_x
@@ -300,7 +298,11 @@ class GreedyComputer(InformedComputer):
                 self._visited_grids = visited
 
                 if self.perform_analysis:
-                    print(f"The number of visited nodes is: {len(visited)}")
+                    self.tracker.total_nodes_visited += len(visited)
+                    if not self.character.in_filled_maze:
+                        print(
+                            f"The number of visited nodes is: {len(visited)}"
+                        )
 
                 return self.reconstruct_path(search_path_history, current)
 

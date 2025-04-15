@@ -159,7 +159,7 @@ def setup_game(config) -> dict:
         computer = get_agent_types()[config["algo"]](
             player,
             world.get_walkable_maze_matrix(),
-            perform_analysis=False,
+            perform_analysis=config["enable_analysis"],
             diamond=world.get_diamond_group().sprites()[0],
             diamond_list=world.get_diamond_group(),
             is_weighted=config["weighted"],
@@ -242,7 +242,9 @@ def start_game_agent(
             print("waiting")
 
     # Measure run time of the application
-    start = time.time()
+    # I want to keep track of when the programme first began (start) and start
+    # time of every algo execution (curr_start).
+    start = curr_start = time.time()
 
     state = None
 
@@ -271,8 +273,6 @@ def start_game_agent(
 
         # Draw the maze on the screen
         world.load_world(screen)
-
-        world.draw_grid(screen, screen_height, screen_width)
 
         if enemy_computers:
             if is_comp:
@@ -312,24 +312,33 @@ def start_game_agent(
             enemy_computers=enemy_computers
         )
 
-        player.draw_outline(screen)
-
         # When the diamond is found we will call to regenerate
         # at a new position.
         if player.get_is_diamond_found():
-            if computer.perform_analysis:
-                end = time.time()
-                print(f"Time ran is: {abs(start - end)}")
-                start = end
+            end = time.time()
 
             if not player.in_filled_maze:
+                if computer.perform_analysis:
+                    time_diff = end - curr_start
+                    print(f"Time ran is: {time_diff}\n")
+                    curr_start = end
                 if world.update_diamond_position(
-                   are_locations_defined=False) == 2:
+                   are_locations_defined=computer.perform_analysis) == 2:
+                    computer.tracker.total_time = end - start
+                    computer.tracker.print_analytics()
                     game_over = 1
                     computer.stop_path_find_algo_thread()
             else:
                 world.clear_diamond(remove_diamond_pos[0],
                                     remove_diamond_pos[1])
+                # all diamonds have been found, now we calculate how long it
+                # took.
+                if (computer.perform_analysis and
+                   world.diamond_filled_regeneration_count > 0):
+                    computer.tracker.total_time = end - start
+                    computer.tracker.print_analytics()
+                    game_over = 1
+                    computer.stop_path_find_algo_thread()
 
             player.set_is_diamond_found_to_false()
             diamond_positions = world.get_diamond_group()
@@ -385,8 +394,6 @@ def start_game_player(screen_width, screen_height,
 
         # Draw the maze on the screen
         world.load_world(screen)
-
-        world.draw_grid(screen, screen_height, screen_width)
 
         # Move and draw the agent
         game_over, remove_diamond_pos = player.draw_animation(

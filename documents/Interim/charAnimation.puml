@@ -1,0 +1,53 @@
+@startuml Maze
+class Player {
+    + width : int
+    + height : int
+    - sprite_sheet: Surface
+    - steps : int
+    - animation_list : List<Surface>
+    - animation_list_left : List<Surface>
+    - frame_counter : int
+
+    + load_image(frame : int, scale : int, look_left : bool) : Surface
+    + draw_animation(screen : Surface, rect : Rect, update_frame : bool, look_left : bool) : None
+}
+
+class CharacterAnimationManager {
+    + width, height : int, int
+    + height : int
+    + rect : Rect
+    + hitbox_width : int
+    + hitbox_height : int
+    + hitbox_rect
+    + grid_x : int
+    + grid_y : int
+    - pos_x : int
+    - pos_y : int
+    - animation_actions : dict
+    - requested_animation : str
+    - last_update : int
+    - vel_y : int
+    - dx : float
+    - dy : int
+    - jumped : bool
+    - is_controlled_by_computer : bool
+    - maze_data : List<int>
+    - is_diamond_found : bool
+    - score : int
+
+    + set_char_animation(animation_desciption : str, sprite_sheet : str, animation_steps : int) : None
+    + draw_outline(screen : Surface) : None
+    + human_player_movement() : None
+    + computer_player_movement(direction : str) : None
+    + draw_animation(screen : Surface, world_tile_data : List<Rect>, world_assets : Group, game_over : int, direction: str)
+}
+
+class Text {
+    + font : Font
+
+    + draw(screen : Surface, text_string: str, x : int, y : int) : None
+}
+
+CharacterAnimationManager *-- Player
+Text ..> CharacterAnimationManager : uses score
+@enduml

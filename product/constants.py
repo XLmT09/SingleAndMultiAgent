@@ -60,6 +60,28 @@ colour_vals = {
     "blue_transparent": BLUE_TRANSPARENT
 }
 
+##############################################################################
+#                                 Analytics                                  #
+##############################################################################
+
+# fix positions where diamonds get regenerated
+# There are 9 positions + 1 more that automatically gets generated in maze
+# initialization.
+small_regeneration = [
+    (1, 2), (3, 13), (3, 1), (1, 9), (1, 6),
+    (3, 2), (5, 2), (5, 10), (5, 12)
+]
+
+mid_regeneration = [
+    (5, 15), (11, 17), (13, 13), (5, 1), (1, 14),
+    (3, 6), (7, 10), (9, 6), (11, 7)
+]
+
+large_regeneration = [
+    (1, 5), (11, 12), (13, 10), (13, 2), (5, 25), (9, 20), (7, 6), (9, 13),
+    (13, 11)
+]
+
 
 ##############################################################################
 #                                 FILE PATHS                                 #

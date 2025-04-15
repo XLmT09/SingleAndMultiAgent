@@ -120,6 +120,13 @@ def process_args() -> dict:
         help="Gives a brief explanation of an algorithm, set by --algo."
     )
 
+    parser.add_argument(
+        "--analysis",
+        action="store_true",
+        required=False,
+        help="Output's further metrics on the algorithm being executed."
+    )
+
     # parse args from command line
     args = parser.parse_args()
 
@@ -153,18 +160,15 @@ def process_args() -> dict:
                 maze = "maze/maze_6"
             filled = True
         else:
-            maze = "maze/maze_2"
+            maze = "maze/maze_11"
     elif "large" in args.size:
         screen_width = 1400
         screen_height = 750
         if "filled" in args.size:
-            if args.algo in C.COMPETITIVE_ALGOS:
-                maze = "maze/maze_10"
-            else:
-                maze = "maze/maze_7"
+            maze = "maze/maze_10"
             filled = True
         else:
-            maze = "maze/maze_3"
+            maze = "maze/maze_12"
 
     if args.explain:
         explain_algo(args.algo)
@@ -210,5 +214,6 @@ def process_args() -> dict:
         "weighted": args.weighted,
         "filled": filled,
         "enemy_count": args.enemy_count,
-        "is_comp": is_competitive
+        "is_comp": is_competitive,
+        "enable_analysis": args.analysis
     }

@@ -1,0 +1,52 @@
+@startuml Maze
+class Computer {
+}
+
+class InformedComputer {
+}
+
+class CompetitiveComputer {}
+
+class RandomComputer {
+}
+
+class BFSComputer {
+}
+
+class DFSComputer {
+}
+
+class UCSComputer {
+}
+
+class AStarFilledComputer {
+}
+
+class AStarComputer {
+}
+
+class GreedyComputer {
+}
+
+class MinimaxComputer {
+}
+
+class AlphaBetaComputer {
+}
+
+class ExpectimaxComputer {
+}
+
+RandomComputer --|> Computer
+BFSComputer --|> Computer
+DFSComputer --|> Computer
+UCSComputer --|> Computer
+InformedComputer --|> Computer
+CompetitiveComputer --|> Computer
+AStarComputer --|> InformedComputer
+AStarFilledComputer --|> InformedComputer
+GreedyComputer --|> InformedComputer
+MinimaxComputer --|> CompetitiveComputer
+AlphaBetaComputer --|> CompetitiveComputer
+ExpectimaxComputer --|> CompetitiveComputer
+@enduml

@@ -34,6 +34,7 @@ class CompetitiveComputer(Computer):
 
         self._prev_action = None
         self.num_characters = kwargs.get("num_characters")
+        self.nodes_expanded = 0
 
     def evaluation_function(self, state, depth, player_action):
         """The function is used to calculate the cost of a game state.
@@ -86,32 +87,6 @@ class CompetitiveComputer(Computer):
 
         return score
 
-    def get_manhattan_distance_filled(self, pos1, pos2) -> int:
-        """ This function generates the manhattan distance between two coords
-        we pass it.
-
-        Attributes:
-            pos1 (tuple): The first position to start the search from. It is
-                of the form (grid_y, grid_x).
-            pos2 (tuple): The goal position.
-
-        Returns:
-            int: The manhattan distance between two points.
-        """
-        horizontal_diff = abs(pos1[1] - pos2[1])
-        vertical_diff = abs(pos1[0] - pos2[0])
-
-        offset = 0
-
-        # Update offset value to the heuristic if there is a height difference,
-        # to account for the ladder climbing time.
-        # In other words, give more priority to positions which are on the
-        # same or neighboring levels.
-        if vertical_diff:
-            offset += vertical_diff * 10
-
-        return vertical_diff + horizontal_diff + offset
-
     def generate_bfs_dist(self, pos1, pos2) -> int:
         """ This function uses bfs search to find the closest path between two
         positions.
@@ -150,18 +125,6 @@ class CompetitiveComputer(Computer):
                     queue.append((next_grid, dist + 1))
 
         return float("-inf")
-
-    def manhattan_distance(self, pos1, pos2) -> int:
-        """Computes manhattan distance between two points.
-
-        Attributes:
-            pos1 (tuple): Represents the first coordinates.
-            pos2 (tuple): Represents the second coordinates.
-
-        Returns:
-            int: The manhattan distance between two points.
-        """
-        return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
     def legal_movements(self, pos, prev_action) -> list:
         """Determine the legal movements that the agent can perform.
@@ -202,7 +165,7 @@ class CompetitiveComputer(Computer):
            and prev_action != "UP"):
             legal_movements.append("DOWN")
 
-        if (pos[0] - 1 >= CEILING and
+        if (pos[0] - 1 > CEILING and
            self._walkable_maze_matrix[pos[0] - 1][pos[1]] == C.LADDER_GRID
            and prev_action != "DOWN"):
             legal_movements.append("UP")
@@ -305,11 +268,12 @@ class CompetitiveComputer(Computer):
             list: A list with one coord representing the next grid to
                 traverse to.
         """
+
         state_copy = copy.deepcopy(self.state)
 
         cost, action = self.minimax(
             state_copy,
-            depth=1,
+            depth=3,
             agent_index=self._agent_type
         )
 
@@ -321,6 +285,11 @@ class CompetitiveComputer(Computer):
         )
 
         self._prev_action = action
+
+        # For analysis we will keep track of nodes expanded on main agent
+        if self.perform_analysis and self._agent_type == 0:
+            print(f"Nodes expanded: {self.nodes_expanded}")
+            self.nodes_expanded = 0
 
         return [next_grid]
 
@@ -442,6 +411,8 @@ class CompetitiveComputer(Computer):
         """
         action_to_take, best_value = None, float("-inf")
 
+        self.nodes_expanded += 1
+
         for action in self.legal_movements(state["main_agent"], player_action):
 
             # Generate the sate for when the action is performed.
@@ -449,16 +420,20 @@ class CompetitiveComputer(Computer):
 
             current_value = self.minimax(
                 successor,
-                depth,
+                depth - 1,
                 agent_index=next_agent,
                 player_action=action,
-                enemy_action=enemy_action
+                enemy_action=enemy_action,
+                alpha=alpha,
+                beta=beta
             )[0]
 
             # Only prune if we are using alpha beta pruning.
-            if alpha and beta and self.prune_alpha_beta(
-               max(alpha, current_value), beta):
-                break
+            if alpha and beta:
+                alpha = max(alpha, current_value)
+
+                if self.prune_alpha_beta(alpha, beta):
+                    break
 
             if best_value <= current_value:
                 best_value = current_value
@@ -484,6 +459,8 @@ class CompetitiveComputer(Computer):
             tuple: A tuple containing the best value and the action to take.
         """
 
+        self.nodes_expanded += 1
+
         action_to_take, best_value = None, float("inf")
 
         if not self.stop_thread:
@@ -505,16 +482,20 @@ class CompetitiveComputer(Computer):
                 # (A full round has taken place)
                 current_value = self.minimax(
                     successor,
-                    depth - 1 if next_agent == 0 else depth,
+                    depth - 1,
                     next_agent,
                     player_action=player_action,
-                    enemy_action=action
+                    enemy_action=action,
+                    alpha=alpha,
+                    beta=beta
                 )[0]
 
                 # Only prune if we are using alpha beta pruning.
-                if alpha and beta and self.prune_alpha_beta(
-                  alpha, min(beta, current_value)):
-                    break
+                if alpha and beta:
+                    beta = min(beta, current_value)
+
+                    if self.prune_alpha_beta(alpha, beta):
+                        break
 
                 if best_value >= current_value:
                     best_value = current_value
@@ -523,54 +504,6 @@ class CompetitiveComputer(Computer):
             return (best_value, action_to_take)
         else:
             return (0, "None")
-
-    def chance_node(self, state, depth, player_action, next_agent,
-                    agent_index) -> tuple:
-        """ This handles the chance node logic where the enemy acts randomly.
-        Instead of choosing the best or worst outcome, it calculates the
-        expected value by averaging over all possible enemy actions weighted
-        by their probability.
-
-        Args:
-            state (dict): The current game state.
-            depth (int): The current depth of the game tree.
-            player_action (str): The action taken by the main player.
-            next_agent (int): The index of the next agent to run the function.
-            agent_index (int): The index of the current agent.
-
-        Returns:
-            tuple: A tuple containing the expected value and None as the
-            action. None is returned because the enemy agent's action is not
-            determined in this case. The point of this function is to average
-            all possible actions based on their probabilities.
-        """
-
-        enemy_id = agent_index - 1
-        enemy_pos = state["enemies"][enemy_id]
-
-        expected_value = 0
-        actions_with_probs = self.get_enemy_actions_with_probs(
-            enemy_pos
-        )
-
-        for action, prob in actions_with_probs:
-            successor = self.generate_successor(
-                state,
-                agent_index,
-                action
-            )
-
-            current_value = self.minimax(
-                successor,
-                depth - 1 if next_agent == 0 else depth,
-                agent_index=next_agent,
-                player_action=player_action,
-                enemy_action=action
-            )[0]
-
-            expected_value += prob * current_value
-
-        return (expected_value, None)
 
     @abstractmethod
     def minimax(self, state, depth, agent_index, player_action=None,
@@ -696,7 +629,7 @@ class ExpectimaxComputer(CompetitiveComputer):
             )
         # If the agent is not a smart enemy, in other words not the enemy
         # agent assigned to this class then call chance function.
-        elif agent_index == self._agent_type:
+        elif agent_index != self._agent_type:
             return self.chance_node(
                 state,
                 depth,
@@ -713,6 +646,56 @@ class ExpectimaxComputer(CompetitiveComputer):
                 next_agent,
                 agent_index
             )
+
+    def chance_node(self, state, depth, player_action, next_agent,
+                    agent_index) -> tuple:
+        """ This handles the chance node logic where the enemy acts randomly.
+        Instead of choosing the best or worst outcome, it calculates the
+        expected value by averaging over all possible enemy actions weighted
+        by their probability.
+
+        Args:
+            state (dict): The current game state.
+            depth (int): The current depth of the game tree.
+            player_action (str): The action taken by the main player.
+            next_agent (int): The index of the next agent to run the function.
+            agent_index (int): The index of the current agent.
+
+        Returns:
+            tuple: A tuple containing the expected value and None as the
+            action. None is returned because the enemy agent's action is not
+            determined in this case. The point of this function is to average
+            all possible actions based on their probabilities.
+        """
+
+        self.nodes_expanded += 1
+
+        enemy_id = agent_index - 1
+        enemy_pos = state["enemies"][enemy_id]
+
+        expected_value = 0
+        actions_with_probs = self.get_enemy_actions_with_probs(
+            enemy_pos
+        )
+
+        for action, prob in actions_with_probs:
+            successor = self.generate_successor(
+                state,
+                agent_index,
+                action
+            )
+
+            current_value = self.minimax(
+                successor,
+                depth - 1,
+                agent_index=next_agent,
+                player_action=player_action,
+                enemy_action=action
+            )[0]
+
+            expected_value += prob * current_value
+
+        return (expected_value, None)
 
     def get_enemy_actions_with_probs(self, enemy_pos):
         """ This function will generate the possible actions for the enemy

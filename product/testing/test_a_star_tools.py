@@ -82,13 +82,14 @@ class TestAstarTools(unittest.TestCase):
         """ Distance should be 10 because:
         player_pos = (6, 5) and goal = (14, 3)
 
-        distance = |6 - 14| + |5 - 3| = 10
+        |6 - 14| = 8 and |5 - 3| = 2, the also add offset which is 2 * 4 = 8
+        distance =  8 + 2 + 8 = 18
         """
         distance = self.computer.get_manhattan_distance(
             [self.player.grid_y, self.player.grid_x]
         )
 
-        self.assertEqual(distance, 10)
+        self.assertEqual(distance, 18)
 
     def test_manhattan_function_start_and_goal_at_same_pos(self):
         self.player.grid_x = self.diamond.grid_x
@@ -125,9 +126,12 @@ class TestAstarTools(unittest.TestCase):
             [self.player.grid_y, self.player.grid_x]
         )
 
+        vertical_diff = abs(self.player.grid_y - self.diamond.grid_y)
+        offset = vertical_diff * 4
+
         self.assertEqual(
             distance,
-            abs(self.player.grid_y - self.diamond.grid_y)
+            vertical_diff + offset
         )
 
     def test_weighted_manhattan_in_small_maze(self):

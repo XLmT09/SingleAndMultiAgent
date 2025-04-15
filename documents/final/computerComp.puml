@@ -1,0 +1,39 @@
+@startuml Maze
+class CompetitiveComputer {
+    + state: dict
+    - _agent_type: int
+    - _prev_action: str
+    + num_characters: int
+
+    + evaluation_function(state: dict, depth: int, player_action: str) : int
+    + generate_bfs_dist(pos1: tuple, pos2: tuple) : int
+    + legal_movements(pos: tuple, prev_action: str): List<str>
+    + simulate_movement(position : tuple, action : str) : tuple
+    + is_terminal(state : dict) : bool
+    + generate_successor(state: dict, agent_index: int, action: str) : dict
+    + generate_path() : List<tuple>
+    + prune_alpha_beta(alpha: int, beta: int) : bool 
+    + maximizer(state: dict, depth : int, player_action: str, enemy_action: str, next_agent: int, agent_index: int, alpha: int, beta: int) : tuple
+    + minimizer(state: dict, depth : int, player_action: str, enemy_action: str, next_agent: int, agent_index: int, alpha: int, beta: int) : None
+    + minimax(state: dict, depth : int, player_action: str, enemy_action: str, agent_index: int, alpha: int, beta: int) : tuple <<abstract>>
+
+}
+
+class MinimaxComputer {
+    + minimax() : tuple <<override>>
+}
+
+class AlphaBetaComputer {
+    + minimax() : tuple <<override>>
+}
+
+class ExpectimaxComputer {
+    + minimax() : tuple <<override>>
+    + chance_node(state: dict, depth : int, player_action: str, next_agent: int, agent_index: int) : tuple
+    + get_enemy_actions_with_probs(enemy_pos : tuple) : List<tuple>
+}
+
+MinimaxComputer --|> CompetitiveComputer
+AlphaBetaComputer --|> CompetitiveComputer
+ExpectimaxComputer --|> CompetitiveComputer
+@enduml

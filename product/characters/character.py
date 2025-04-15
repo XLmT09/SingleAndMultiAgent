@@ -254,7 +254,7 @@ class CharacterAnimationManager:
             self.look_left = False
             # If the player is on a slow block then decrease the movement
             if self._on_a_slow_block():
-                self._dx += 0.5
+                self._dx += 0.1
             else:
                 self._dx += 1
         if key[pygame.K_LEFT]:
@@ -262,7 +262,7 @@ class CharacterAnimationManager:
             self.look_left = True
             # If the player is on a slow block then decrease the movement
             if self._on_a_slow_block():
-                self._dx -= 0.5
+                self._dx -= 0.1
             else:
                 self._dx -= 1
         # If the user uses the up key and is on a grid which has a ladder

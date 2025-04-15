@@ -6,6 +6,25 @@ import numpy as np
 from lock import visited_and_path_data_flag
 
 
+class AnalyticsTracker:
+    """ This class will keep track of useful metrics during pathfinding
+     execution of a particular computer class."""
+    def __init__(self):
+        self.total_time = 0
+        self.average_time_per_execution = 0
+        self.total_nodes_visited = 0
+        self.average_nodes_visited = 0
+        self.total_path_length = 0
+        self.average_path_length = 0
+
+    def print_analytics(self):
+        print('\033[1m' + "ANALYTICS" + '\033[0m')
+        print(f"TOTAL TIME: {self.total_time}")
+        print(f"TOTAL NODES VISITED: {self.total_nodes_visited}")
+        print(f"TOTAL PATH LENGTH: {self.total_path_length}")
+        print()
+
+
 class Computer:
     """ This class will represent the agent different pathfinding algos
         available to use.
@@ -42,6 +61,9 @@ class Computer:
         self._directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
         self.stop_thread = False
         self.perform_analysis = kwargs.get("perform_analysis", False)
+        if self.perform_analysis:
+            self.tracker = AnalyticsTracker()
+
         self._visited_grids = []
         self._path_generated = []
         self.path_to_follow = []
@@ -124,7 +146,10 @@ class Computer:
         final_path.reverse()
 
         if self.perform_analysis:
-            print(f"The path generated is: {final_path}")
+            self.tracker.total_path_length += len(final_path)
+            if not self.character.in_filled_maze:
+                print(f"The path is: {final_path}")
+                print(f"Path length is: {len(final_path)}")
 
         self._path_generated = final_path
         visited_and_path_data_flag.clear()
@@ -135,10 +160,6 @@ class Computer:
         """ This function will get the BFS path, then  move the character
         to follow the path it's found. """
         path_to_follow = self.generate_path()
-
-        if self.perform_analysis:
-            print(f"The path is: {path_to_follow}")
-            print(f"Path length is: {len(path_to_follow)}")
 
         instruction_number = 0
         target = path_to_follow[-1]
@@ -220,13 +241,15 @@ class Computer:
 
 def get_agent_types():
     from agent.informed_computer import (
-        UCSComputer,
         AStarComputer,
         AStarFilledComputer,
         GreedyComputer
     )
     from agent.uninformed_computer import (
-        RandomComputer, BFSComputer, DFSComputer
+        RandomComputer,
+        BFSComputer,
+        DFSComputer,
+        UCSComputer
     )
     from agent.competitive_computer import (
         MinimaxComputer, AlphaBetaComputer, ExpectimaxComputer
