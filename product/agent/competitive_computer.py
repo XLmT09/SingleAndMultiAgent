@@ -149,6 +149,11 @@ class CompetitiveComputer(Computer):
         LEFT_WALL, RIGHT_WALL = 0, len(self._walkable_maze_matrix[0]) - 1
         CEILING, FLOOR = 0, len(self._walkable_maze_matrix) - 1
 
+        # Check if out of bounds
+        if (pos[0] + 1 <= LEFT_WALL or pos[0] + 1 >= RIGHT_WALL or
+           pos[1] + 1 <= CEILING or pos[1] + 1 >= FLOOR):
+            return legal_movements
+
         if (pos[1] - 1 > LEFT_WALL and
            self._walkable_maze_matrix[pos[0]][pos[1] - 1] !=
            C.NON_WALKABLE_GRID):
@@ -165,7 +170,7 @@ class CompetitiveComputer(Computer):
            and prev_action != "UP"):
             legal_movements.append("DOWN")
 
-        if (pos[0] - 1 >= CEILING and
+        if (pos[0] - 1 > CEILING and
            self._walkable_maze_matrix[pos[0] - 1][pos[1]] == C.LADDER_GRID
            and prev_action != "DOWN"):
             legal_movements.append("UP")
