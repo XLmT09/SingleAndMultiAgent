@@ -76,7 +76,7 @@ python .\create_maze.py
 
 To run the application you can use the following command format:
 ```bash
-python main.py [-h] --size {small,medium,large,small-filled,medium-filled,large-filled} [--algo {random,dfs,bfs,ucs,astar,greedy,minimax,alphabeta,expectimax}] [--weighted] [--highlight][--enemy_count ENEMY_COUNT] [--explain]
+python main.py [-h] --size {small,medium,large,small-filled,medium-filled,large-filled} [--algo {random,dfs,bfs,ucs,astar,greedy,minimax,alphabeta,expectimax}] [--weighted] [--highlight][--enemy_count ENEMY_COUNT] [--explain] [--analysis]
 ```
 
 An example command below where I would like the application on a small maze using the dfs algorithm:
