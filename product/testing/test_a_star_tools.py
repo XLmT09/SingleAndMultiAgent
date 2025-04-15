@@ -126,7 +126,7 @@ class TestAstarTools(unittest.TestCase):
             [self.player.grid_y, self.player.grid_x]
         )
 
-        vertical_diff = abs(self.player.grid_y - self.diamond.grid_y) 
+        vertical_diff = abs(self.player.grid_y - self.diamond.grid_y)
         offset = vertical_diff * 4
 
         self.assertEqual(
