@@ -1,3 +1,6 @@
+### Extra Weeks
+During the additional few weeks, I worked on writing the final report and doing the demo video. Also, make some extra additions/maintenance to the code.
+
 ### Week 22
 <ins>**New Algorithms**</ins>
 - The Expectimax algorithm has now been implemented.
