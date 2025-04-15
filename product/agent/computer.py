@@ -145,10 +145,11 @@ class Computer:
 
         final_path.reverse()
 
-        if self.perform_analysis and not self.character.in_filled_maze:
+        if self.perform_analysis:
             self.tracker.total_path_length += len(final_path)
-            print(f"The path is: {final_path}")
-            print(f"Path length is: {len(final_path)}")
+            if not self.character.in_filled_maze:
+                print(f"The path is: {final_path}")
+                print(f"Path length is: {len(final_path)}")
 
         self._path_generated = final_path
         visited_and_path_data_flag.clear()
